@@ -9,7 +9,7 @@
     tickets: Billetter
     courses: Kurs
   home:
-    title: "Velkommen til TDC 2025!"
+    title: "Velkommen til TDC 2026!"
     tickets: Billetter
     program: Program
     courses: Kurs
@@ -18,14 +18,14 @@
   alt:
     tdc_logo: TDC-logo
     header_bg: Bakgrunnsheader
-    header_date: "20. oktober 2025 – Clarion Hotel Trondheim"
+    header_date: "19. oktober 2026 – Clarion Hotel Trondheim"
   hero:
-    date_full: "20. oktober 2025"
-    date_day: "20. oktober"
-    year: "2025"
+    date_full: "19. oktober 2026"
+    date_day: "19. oktober"
+    year: "2026"
     venue: "Clarion Hotel Trondheim"
     partnership_prefix: "I samarbeid med"
-    partnership_partner: "Den norske dataforening"
+    partnership_partner: ""
   flickr: Flickr
   tickets_page:
     title: "Deltakerbillett"
@@ -43,7 +43,7 @@
     tickets: Tickets
     courses: Courses
   home:
-    title: "Welcome to TDC 2025!"
+    title: "Welcome to TDC 2026!"
     tickets: Tickets
     program: Agenda
     courses: Courses
@@ -52,14 +52,14 @@
   alt:
     tdc_logo: TDC logo
     header_bg: Background Header
-    header_date: "20 October 2025 – Clarion Hotel Trondheim"
+    header_date: "19 October 2026 – Clarion Hotel Trondheim"
   hero:
-    date_full: "20th of October 2025"
-    date_day: "20th of October"
-    year: "2025"
+    date_full: "19th of October 2026"
+    date_day: "19th of October"
+    year: "2026"
     venue: "Clarion Hotel Trondheim"
     partnership_prefix: "In collaboration with"
-    partnership_partner: "Den norske dataforening"
+    partnership_partner: ""
   flickr: Flickr
   tickets_page:
     title: "Attendee ticket"

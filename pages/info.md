@@ -1,4 +1,3 @@
----
 layout: default
 language: "no"
 title: "Praktisk informasjon"
@@ -6,7 +5,7 @@ permalink: '/info/'
 nav_active: info
 image_header: '/assets/images/headers/info.svg'
 ---
-TDC blir arrangert på Clarion Hotel & Congress Trondheim 20. oktober 2025. Nedenfor finner du informasjon som du kanskje trenger.
+TDC blir arrangert på Clarion Hotel & Congress Trondheim 19. oktober 2026. Nedenfor finner du informasjon som du kanskje trenger.
 
 #### Hvordan finner jeg frem? 
 Adressen til hotellet er Brattørkaia 1, 7010 Trondheim.
