@@ -5,10 +5,14 @@
   <div class="container">
     <div class="row">
       <div class="col-md-4 mb-4 mb-md-0 d-flex align-items-center">
-  <img src="/assets/images/logos/TDC_logo_svart.png" alt="{% include i18n.html ns='alt' k='tdc_logo' %}" class="img-fluid logo logo w-50" />
+        <div class="d-flex flex-column">
+          <img src="/assets/images/logos/TDC_white.svg" alt="{% include i18n.html ns='alt' k='tdc_logo' %}" class="img-fluid logo w-50 mb-2" />
+          <p class="mb-0">TDC 2026</p>
+          <p class="mb-0">{% include i18n.html ns='alt' k='header_date' %}</p>
+        </div>
       </div>
       <div class="col-md-4 mb-4 mb-md-0 d-flex align-items-center">
-  <img src="/assets/images/dnd/Dataforeningen_logo_horisontal_svart_rgb.svg" alt="DND Logo" class="img-fluid logo w-50" />
+        <!-- Former partner logo removed -->
       </div>
       <div class="col-md-4">
         <p>{% if page.lang == 'en' %}Find us here:{% else %}Du finner oss her:{% endif %}</p>

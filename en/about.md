@@ -8,7 +8,7 @@ image_header: "/assets/images/headers/about.svg"
 ---
 
 ### A Conference By and For the Trondheim Region
-TDC is organised by a cross-section of various tech communities in the Trondheim region, with support from Den Norske Dataforening (DND). Our purpose is to host a non-commercial, volunteer-driven conference for technology enthusiasts, where we can learn from one another, share knowledge, and connect.
+TDC is organised by a cross-section of various tech communities in the Trondheim region. Our purpose is to host a non-commercial, volunteer-driven conference for technology enthusiasts, where we can learn from one another, share knowledge, and connect.
 Any potential surplus is used to support the following year’s conference and to fund events in Trondheim organised by different tech groups. For example, we use funds to provide venues for meetups, and the conference statutes explicitly state that the event should contribute to enabling further growth in the IT community in the Trondheim region through talks, meetings, and networking.
 
 ### TDC in Brief

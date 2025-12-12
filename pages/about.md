@@ -10,7 +10,7 @@ image_header: "/assets/images/headers/about.svg"
 ---
 
 ### En konferanse av og for Trondheimsregionen
-TDC gjennomføres av et tverrsnitt av ulike teknologimiljøer i Trondheimsregionen med hjelp fra Den Norske Dataforening (DND). Vårt mål er å organisere en ikke-kommersiell frivillig drevet konferanse med teknologientusiaster hvor vi kan lære av hverandre, dele kunnskap og møtes.
+TDC gjennomføres av et tverrsnitt av ulike teknologimiljøer i Trondheimsregionen. Vårt mål er å organisere en ikke-kommersiell frivillig drevet konferanse med teknologientusiaster hvor vi kan lære av hverandre, dele kunnskap og møtes.
 
 Alt eventuelt overskudd blir brukt til å drive fram neste års konferanse og støtte arrangementer i Trondheim organisert av ulike teknologigrupperinger. Vi bruker for eksempel midler på å tilby lokaler for meetups og i statuttene for konferansen er det eksplisitt nedfelt at konferansen skal bidra til å muliggjøre videre vekst i IT-samfunnet i Trondheimsregionen gjennom foredrag, møter og nettverksbygging.
 
