@@ -13,6 +13,9 @@
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/info/" class="nav-link {% if page.nav_active == 'info' %}active{% endif %}">{% include i18n.html ns='nav' k='info' fallback='Info' %}</a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% if page.lang == 'en' %}/en{% endif %}/cfp/" class="nav-link {% if page.nav_active == 'cfp' %}active{% endif %}">{% include i18n.html ns='nav' k='cfp' fallback='CFP' %}</a>
+                </li>
                 <!-- Program and speakers menus temporarily disabled
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/program/" class="nav-link {% if page.nav_active == 'program' %}active{% endif %}">{% include i18n.html ns='nav' k='program' fallback='Program' %}</a>

@@ -2,6 +2,7 @@
   nav:
     about: Om TDC
     info: Info
+    cfp: CFP
     program: Program
     speakers: Foredragsholdere
     coc: Retningslinjer
@@ -13,6 +14,7 @@
     tickets: Billetter
     program: Program
     courses: Kurs
+    cfp_button: "Send inn ditt foredrag"
   partners:
     heading: "Takk til våre partnere i 2025:"
     cta: "Bli partner?"
@@ -37,6 +39,7 @@
   nav:
     about: About TDC
     info: Info
+    cfp: CFP
     program: Agenda
     speakers: Speakers
     coc: Code of conduct
@@ -48,6 +51,7 @@
     tickets: Tickets
     program: Agenda
     courses: Courses
+    cfp_button: "Send in your talk"
   partners:
     heading: "Thanks to our partners in 2025:"
     cta: "Become a partner?"
