@@ -103,6 +103,9 @@ jobs:
           name: site
           path: _site/
 
+      - name: Copy site to tests folder
+        run: cp -r _site tests/
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

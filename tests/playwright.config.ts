@@ -10,11 +10,16 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:4000',
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: isCI ? 'npx serve ../_site -l 4000' : 'bundle exec jekyll serve',
+  webServer: isCI ? {
+    command: 'npx serve _site -l 4000',
+    url: 'http://localhost:4000',
+    reuseExistingServer: false,
+    timeout: 120000,
+  } : {
+    command: 'bundle exec jekyll serve',
     cwd: '..',
     url: 'http://localhost:4000',
-    reuseExistingServer: !isCI,
+    reuseExistingServer: true,
     timeout: 120000,
   },
   reporter: [['list'], ['html', { open: 'never' }]],
