@@ -1,3 +1,4 @@
+---
 layout: default
 language: "no"
 title: "Praktisk informasjon"

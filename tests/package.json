@@ -1,0 +1,13 @@
+{
+  "name": "tdc-website-tests",
+  "version": "1.0.0",
+  "description": "Tests for TDC website",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
