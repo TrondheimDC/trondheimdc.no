@@ -4,6 +4,7 @@ const isCI = !!process.env.CI;
 
 export default defineConfig({
   testDir: '.',
+  testIgnore: ['_site/**'],
   timeout: 30000,
   retries: isCI ? 2 : 0,
   use: {

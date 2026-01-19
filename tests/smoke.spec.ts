@@ -82,7 +82,7 @@ test.describe('English Pages - Content Check', () => {
 
   test('Home page has CFP button', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Send in your talk')).toBeVisible();
+    await expect(page.locator('text=Submit your talk')).toBeVisible();
   });
 
   test('CFP page links to Sessionize', async ({ page }) => {
