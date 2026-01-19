@@ -51,7 +51,7 @@
     tickets: Tickets
     program: Agenda
     courses: Courses
-    cfp_button: "Send in your talk"
+    cfp_button: "Submit your talk"
   partners:
     heading: "Thanks to our partners in 2025:"
     cta: "Become a partner?"
