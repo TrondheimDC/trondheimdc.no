@@ -7,10 +7,4 @@ nav_active: cfp
 image_header: "/assets/images/headers/cfp.svg"
 ---
 
-Our CFP for 2025 is officially closed—and wow, you all really delivered!
-
-We’ve received a ton of awesome submissions and have put together a program packed with talks on digital design, frontend, backend, agile development, and a bunch of other juicy topics.
-
-We’re aiming for a sweet mix of local legends, national experts, and international stars—and thanks to your incredible response, that’s exactly what we’re getting.
-
-Huge thanks to everyone who submitted a proposal. You made our job delightfully difficult.
+Our [Call for Presentations](https://sessionize.com/tdc-2026/) for 2026 is now open! We are looking for a conference agenda that consists of multiple tracks for digital design, front-end, back-end, agile developers, and many other interesting topics. Our conference strives to reach a balance between local, national and international speakers, and a relatively large share of call-for-presentation submissions.
