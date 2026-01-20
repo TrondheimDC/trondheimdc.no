@@ -14,8 +14,7 @@
     color: white;
 }
 
-#partners .partner-cta,
-#partners p a[href*="partner.trondheimdc.no"] {
+#partners .partner-cta {
     display: inline-block;
     margin: 1.5rem auto 0 auto;
     padding: 0.875rem 1.5rem;
@@ -31,28 +30,24 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.35);
 }
 
-#partners .partner-cta:hover,
-#partners p a[href*="partner.trondheimdc.no"]:hover {
+#partners .partner-cta:hover {
     background: var(--color-green2);
     border-color: var(--color-green2);
     transform: translateY(-1px);
 }
 
-#partners .partner-cta:active,
-#partners p a[href*="partner.trondheimdc.no"]:active {
+#partners .partner-cta:active {
     transform: translateY(0);
     box-shadow: 0 4px 12px rgba(0,0,0,0.35);
 }
 
-#partners .partner-cta:focus,
-#partners p a[href*="partner.trondheimdc.no"]:focus {
+#partners .partner-cta:focus {
     outline: 2px solid var(--color-red2);
     outline-offset: 4px;
 }
 
 @media (max-width: 720px) {
-    #partners .partner-cta,
-    #partners p a[href*="partner.trondheimdc.no"] {
+    #partners .partner-cta {
         font-size: 1.1rem;
         padding: 0.75rem 1.25rem;
     }

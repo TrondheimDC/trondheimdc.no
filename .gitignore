@@ -286,6 +286,12 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+# Playwright test artifacts
+playwright-report/
+test-results/
+tests/playwright-report/
+tests/test-results/
+
 # Visual Studio 6 build log
 *.plg
 
@@ -398,8 +404,10 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Custom ignores
-_site/*
+# Jekyll
+_site/
+.jekyll-cache/
+.jekyll-metadata
 
 #OS generated files 
 .DS_Store

@@ -9,6 +9,7 @@
     vol: Frivillig
     tickets: Billetter
     courses: Kurs
+    partner: Partner
   home:
     title: "Velkommen til TDC 2026!"
     tickets: Billetter
@@ -34,6 +35,33 @@
     title: "Deltakerbillett"
     description: "Få tilgang til hele konferansen, inkludert mat og drikke.\n                            Gir også tilgang til konferansefesten på kvelden."
     cta: "Kjøp billetter"
+  partner_page:
+    hero_title: "Bli partner på TDC 2026"
+    hero_subtitle: "TDC er den beste teknologikonferansen i Trondheim, drevet frem av ildsjeler i tech-miljøet."
+    hero_stats: "I 2024 samlet vi over 900 deltakere og 25 partnere til en utsolgt konferanse!"
+    about_title: "Hvordan er det å være partner?"
+    about_text1: "TDC har gjennom årene blitt den viktigste IT-arenaen i Trondheimsregionen, et sted hvor teknologi og fellesskap møtes."
+    about_text2: "Som partner får du ikke bare en plass i utstillingsområdet – du blir en del av et engasjert og kunnskapsrikt nettverk. Her møter du de mest dedikerte utviklere, dyktige designere, teknologiledere og innovatører som driver bransjen fremover."
+    why_title: "Hvorfor bli partner?"
+    why1_title: "Engasjert miljø"
+    why1_text: "Bli en del av Trondheims mest engasjerte teknologimiljø."
+    why2_title: "Verdifulle bånd"
+    why2_text: "Knytt verdifulle bånd til utviklere, teknologiledere og innovatører."
+    why3_title: "Økt synlighet"
+    why3_text: "Øk synligheten for deres merkevare, produkter og tjenester."
+    why4_title: "Vis kompetanse"
+    why4_text: "Vis frem deres kompetanse og løsninger til relevante målgrupper."
+    includes_title: "Hva inkluderer partnerskapet?"
+    includes1: "En strategisk plassert stand (3×2 m²) i vårt vrimleområde"
+    includes2: "To billetter til konferansen, inkludert lunsj og etterfest"
+    includes3: "Logo og lenke på konferansens nettside og markedsføringsmateriell"
+    includes4: "Eksponering på storskjerm og digitale flater under konferansen"
+    includes5: "Mulighet til å bidra med innhold eller aktivitet på deres stand"
+    cta_title: "Sikre deres plass!"
+    cta_subtitle: "TDC 2024 ble utsolgt, og vi forventer enda større interesse i 2026."
+    price: "kr 35.000,- eks. mva."
+    cta_button: "Bli partner"
+    contact_text: "For spørsmål kontakt oss på"
 
 'en':
   nav:
@@ -46,6 +74,7 @@
     vol: Volunteer
     tickets: Tickets
     courses: Courses
+    partner: Partner
   home:
     title: "Welcome to TDC 2026!"
     tickets: Tickets
@@ -71,3 +100,30 @@
     title: "Attendee ticket"
     description: "Get access to the full conference, including food and drinks.\n                            Also includes access to the evening party."
     cta: "Buy tickets"
+  partner_page:
+    hero_title: "Become a partner at TDC 2026"
+    hero_subtitle: "TDC is the best technology conference in Trondheim, driven by passionate people in the tech community."
+    hero_stats: "In 2024, we gathered over 900 attendees and 25 partners for a sold-out conference!"
+    about_title: "What is it like to be a partner?"
+    about_text1: "Over the years, TDC has become the most important IT arena in the Trondheim region, a place where technology and community meet."
+    about_text2: "As a partner, you don't just get a spot in the exhibition area – you become part of an engaged and knowledgeable network. Here you meet the most dedicated developers, skilled designers, technology leaders and innovators who drive the industry forward."
+    why_title: "Why become a partner?"
+    why1_title: "Engaged community"
+    why1_text: "Become part of Trondheim's most engaged technology community."
+    why2_title: "Valuable connections"
+    why2_text: "Build valuable connections with developers, technology leaders and innovators."
+    why3_title: "Increased visibility"
+    why3_text: "Increase visibility for your brand, products and services."
+    why4_title: "Showcase expertise"
+    why4_text: "Showcase your expertise and solutions to relevant audiences."
+    includes_title: "What does the partnership include?"
+    includes1: "A strategically placed booth (3×2 m²) in our networking area"
+    includes2: "Two conference tickets, including lunch and after-party"
+    includes3: "Logo and link on the conference website and marketing materials"
+    includes4: "Exposure on large screens and digital surfaces during the conference"
+    includes5: "Opportunity to contribute content or activities at your booth"
+    cta_title: "Secure your spot!"
+    cta_subtitle: "TDC 2024 was sold out, and we expect even greater interest in 2026."
+    price: "NOK 35,000 excl. VAT"
+    cta_button: "Become a partner"
+    contact_text: "For questions contact us at"

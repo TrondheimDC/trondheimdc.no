@@ -8,6 +8,7 @@ const norwegianPages = [
   { path: '/coc/', name: 'Code of Conduct' },
   { path: '/courses/', name: 'Courses' },
   { path: '/info/', name: 'Info' },
+  { path: '/partner/', name: 'Partner' },
   { path: '/program/', name: 'Program' },
   { path: '/speakers/', name: 'Speakers' },
   { path: '/tickets/', name: 'Tickets' },
@@ -22,6 +23,7 @@ const englishPages = [
   { path: '/en/coc/', name: 'Code of Conduct' },
   { path: '/en/courses/', name: 'Courses' },
   { path: '/en/info/', name: 'Info' },
+  { path: '/en/partner/', name: 'Partner' },
   { path: '/en/program/', name: 'Program' },
   { path: '/en/speakers/', name: 'Speakers' },
   { path: '/en/tickets/', name: 'Tickets' },
@@ -67,6 +69,16 @@ test.describe('Norwegian Pages - Content Check', () => {
     const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
     await expect(sessionizeLink).toBeVisible();
   });
+
+  test('Partner page has pricing info', async ({ page }) => {
+    await page.goto('/partner/');
+    await expect(page.locator('text=kr 35.000').first()).toBeVisible();
+  });
+
+  test('Partner page has contact email', async ({ page }) => {
+    await page.goto('/partner/');
+    await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
+  });
 });
 
 test.describe('English Pages - Content Check', () => {
@@ -82,13 +94,23 @@ test.describe('English Pages - Content Check', () => {
 
   test('Home page has CFP button', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Send in your talk')).toBeVisible();
+    await expect(page.locator('text=Submit your talk')).toBeVisible();
   });
 
   test('CFP page links to Sessionize', async ({ page }) => {
     await page.goto('/en/cfp/');
     const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
     await expect(sessionizeLink).toBeVisible();
+  });
+
+  test('Partner page has pricing info', async ({ page }) => {
+    await page.goto('/en/partner/');
+    await expect(page.locator('text=NOK 35,000').first()).toBeVisible();
+  });
+
+  test('Partner page has contact email', async ({ page }) => {
+    await page.goto('/en/partner/');
+    await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
   });
 });
 

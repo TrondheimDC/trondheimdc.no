@@ -35,6 +35,9 @@
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/vol/" class="nav-link {% if page.nav_active == 'vol' %}active{% endif %}">{% include i18n.html ns='nav' k='vol' fallback='Frivillig' %}</a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% if page.lang == 'en' %}/en{% endif %}/partner/" class="nav-link {% if page.nav_active == 'partner' %}active{% endif %}">{% include i18n.html ns='nav' k='partner' fallback='Partner' %}</a>
+                </li>
                 <!-- Tickets menu temporarily disabled
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/tickets/" class="nav-link {% if page.nav_active == 'tickets' %}active{% endif %}">{% include i18n.html ns='nav' k='tickets' fallback='Billetter' %}</a>
