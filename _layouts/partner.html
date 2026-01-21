@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: 'no' }}">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>TDC 2026 - {% if page.lang == 'en' %}Become a Partner{% else %}Bli partner{% endif %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+    {% include header.html %}
+    <div class="pt-5">
+        <div class="header-composite position-relative hero-header">
+            <img src="/assets/images/standard/Group-9-1.png" class="img-fluid w-100 bg-header" alt="{% include i18n.html ns='alt' k='header_bg' %}" />
+            <div class="overlay-header d-flex flex-column flex-md-row hero-overlay">
+                {% include hero-left.html %}
+                {% include hero-right.html %}
+            </div>
+        </div>
+
+        <div class="container mt-5 pb-5">
+            <!-- Main Partner Info Box -->
+            <div class="pl-5 pr-5 mb-4 bg-purple rounded-3">
+                <div class="container-fluid py-5">
+                    <div class="row">
+                        <div class="col-md-6 order-1 order-md-2">
+                            <img class="img-fluid" src="/assets/images/TDC2024/TDC_2024_178 (Small).jpg" alt="TDC Partner area">
+                        </div>
+                        <div class="col-md-6 order-2 order-md-1">
+                            <h1 class="display-5 fw-bold">{% include i18n.html ns='partner_page' k='hero_title' %}</h1>
+                            <p>{% include i18n.html ns='partner_page' k='hero_subtitle' %}</p>
+                            <p><em>{% include i18n.html ns='partner_page' k='hero_stats' %}</em></p>
+                            <hr>
+                            <a class="btn btn-buy btn-lg" href="mailto:partner@trondheimdc.no">
+                                {% include i18n.html ns='partner_page' k='cta_button' %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="col-md-12 d-flex flex-column gap-4 mb-4">
+                <div class="mb-4">
+                    <h2>{% include i18n.html ns='partner_page' k='about_title' %}</h2>
+                    <p>{% include i18n.html ns='partner_page' k='about_text1' %}</p>
+                    <p>{% include i18n.html ns='partner_page' k='about_text2' %}</p>
+                </div>
+            </div>
+
+            <!-- Why Partner Section -->
+            <div class="col-md-12 mb-4">
+                <h2 class="mb-4">{% include i18n.html ns='partner_page' k='why_title' %}</h2>
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="p-3 bg-purple rounded h-100">
+                            <h5>🤝 {% include i18n.html ns='partner_page' k='why1_title' %}</h5>
+                            <p class="mb-0">{% include i18n.html ns='partner_page' k='why1_text' %}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="p-3 bg-purple rounded h-100">
+                            <h5>🔗 {% include i18n.html ns='partner_page' k='why2_title' %}</h5>
+                            <p class="mb-0">{% include i18n.html ns='partner_page' k='why2_text' %}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="p-3 bg-purple rounded h-100">
+                            <h5>📈 {% include i18n.html ns='partner_page' k='why3_title' %}</h5>
+                            <p class="mb-0">{% include i18n.html ns='partner_page' k='why3_text' %}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="p-3 bg-purple rounded h-100">
+                            <h5>🎯 {% include i18n.html ns='partner_page' k='why4_title' %}</h5>
+                            <p class="mb-0">{% include i18n.html ns='partner_page' k='why4_text' %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What's Included Section -->
+            <div class="col-md-12 mb-4">
+                <h2 class="mb-4">{% include i18n.html ns='partner_page' k='includes_title' %}</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes1' %}</li>
+                    <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes2' %}</li>
+                    <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes3' %}</li>
+                    <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes4' %}</li>
+                    <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes5' %}</li>
+                </ul>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="pl-5 pr-5 mb-4 bg-purple rounded-3">
+                <div class="container-fluid py-5 text-center">
+                    <h2>{% include i18n.html ns='partner_page' k='cta_title' %}</h2>
+                    <p>{% include i18n.html ns='partner_page' k='cta_subtitle' %}</p>
+                    <a class="btn btn-buy btn-lg" href="mailto:partner@trondheimdc.no">
+                        {% include i18n.html ns='partner_page' k='cta_button' %}
+                    </a>
+                    <p class="mt-4">
+                        {% include i18n.html ns='partner_page' k='contact_text' %} 
+                        <a href="mailto:partner@trondheimdc.no"><strong>partner@trondheimdc.no</strong></a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Additional Content -->
+            {% if content != '' %}
+            <div class="col-md-12 d-flex flex-column gap-4 mb-4">
+                <div class="mb-4">
+                    {{ content }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% include content/partners.html %}
+    {% include footer.html %}
+</body>
+
+</html>

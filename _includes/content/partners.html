@@ -169,7 +169,7 @@
         </li>
     </ul>
 
-    <p><a class="partner-cta" href="https://partner.trondheimdc.no/" target="_blank">{% include i18n.html ns='partners' k='cta' fallback='Bli partner?' %}</a></p>
+    <p><a class="partner-cta" href="{% if page.lang == 'en' %}/en{% endif %}/partner/">{% include i18n.html ns='partners' k='cta' fallback='Bli partner?' %}</a></p>
 
 </section>
 
