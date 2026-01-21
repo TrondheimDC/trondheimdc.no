@@ -70,9 +70,9 @@ test.describe('Norwegian Pages - Content Check', () => {
     await expect(sessionizeLink).toBeVisible();
   });
 
-  test('Partner page has pricing info', async ({ page }) => {
+  test('Partner page has CTA button', async ({ page }) => {
     await page.goto('/partner/');
-    await expect(page.locator('text=kr 35.000').first()).toBeVisible();
+    await expect(page.locator('text=Bli partner').first()).toBeVisible();
   });
 
   test('Partner page has contact email', async ({ page }) => {
@@ -103,9 +103,9 @@ test.describe('English Pages - Content Check', () => {
     await expect(sessionizeLink).toBeVisible();
   });
 
-  test('Partner page has pricing info', async ({ page }) => {
+  test('Partner page has CTA button', async ({ page }) => {
     await page.goto('/en/partner/');
-    await expect(page.locator('text=NOK 35,000').first()).toBeVisible();
+    await expect(page.locator('text=Become a partner').first()).toBeVisible();
   });
 
   test('Partner page has contact email', async ({ page }) => {
