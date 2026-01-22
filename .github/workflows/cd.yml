@@ -166,7 +166,7 @@ jobs:
 
       - name: Deploy to server via rsync
         run: |
-          rsync -avz --delete --omit-dir-times \
+          rsync -rlvz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             _site/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
