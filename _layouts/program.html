@@ -32,9 +32,11 @@
                 <div class="mb-4">
                     {{ content }}
                 </div>
+                {% if site.sessionize_event_id and site.sessionize_event_id != "" %}
                 <div>
-                    <script type="text/javascript" src="https://sessionize.com/api/v2/yt3iga20/view/GridSmart"></script>
+                    <script type="text/javascript" src="https://sessionize.com/api/v2/{{ site.sessionize_event_id }}/view/GridSmart"></script>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% include content/partners.html %}
