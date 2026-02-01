@@ -28,9 +28,11 @@
                 <img src="/assets/images/standard/graphic1.png" class="graphic" alt="Decorative graphic">
             </div>
 
+            {% if site.sessionize_event_id and site.sessionize_event_id != "" %}
             <div class="col-md-12">
-                <script type="text/javascript" src="https://sessionize.com/api/v2/yt3iga20/view/SpeakerWall"></script>
+                <script type="text/javascript" src="https://sessionize.com/api/v2/{{ site.sessionize_event_id }}/view/SpeakerWall"></script>
             </div>
+            {% endif %}
         </div>
         {% include content/partners.html %}
         {% include footer.html %}

@@ -1,1 +1,1 @@
-# 2025.trondheimdc.no
+# 2026.trondheimdc.no

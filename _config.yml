@@ -1,5 +1,9 @@
 lang: "no"
 permalink: pretty
+
+# Sessionize event ID for program/speakers embeds. Set to your event ID when ready (from event's API/Embed page in Sessionize). Leave empty to disable embeds.
+sessionize_event_id: ""
+
 exclude:
   - node_modules
   - .vscode
