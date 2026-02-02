@@ -37,8 +37,28 @@
                             <p>{% include i18n.html ns='partner_page' k='hero_subtitle' %}</p>
                             <p><em>{% include i18n.html ns='partner_page' k='hero_stats' %}</em></p>
                             <hr>
-                            <a class="btn btn-buy btn-lg" href="https://event.checkin.no/215264/tdc-2026-partnerpaamelding" target="_blank" rel="noopener noreferrer">
+                            
+                            <!-- Pricing Example -->
+                            <p class="mb-2"><strong>{% include i18n.html ns='partner_page' k='pricing_title' %}:</strong></p>
+                            <div class="pricing-breakdown mb-3" style="font-size: 0.95rem;">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span>📍 {% include i18n.html ns='partner_page' k='item_stand' %}</span>
+                                    <span>35 000 NOK</span>
+                                </div>
+                                <div class="d-flex justify-content-between py-1">
+                                    <span>🎟️ {% include i18n.html ns='partner_page' k='item_ticket' %}</span>
+                                    <span>3 900 NOK</span>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 mt-1" style="background: rgba(255,255,255,0.1); border-radius: 6px; padding-left: 0.5rem; padding-right: 0.5rem;">
+                                    <strong>{% include i18n.html ns='partner_page' k='total_label' %}</strong>
+                                    <strong style="color: #e8836b;">38 900 NOK</strong>
+                                </div>
+                                <small class="text-muted">{% include i18n.html ns='partner_page' k='excl_vat' %} · {% include i18n.html ns='partner_page' k='pricing_note' %}</small>
+                            </div>
+                            
+                            <a class="btn btn-buy btn-lg" href="#howto">
                                 {% include i18n.html ns='partner_page' k='cta_button' %}
+                            </a>
                             </a>
                         </div>
                     </div>
@@ -95,6 +115,58 @@
                     <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes4' %}</li>
                     <li class="mb-2">✓ {% include i18n.html ns='partner_page' k='includes5' %}</li>
                 </ul>
+            </div>
+
+            <!-- How to Order Section -->
+            <div class="col-md-12 mb-5" id="howto" style="scroll-margin-top: 100px;">
+                <h2 class="mb-4">{% include i18n.html ns='partner_page' k='howto_title' %}</h2>
+                <p class="mb-4">{% include i18n.html ns='partner_page' k='howto_intro' %}</p>
+                
+                <div class="row">
+                    <!-- Step 1: Order Stand -->
+                    <div class="col-md-6 mb-4">
+                        <div class="bg-purple rounded-3 p-4 h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-light text-dark rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">1</span>
+                                <h4 class="mb-0">📍 {% include i18n.html ns='partner_page' k='howto_step1_title' %}</h4>
+                            </div>
+                            <p>{% include i18n.html ns='partner_page' k='howto_step1_desc' %}</p>
+                            <ol class="mb-3">
+                                <li>{% include i18n.html ns='partner_page' k='howto_step1_1' %}</li>
+                                <li>{% include i18n.html ns='partner_page' k='howto_step1_2' %}</li>
+                                <li>{% include i18n.html ns='partner_page' k='howto_step1_3' %}</li>
+                            </ol>
+                            <a class="btn btn-buy" href="https://event.checkin.no/215264/tdc-2026-partnerpaamelding" target="_blank" rel="noopener noreferrer">
+                                {% include i18n.html ns='partner_page' k='howto_step1_button' %}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Order Tickets -->
+                    <div class="col-md-6 mb-4">
+                        <div class="bg-purple rounded-3 p-4 h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-light text-dark rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">2</span>
+                                <h4 class="mb-0">🎟️ {% include i18n.html ns='partner_page' k='howto_step2_title' %}</h4>
+                            </div>
+                            <p>{% include i18n.html ns='partner_page' k='howto_step2_desc' %}</p>
+                            <ol class="mb-3">
+                                <li>{% include i18n.html ns='partner_page' k='howto_step2_1' %}</li>
+                                <li>{% include i18n.html ns='partner_page' k='howto_step2_2' %}</li>
+                                <li>{% include i18n.html ns='partner_page' k='howto_step2_3' %}</li>
+                            </ol>
+                            <a class="btn btn-buy" href="https://event.checkin.no/215261/tdc-2026" target="_blank" rel="noopener noreferrer">
+                                {% include i18n.html ns='partner_page' k='howto_step2_button' %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pro tip box -->
+                <div class="bg-purple rounded-3 p-4 mt-2">
+                    <h5>💡 {% include i18n.html ns='partner_page' k='howto_tip_title' %}</h5>
+                    <p class="mb-0">{% include i18n.html ns='partner_page' k='howto_tip_text' %}</p>
+                </div>
             </div>
 
             <!-- CTA Section -->
