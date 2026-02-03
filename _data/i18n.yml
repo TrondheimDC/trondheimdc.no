@@ -17,7 +17,7 @@
     courses: Kurs
     cfp_button: "Send inn ditt foredrag"
   partners:
-    heading: "Takk til våre partnere i 2025:"
+    heading: "Takk til våre partnere:"
     cta: "Bli partner?"
   alt:
     tdc_logo: TDC-logo
@@ -108,7 +108,7 @@
     courses: Courses
     cfp_button: "Submit your talk"
   partners:
-    heading: "Thanks to our partners in 2025:"
+    heading: "Thanks to our partners:"
     cta: "Become a partner?"
   alt:
     tdc_logo: TDC logo
