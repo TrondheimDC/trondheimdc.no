@@ -89,7 +89,7 @@ test.describe('English Pages - Content Check', () => {
 
   test('Home page has partner section', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Thanks to our partners:')).toBeVisible();
+    await expect(page.locator('text=Our partners:')).toBeVisible();
   });
 
   test('Home page has CFP button', async ({ page }) => {
