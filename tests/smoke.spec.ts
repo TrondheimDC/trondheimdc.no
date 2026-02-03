@@ -56,7 +56,7 @@ test.describe('Norwegian Pages - Content Check', () => {
 
   test('Home page has partner section', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('text=Takk til våre partnere i 2025')).toBeVisible();
+    await expect(page.locator('text=Takk til våre partnere')).toBeVisible();
   });
 
   test('Home page has CFP button', async ({ page }) => {
