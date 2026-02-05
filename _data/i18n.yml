@@ -12,10 +12,15 @@
     partner: Partner
   home:
     title: "Velkommen til TDC 2026!"
-    tickets: Billetter
+    tickets: Kjøp billetter
     program: Program
     courses: Kurs
     cfp_button: "Send inn ditt foredrag"
+    attendee_title: "For deltakere"
+    attendee_desc: "Få tilgang til hele konferansen, inkludert mat, drikke og fest."
+    partner_title: "For partnere"
+    partner_desc: "Bli synlig for 800+ deltakere. Sikre stand og billetter."
+    partner_cta: "Bli partner"
   partners:
     heading: "Våre partnere:"
     cta: "Bli partner?"
@@ -103,10 +108,15 @@
     partner: Partner
   home:
     title: "Welcome to TDC 2026!"
-    tickets: Tickets
+    tickets: Buy tickets
     program: Agenda
     courses: Courses
     cfp_button: "Submit your talk"
+    attendee_title: "For attendees"
+    attendee_desc: "Get full access to the conference, including food, drinks and party."
+    partner_title: "For partners"
+    partner_desc: "Be visible to 800+ attendees. Secure your booth and tickets."
+    partner_cta: "Become a partner"
   partners:
     heading: "Our partners:"
     cta: "Become a partner?"
