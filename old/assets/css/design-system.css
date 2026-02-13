@@ -1,0 +1,77 @@
+/**
+ * TDC Design System - Main Stylesheet
+ * 
+ * Uses CSS Layers for proper cascade control:
+ * 1. reset     - CSS reset, lowest priority
+ * 2. tokens    - Design tokens (CSS custom properties)
+ * 3. base      - Base element styles
+ * 4. layout    - Layout utilities and structures
+ * 5. components - Reusable UI components
+ * 6. utilities  - Utility classes, highest priority
+ * 
+ * Layer order determines cascade priority - later layers win.
+ */
+
+/* Define layer order */
+@layer reset, tokens, base, layout, components, utilities;
+
+/* ============================================
+   LAYER: reset
+   ============================================ */
+@layer reset {
+  @import "00-base/_reset.css";
+}
+
+/* ============================================
+   LAYER: tokens
+   Design tokens - the foundation of the design system
+   ============================================ */
+@layer tokens {
+  @import "00-base/_tokens.css";
+  @import "01-themes/_dark.css";
+  @import "01-themes/_light.css";
+}
+
+/* ============================================
+   LAYER: base
+   Base element styles (typography, etc.)
+   ============================================ */
+@layer base {
+  @import "00-base/_typography.css";
+}
+
+/* ============================================
+   LAYER: layout
+   Layout patterns and structures
+   ============================================ */
+@layer layout {
+  /* Will contain: _one-pager.css, _bento-grid.css, etc. */
+}
+
+/* ============================================
+   LAYER: components
+   Reusable UI components
+   ============================================ */
+@layer components {
+  @import "03-components/_button.css";
+  /* @import "03-components/_card.css"; */
+  /* @import "03-components/_navigation.css"; */
+  /* @import "03-components/_section.css"; */
+  /* @import "03-components/_duck.css"; */
+}
+
+/* ============================================
+   LAYER: utilities
+   Utility classes - highest specificity
+   ============================================ */
+@layer utilities {
+  /* @import "02-utilities/_spacing.css"; */
+  /* @import "02-utilities/_colors.css"; */
+  /* @import "02-utilities/_animations.css"; */
+}
+
+/* ============================================
+   EXTERNAL IMPORTS (outside layers)
+   These don't participate in cascade layers
+   ============================================ */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");

@@ -1,0 +1,133 @@
+<tdc-section id="program" variant="program" lazy>
+  <div class="container">
+    <header class="section__header text-center" data-animate="slide-up">
+      <h2>{{ "program.title" | t(lang) }}</h2>
+      <p class="lead">{{ "program.subtitle" | t(lang) }}</p>
+    </header>
+
+    <div class="program__tabs" data-animate="fade">
+      <div class="program__tab-list cluster justify-center" role="tablist">
+        <button class="btn btn--ghost program__tab program__tab--active" 
+                role="tab" 
+                aria-selected="true" 
+                aria-controls="day1-panel"
+                id="day1-tab">
+          {{ "program.day1" | t(lang) }} - 23. okt
+        </button>
+        <button class="btn btn--ghost program__tab" 
+                role="tab" 
+                aria-selected="false" 
+                aria-controls="day2-panel"
+                id="day2-tab">
+          {{ "program.day2" | t(lang) }} - 24. okt
+        </button>
+      </div>
+
+      <div id="day1-panel" class="program__panel" role="tabpanel" aria-labelledby="day1-tab">
+        <div class="program__schedule stack">
+          <div class="program__slot card card--flat">
+            <div class="card__body flex items-center gap-md">
+              <div class="program__time">
+                <span class="text-lg font-semibold">08:30</span>
+              </div>
+              <div class="program__content">
+                <h4>{{ "program.registration" | t(lang) }}</h4>
+              </div>
+            </div>
+          </div>
+
+          <div class="program__slot card card--primary">
+            <div class="card__body flex items-center gap-md">
+              <div class="program__time">
+                <span class="text-lg font-semibold">09:00</span>
+              </div>
+              <div class="program__content">
+                <h4>{{ "program.keynote" | t(lang) }}</h4>
+                <p class="text-sm text-secondary">{{ "program.tba" | t(lang) }}</p>
+              </div>
+              <div class="program__tags">
+                <span class="tag tag--accent">Keynote</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="program__slot card card--flat">
+            <div class="card__body flex items-center gap-md">
+              <div class="program__time">
+                <span class="text-lg font-semibold">10:00</span>
+              </div>
+              <div class="program__content">
+                <h4>{{ "program.sessions" | t(lang) }}</h4>
+                <p class="text-sm text-secondary">{{ "program.tracks" | t(lang) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="day2-panel" class="program__panel" role="tabpanel" aria-labelledby="day2-tab" hidden>
+        <div class="program__schedule stack">
+          <p class="text-center text-secondary">{{ "program.day2_soon" | t(lang) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center" style="margin-top: var(--tdc-space-stack-lg);">
+      <a href="{% if lang == 'en' %}/en{% endif %}/program" class="btn btn--primary">
+        {{ "program.view_full" | t(lang) }}
+      </a>
+    </div>
+  </div>
+</tdc-section>
+
+<style>
+  .program__tab-list {
+    margin-bottom: var(--tdc-space-stack-lg);
+  }
+
+  .program__tab--active {
+    background-color: var(--tdc-brand-primary-light);
+    color: var(--tdc-brand-primary-dark);
+  }
+
+  .program__schedule {
+    max-width: 700px;
+    margin-inline: auto;
+  }
+
+  .program__time {
+    min-width: 60px;
+    color: var(--tdc-brand-primary);
+  }
+
+  .program__content {
+    flex: 1;
+  }
+
+  .program__tags {
+    margin-left: auto;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.program__tab');
+    const panels = document.querySelectorAll('.program__panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.classList.remove('program__tab--active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('program__tab--active');
+        tab.setAttribute('aria-selected', 'true');
+
+        const panelId = tab.getAttribute('aria-controls');
+        panels.forEach(panel => {
+          panel.hidden = panel.id !== panelId;
+        });
+      });
+    });
+  });
+</script>

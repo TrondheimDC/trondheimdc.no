@@ -1,0 +1,42 @@
+/**
+ * TDC Design System
+ * =================
+ * Main entry point - imports all modules using CSS Layers
+ * 
+ * Layer order (lowest to highest specificity):
+ * 1. reset - Normalizes browser defaults
+ * 2. tokens - Design tokens (CSS custom properties)
+ * 3. base - Typography and fundamental styles
+ * 4. layout - Container, grid, section utilities
+ * 5. components - UI components (buttons, cards, nav)
+ * 6. utilities - Animation and utility classes
+ */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+
+/* Reset */
+@import url('./00-base/_reset.css') layer(reset);
+
+/* Tokens */
+@import url('./00-base/_tokens.css') layer(tokens);
+
+/* Base */
+@import url('./00-base/_typography.css') layer(base);
+
+/* Layout */
+@import url('./02-layout/_layout.css') layer(layout);
+
+/* Components */
+@import url('./03-components/_button.css') layer(components);
+@import url('./03-components/_card.css') layer(components);
+@import url('./03-components/_nav.css') layer(components);
+@import url('./03-components/_tag.css') layer(components);
+@import url('./03-components/_section.css') layer(components);
+@import url('./03-components/_hero.css') layer(components);
+
+/* Utilities */
+@import url('./04-utilities/_animations.css') layer(utilities);
+@import url('./04-utilities/_spacing.css') layer(utilities);

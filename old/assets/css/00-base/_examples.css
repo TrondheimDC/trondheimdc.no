@@ -1,0 +1,197 @@
+/**
+ * TDC Design System - Quick Reference
+ * 
+ * This file provides examples of how to use semantic tokens.
+ * Copy these patterns into your components!
+ */
+
+/* ============================================
+   EXAMPLE: A Card Component
+   Notice: NO primitive colors used directly!
+   ============================================ */
+
+.example-card {
+  /* Surface token for background */
+  background-color: var(--tdc-surface-elevated);
+  
+  /* Border token */
+  border: 1px solid var(--tdc-border-subtle);
+  
+  /* Radius token */
+  border-radius: var(--tdc-radius-lg);
+  
+  /* Shadow token */
+  box-shadow: var(--tdc-shadow-md);
+  
+  /* Spacing tokens */
+  padding: var(--tdc-space-stack-lg);
+  
+  /* Animation tokens */
+  transition: 
+    transform var(--tdc-duration-normal) var(--tdc-ease-default),
+    box-shadow var(--tdc-duration-normal) var(--tdc-ease-default);
+}
+
+.example-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tdc-shadow-lg);
+  border-color: var(--tdc-border-interactive);
+}
+
+.example-card__title {
+  /* Typography token */
+  font-size: var(--tdc-text-h3);
+  
+  /* Text color token */
+  color: var(--tdc-text-primary);
+  
+  /* Spacing token */
+  margin-bottom: var(--tdc-space-stack-sm);
+}
+
+.example-card__description {
+  font-size: var(--tdc-text-body);
+  color: var(--tdc-text-secondary);
+  line-height: var(--tdc-leading-normal);
+}
+
+/* ============================================
+   EXAMPLE: Colored Section
+   Using semantic surface tokens
+   ============================================ */
+
+/* Primary brand section (green by default) */
+.section--primary {
+  background-color: var(--tdc-surface-accent-primary);
+  color: var(--tdc-text-on-accent);
+}
+
+/* Secondary brand section (purple by default) */
+.section--secondary {
+  background-color: var(--tdc-surface-accent-secondary);
+  color: var(--tdc-text-on-accent);
+}
+
+/* Mascot/Fun section (yellow by default) */
+.section--mascot {
+  background-color: var(--tdc-surface-accent-mascot);
+  color: var(--tdc-text-on-mascot);
+}
+
+/* ============================================
+   EXAMPLE: Alert/Feedback Messages
+   Using semantic feedback tokens
+   ============================================ */
+
+.alert {
+  padding: var(--tdc-space-stack-md) var(--tdc-space-inline-lg);
+  border-radius: var(--tdc-radius-md);
+  border-left: 4px solid;
+}
+
+.alert--success {
+  background-color: var(--tdc-feedback-success-light);
+  border-color: var(--tdc-feedback-success);
+  color: var(--tdc-text-inverse-primary);
+}
+
+.alert--error {
+  background-color: var(--tdc-feedback-error-light);
+  border-color: var(--tdc-feedback-error);
+  color: var(--tdc-text-inverse-primary);
+}
+
+.alert--warning {
+  background-color: var(--tdc-feedback-warning-light);
+  border-color: var(--tdc-feedback-warning);
+  color: var(--tdc-text-inverse-primary);
+}
+
+.alert--info {
+  background-color: var(--tdc-feedback-info-light);
+  border-color: var(--tdc-feedback-info);
+  color: var(--tdc-text-inverse-primary);
+}
+
+/* ============================================
+   EXAMPLE: Form Input
+   Using border and text tokens
+   ============================================ */
+
+.input {
+  width: 100%;
+  padding: var(--tdc-space-inline-md);
+  
+  background-color: var(--tdc-surface-sunken);
+  color: var(--tdc-text-primary);
+  
+  border: 2px solid var(--tdc-border-default);
+  border-radius: var(--tdc-radius-md);
+  
+  font-size: var(--tdc-text-body);
+  
+  transition: border-color var(--tdc-duration-fast) var(--tdc-ease-default);
+}
+
+.input:hover {
+  border-color: var(--tdc-border-strong);
+}
+
+.input:focus {
+  border-color: var(--tdc-border-interactive);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--tdc-text-tertiary);
+}
+
+.input--error {
+  border-color: var(--tdc-feedback-error);
+}
+
+/* ============================================
+   EXAMPLE: Navigation Link
+   Using action tokens
+   ============================================ */
+
+.nav-link {
+  color: var(--tdc-nav-text);
+  text-decoration: none;
+  padding: var(--tdc-space-inline-sm) var(--tdc-space-inline-md);
+  border-radius: var(--tdc-radius-sm);
+  transition: 
+    color var(--tdc-duration-fast),
+    background-color var(--tdc-duration-fast);
+}
+
+.nav-link:hover {
+  color: var(--tdc-nav-text-hover);
+  background-color: var(--tdc-state-hover-overlay);
+}
+
+.nav-link:active {
+  background-color: var(--tdc-state-active-overlay);
+}
+
+.nav-link--active {
+  color: var(--tdc-brand-primary);
+}
+
+/* ============================================
+   WHY THIS APPROACH?
+   
+   Scenario: "Let's change the primary brand color from green to blue"
+   
+   OLD WAY (with primitive tokens):
+   - Search entire codebase for `--color-green-*`
+   - Update 50+ files
+   - Hope you didn't miss any
+   - Risk breaking things
+   
+   NEW WAY (with semantic tokens):
+   - Open _tokens.css
+   - Change: --tdc-brand-primary: var(--tdc-primitive-blue-300);
+   - Done! All components update automatically
+   
+   ============================================ */

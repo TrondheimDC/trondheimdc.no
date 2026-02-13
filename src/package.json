@@ -1,0 +1,13 @@
+{
+  "name": "tdc-2025",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx @11ty/eleventy --serve",
+    "build": "bunx @11ty/eleventy",
+    "clean": "rm -rf _site"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0"
+  }
+}

@@ -1,0 +1,111 @@
+/**
+ * TDC Design System - Typography
+ * 
+ * Semantic typography classes using design tokens.
+ * These map directly to Figma typography styles.
+ */
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+/* Display - Hero headlines */
+.text-display {
+  font-size: var(--tdc-text-display);
+  font-weight: var(--tdc-weight-bold);
+  line-height: var(--tdc-leading-tight);
+  letter-spacing: -0.02em;
+}
+
+/* Headings */
+.text-h1 {
+  font-size: var(--tdc-text-h1);
+  font-weight: var(--tdc-weight-bold);
+  line-height: var(--tdc-leading-tight);
+}
+
+.text-h2 {
+  font-size: var(--tdc-text-h2);
+  font-weight: var(--tdc-weight-bold);
+  line-height: var(--tdc-leading-tight);
+}
+
+.text-h3 {
+  font-size: var(--tdc-text-h3);
+  font-weight: var(--tdc-weight-semibold);
+  line-height: var(--tdc-leading-tight);
+}
+
+.text-h4 {
+  font-size: var(--tdc-text-h4);
+  font-weight: var(--tdc-weight-semibold);
+  line-height: var(--tdc-leading-tight);
+}
+
+/* Lead / Ingress */
+.text-lead {
+  font-size: var(--tdc-text-lead);
+  font-weight: var(--tdc-weight-normal);
+  line-height: var(--tdc-leading-relaxed);
+  color: var(--tdc-text-secondary);
+}
+
+/* Body text */
+.text-body {
+  font-size: var(--tdc-text-body);
+  font-weight: var(--tdc-weight-normal);
+  line-height: var(--tdc-leading-normal);
+}
+
+.text-body-sm {
+  font-size: var(--tdc-text-body-sm);
+  font-weight: var(--tdc-weight-normal);
+  line-height: var(--tdc-leading-normal);
+}
+
+/* Caption */
+.text-caption {
+  font-size: var(--tdc-text-caption);
+  font-weight: var(--tdc-weight-normal);
+  line-height: var(--tdc-leading-normal);
+  color: var(--tdc-text-tertiary);
+}
+
+/* Text colors - semantic */
+.text-primary { color: var(--tdc-text-primary); }
+.text-secondary { color: var(--tdc-text-secondary); }
+.text-tertiary { color: var(--tdc-text-tertiary); }
+.text-disabled { color: var(--tdc-text-disabled); }
+
+/* Text on colored backgrounds */
+.text-on-primary { color: var(--tdc-text-on-primary); }
+.text-on-secondary { color: var(--tdc-text-on-secondary); }
+.text-on-accent { color: var(--tdc-text-on-accent); }
+.text-on-mascot { color: var(--tdc-text-on-mascot); }
+
+/* Brand text colors (when you need brand color as text) */
+.text-brand-primary { color: var(--tdc-brand-primary); }
+.text-brand-secondary { color: var(--tdc-brand-secondary); }
+.text-brand-tertiary { color: var(--tdc-brand-tertiary); }
+.text-brand-mascot { color: var(--tdc-brand-mascot); }
+
+/* Feedback text */
+.text-success { color: var(--tdc-feedback-success); }
+.text-error { color: var(--tdc-feedback-error); }
+.text-warning { color: var(--tdc-feedback-warning); }
+.text-info { color: var(--tdc-feedback-info); }
+
+/* Font weights */
+.font-normal { font-weight: var(--tdc-weight-normal); }
+.font-medium { font-weight: var(--tdc-weight-medium); }
+.font-semibold { font-weight: var(--tdc-weight-semibold); }
+.font-bold { font-weight: var(--tdc-weight-bold); }
+
+/* Text alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* Text transform */
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }

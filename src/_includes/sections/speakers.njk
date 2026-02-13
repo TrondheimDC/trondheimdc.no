@@ -1,0 +1,27 @@
+<tdc-section id="speakers" variant="speakers" lazy>
+  <div class="container">
+    <header class="section__header text-center" data-animate="slide-up">
+      <h2>{{ "speakers.title" | t(lang) }}</h2>
+      <p class="lead">{{ "speakers.subtitle" | t(lang) }}</p>
+    </header>
+
+    {# Placeholder until speakers data is added #}
+    <div class="speakers__placeholder text-center" data-animate="fade">
+      <tdc-duck size="lg" animation="float" mood="sleepy"></tdc-duck>
+      <p class="lead" style="margin-top: var(--tdc-space-stack-md);">
+        {{ "speakers.coming_soon" | t(lang) }}
+      </p>
+    </div>
+  </div>
+</tdc-section>
+
+<style>
+  .speakers__grid {
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+
+  .speakers__placeholder {
+    padding: var(--tdc-primitive-space-8);
+  }
+</style>

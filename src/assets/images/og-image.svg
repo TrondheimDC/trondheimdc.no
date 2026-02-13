@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- OG Image for social sharing -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a9ddb1"/>
+      <stop offset="100%" style="stop-color:#4f8256"/>
+    </linearGradient>
+    <linearGradient id="duckGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD633"/>
+      <stop offset="100%" style="stop-color:#FFCC00"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  
+  <!-- Duck mascot (right side) -->
+  <g transform="translate(900, 200)">
+    <!-- Duck body -->
+    <ellipse cx="0" cy="80" rx="100" ry="80" fill="url(#duckGradient)"/>
+    <!-- Duck wing -->
+    <ellipse cx="20" cy="95" rx="40" ry="35" fill="#FFC107" transform="rotate(-15 20 95)"/>
+    <!-- Duck head -->
+    <circle cx="-30" cy="0" r="65" fill="url(#duckGradient)"/>
+    <!-- Duck beak -->
+    <ellipse cx="-90" cy="10" rx="30" ry="18" fill="#FF9500"/>
+    <!-- Duck eye -->
+    <circle cx="-45" cy="-15" r="12" fill="#1a1a1a"/>
+    <circle cx="-50" cy="-20" r="4" fill="#fff"/>
+    <!-- Cheek -->
+    <circle cx="-15" cy="20" r="12" fill="#FFB6C1" opacity="0.5"/>
+  </g>
+  
+  <!-- Text content -->
+  <text x="80" y="200" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#fff">
+    Trondheim
+  </text>
+  <text x="80" y="300" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#fff">
+    Developer
+  </text>
+  <text x="80" y="400" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#fff">
+    Conference
+  </text>
+  
+  <!-- Date -->
+  <text x="80" y="500" font-family="Arial, sans-serif" font-size="48" fill="#fff" opacity="0.9">
+    23-24 October 2025
+  </text>
+  
+  <!-- Location -->
+  <text x="80" y="560" font-family="Arial, sans-serif" font-size="28" fill="#fff" opacity="0.7">
+    Trondheim, Norway
+  </text>
+</svg>

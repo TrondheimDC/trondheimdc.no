@@ -1,0 +1,528 @@
+/**
+ * TDC Design System - Design Tokens
+ * =================================
+ * 
+ * Architecture: 3-Tier Token System
+ * 
+ * TIER 1 - Primitives: Raw color/size values (don't use directly!)
+ * TIER 2 - Semantic: Contextual tokens describing PURPOSE (use these!)
+ * TIER 3 - Component: Component-specific tokens (in component files)
+ * 
+ * Brand Colors (from Figma):
+ * - Green: Primary brand color
+ * - Red/Coral: Accent/energy color  
+ * - Purple: Secondary/creative color
+ * - Black: Text/neutral color
+ * - Yellow: Mascot/fun color (🦆)
+ */
+
+:root {
+  /* ============================================
+     TIER 1: PRIMITIVE TOKENS
+     Raw values from Figma - DO NOT use directly!
+     ============================================ */
+
+  /* TDC Green - Primary Brand */
+  --tdc-primitive-green-50: #e8f5ea;
+  --tdc-primitive-green-100: #a9ddb1;
+  --tdc-primitive-green-200: #94cc9d;
+  --tdc-primitive-green-300: #80be8a;
+  --tdc-primitive-green-400: #6aad75;
+  --tdc-primitive-green-500: #4f8256;
+  --tdc-primitive-green-600: #3d6642;
+  --tdc-primitive-green-700: #2b4a2f;
+  --tdc-primitive-green-800: #1a2e1c;
+  --tdc-primitive-green-900: #0d170e;
+
+  /* TDC Red/Coral - Accent */
+  --tdc-primitive-red-50: #fff5f3;
+  --tdc-primitive-red-100: #ffdbd6;
+  --tdc-primitive-red-200: #ffbfb5;
+  --tdc-primitive-red-300: #ff8675;
+  --tdc-primitive-red-400: #ea7564;
+  --tdc-primitive-red-500: #ce5d4d;
+  --tdc-primitive-red-600: #bd5647;
+  --tdc-primitive-red-700: #9a4639;
+  --tdc-primitive-red-800: #77362c;
+  --tdc-primitive-red-900: #54261e;
+
+  /* TDC Purple - Secondary */
+  --tdc-primitive-purple-50: #f3f0f8;
+  --tdc-primitive-purple-100: #ded4ee;
+  --tdc-primitive-purple-200: #bda9dd;
+  --tdc-primitive-purple-300: #9f89c7;
+  --tdc-primitive-purple-400: #817abc;
+  --tdc-primitive-purple-500: #6a63a0;
+  --tdc-primitive-purple-600: #544e7e;
+  --tdc-primitive-purple-700: #3e395c;
+  --tdc-primitive-purple-800: #28243a;
+  --tdc-primitive-purple-900: #141218;
+
+  /* TDC Yellow - Mascot 🦆 */
+  --tdc-primitive-yellow-50: #fffce8;
+  --tdc-primitive-yellow-100: #fff9cc;
+  --tdc-primitive-yellow-200: #ffe066;
+  --tdc-primitive-yellow-300: #ffcc00;
+  --tdc-primitive-yellow-400: #e6b800;
+  --tdc-primitive-yellow-500: #cc9900;
+  --tdc-primitive-yellow-600: #997300;
+  --tdc-primitive-yellow-700: #664d00;
+  --tdc-primitive-yellow-800: #332600;
+
+  /* TDC Pink - Fun accent */
+  --tdc-primitive-pink-50: #fff0f5;
+  --tdc-primitive-pink-100: #ffb8d0;
+  --tdc-primitive-pink-200: #ff8fb3;
+  --tdc-primitive-pink-300: #ff6696;
+  --tdc-primitive-pink-400: #ff3d79;
+  --tdc-primitive-pink-500: #e6366d;
+  --tdc-primitive-pink-600: #cc3061;
+
+  /* TDC Blue - Info */
+  --tdc-primitive-blue-50: #f0f7ff;
+  --tdc-primitive-blue-100: #a8d4ff;
+  --tdc-primitive-blue-200: #70b8ff;
+  --tdc-primitive-blue-300: #3d9eff;
+  --tdc-primitive-blue-400: #0a84ff;
+  --tdc-primitive-blue-500: #0066cc;
+  --tdc-primitive-blue-600: #004d99;
+
+  /* Neutrals */
+  --tdc-primitive-neutral-0: #ffffff;
+  --tdc-primitive-neutral-50: #fafafa;
+  --tdc-primitive-neutral-100: #f5f5f5;
+  --tdc-primitive-neutral-200: #e8e8e8;
+  --tdc-primitive-neutral-300: #d4d4d4;
+  --tdc-primitive-neutral-400: #a3a3a3;
+  --tdc-primitive-neutral-500: #737373;
+  --tdc-primitive-neutral-600: #525252;
+  --tdc-primitive-neutral-700: #434343;  /* TDC black1 */
+  --tdc-primitive-neutral-750: #363636;  /* TDC black2 */
+  --tdc-primitive-neutral-800: #292929;  /* TDC black3 - main dark bg */
+  --tdc-primitive-neutral-900: #171717;
+  --tdc-primitive-neutral-1000: #000000;
+
+  /* ============================================
+     TIER 1: PRIMITIVE SPACING (4px base)
+     ============================================ */
+  --tdc-primitive-space-0: 0;
+  --tdc-primitive-space-px: 1px;
+  --tdc-primitive-space-0-5: 0.125rem;  /* 2px */
+  --tdc-primitive-space-1: 0.25rem;     /* 4px */
+  --tdc-primitive-space-2: 0.5rem;      /* 8px */
+  --tdc-primitive-space-3: 0.75rem;     /* 12px */
+  --tdc-primitive-space-4: 1rem;        /* 16px */
+  --tdc-primitive-space-5: 1.25rem;     /* 20px */
+  --tdc-primitive-space-6: 1.5rem;      /* 24px */
+  --tdc-primitive-space-8: 2rem;        /* 32px */
+  --tdc-primitive-space-10: 2.5rem;     /* 40px */
+  --tdc-primitive-space-12: 3rem;       /* 48px */
+  --tdc-primitive-space-16: 4rem;       /* 64px */
+  --tdc-primitive-space-20: 5rem;       /* 80px */
+  --tdc-primitive-space-24: 6rem;       /* 96px */
+  --tdc-primitive-space-32: 8rem;       /* 128px */
+
+  /* ============================================
+     TIER 1: PRIMITIVE TYPOGRAPHY
+     ============================================ */
+  
+  /* Font families */
+  --tdc-primitive-font-sans: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --tdc-primitive-font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* Font sizes */
+  --tdc-primitive-font-size-2xs: 0.625rem;  /* 10px */
+  --tdc-primitive-font-size-xs: 0.75rem;    /* 12px */
+  --tdc-primitive-font-size-sm: 0.875rem;   /* 14px */
+  --tdc-primitive-font-size-base: 1rem;     /* 16px */
+  --tdc-primitive-font-size-md: 1.125rem;   /* 18px */
+  --tdc-primitive-font-size-lg: 1.25rem;    /* 20px */
+  --tdc-primitive-font-size-xl: 1.5rem;     /* 24px */
+  --tdc-primitive-font-size-2xl: 1.875rem;  /* 30px */
+  --tdc-primitive-font-size-3xl: 2.25rem;   /* 36px */
+  --tdc-primitive-font-size-4xl: 3rem;      /* 48px */
+  --tdc-primitive-font-size-5xl: 3.75rem;   /* 60px */
+  --tdc-primitive-font-size-6xl: 4.5rem;    /* 72px */
+
+  /* Font weights */
+  --tdc-primitive-font-weight-light: 300;
+  --tdc-primitive-font-weight-normal: 400;
+  --tdc-primitive-font-weight-medium: 500;
+  --tdc-primitive-font-weight-semibold: 600;
+  --tdc-primitive-font-weight-bold: 700;
+
+  /* Line heights */
+  --tdc-primitive-line-height-none: 1;
+  --tdc-primitive-line-height-tight: 1.25;
+  --tdc-primitive-line-height-snug: 1.375;
+  --tdc-primitive-line-height-normal: 1.5;
+  --tdc-primitive-line-height-relaxed: 1.625;
+  --tdc-primitive-line-height-loose: 2;
+
+  /* Letter spacing */
+  --tdc-primitive-tracking-tighter: -0.05em;
+  --tdc-primitive-tracking-tight: -0.025em;
+  --tdc-primitive-tracking-normal: 0;
+  --tdc-primitive-tracking-wide: 0.025em;
+  --tdc-primitive-tracking-wider: 0.05em;
+  --tdc-primitive-tracking-widest: 0.1em;
+
+  /* ============================================
+     TIER 1: PRIMITIVE RADII
+     ============================================ */
+  --tdc-primitive-radius-none: 0;
+  --tdc-primitive-radius-sm: 0.25rem;    /* 4px */
+  --tdc-primitive-radius-md: 0.5rem;     /* 8px */
+  --tdc-primitive-radius-lg: 0.75rem;    /* 12px */
+  --tdc-primitive-radius-xl: 1rem;       /* 16px */
+  --tdc-primitive-radius-2xl: 1.5rem;    /* 24px */
+  --tdc-primitive-radius-3xl: 2rem;      /* 32px */
+  --tdc-primitive-radius-full: 9999px;
+
+  /* ============================================
+     TIER 1: PRIMITIVE SHADOWS
+     ============================================ */
+  --tdc-primitive-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tdc-primitive-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --tdc-primitive-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tdc-primitive-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tdc-primitive-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tdc-primitive-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --tdc-primitive-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* Colored shadows for cards on brand backgrounds */
+  --tdc-primitive-shadow-green: 0 4px 14px 0 rgb(79 130 86 / 0.3);
+  --tdc-primitive-shadow-purple: 0 4px 14px 0 rgb(106 99 160 / 0.3);
+  --tdc-primitive-shadow-red: 0 4px 14px 0 rgb(189 86 71 / 0.3);
+
+  /* ============================================
+     TIER 1: PRIMITIVE ANIMATION
+     ============================================ */
+  --tdc-primitive-duration-instant: 0ms;
+  --tdc-primitive-duration-75: 75ms;
+  --tdc-primitive-duration-100: 100ms;
+  --tdc-primitive-duration-150: 150ms;
+  --tdc-primitive-duration-200: 200ms;
+  --tdc-primitive-duration-300: 300ms;
+  --tdc-primitive-duration-500: 500ms;
+  --tdc-primitive-duration-700: 700ms;
+  --tdc-primitive-duration-1000: 1000ms;
+
+  --tdc-primitive-ease-linear: linear;
+  --tdc-primitive-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --tdc-primitive-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --tdc-primitive-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --tdc-primitive-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --tdc-primitive-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ============================================
+     TIER 2: SEMANTIC TOKENS
+     Use these in your CSS! They describe PURPOSE.
+     ============================================ */
+
+  /* --- BRAND COLORS --- 
+     TDC uses LIGHT pastel colors as the main brand colors!
+     The dark variants are for text/contrast only.
+  */
+  --tdc-brand-primary: var(--tdc-primitive-green-100);        /* #a9ddb1 - TDC signature mint green */
+  --tdc-brand-primary-vibrant: var(--tdc-primitive-green-200); /* #94cc9d - slightly richer */
+  --tdc-brand-primary-muted: var(--tdc-primitive-green-300);   /* #80be8a */
+  --tdc-brand-primary-light: var(--tdc-primitive-green-50);    /* Very light for backgrounds */
+  --tdc-brand-primary-dark: var(--tdc-primitive-green-500);    /* #4f8256 - for white text */
+  --tdc-brand-primary-darker: var(--tdc-primitive-green-700);  /* Darkest */
+
+  --tdc-brand-secondary: var(--tdc-primitive-purple-200);      /* #bda9dd - TDC lavender */
+  --tdc-brand-secondary-vibrant: var(--tdc-primitive-purple-400); /* #817abc */
+  --tdc-brand-secondary-light: var(--tdc-primitive-purple-100); /* #ded4ee */
+  --tdc-brand-secondary-lighter: var(--tdc-primitive-purple-50);
+  --tdc-brand-secondary-dark: var(--tdc-primitive-purple-500); /* #6a63a0 - for white text */
+
+  --tdc-brand-accent: var(--tdc-primitive-red-300);            /* #ff8675 - TDC coral */
+  --tdc-brand-accent-vibrant: var(--tdc-primitive-red-400);    /* #ea7564 */
+  --tdc-brand-accent-light: var(--tdc-primitive-red-100);      /* #ffdbd6 */
+  --tdc-brand-accent-lighter: var(--tdc-primitive-red-50);
+  --tdc-brand-accent-dark: var(--tdc-primitive-red-500);       /* #ce5d4d - for white text */
+
+  --tdc-brand-mascot: var(--tdc-primitive-yellow-300);
+  --tdc-brand-mascot-light: var(--tdc-primitive-yellow-100);
+  --tdc-brand-mascot-dark: var(--tdc-primitive-yellow-500);
+
+  --tdc-brand-fun: var(--tdc-primitive-pink-300);
+  --tdc-brand-fun-light: var(--tdc-primitive-pink-100);
+
+  /* --- ACTION COLORS (buttons, links, CTAs) --- 
+     TDC buttons use LIGHT pastel backgrounds with DARK text!
+  */
+  --tdc-action-primary-bg: var(--tdc-brand-primary);           /* Light mint green */
+  --tdc-action-primary-bg-hover: var(--tdc-brand-primary-vibrant); /* Slightly darker on hover */
+  --tdc-action-primary-bg-active: var(--tdc-brand-primary-muted);
+  --tdc-action-primary-text: var(--tdc-primitive-neutral-900); /* Dark text on light bg */
+
+  /* Dark variant for high-contrast buttons (white text) */
+  --tdc-action-primary-dark-bg: var(--tdc-brand-primary-dark); /* #4f8256 */
+  --tdc-action-primary-dark-bg-hover: var(--tdc-primitive-green-600);
+  --tdc-action-primary-dark-bg-active: var(--tdc-primitive-green-700);
+  --tdc-action-primary-dark-text: var(--tdc-primitive-neutral-0);
+
+  --tdc-action-secondary-bg: var(--tdc-brand-secondary);       /* Light lavender */
+  --tdc-action-secondary-bg-hover: var(--tdc-brand-secondary-vibrant);
+  --tdc-action-secondary-bg-active: var(--tdc-primitive-purple-500);
+  --tdc-action-secondary-text: var(--tdc-primitive-neutral-900);
+
+  /* Dark variant for purple buttons */
+  --tdc-action-secondary-dark-bg: var(--tdc-brand-secondary-dark);
+  --tdc-action-secondary-dark-bg-hover: var(--tdc-primitive-purple-600);
+  --tdc-action-secondary-dark-text: var(--tdc-primitive-neutral-0);
+
+  --tdc-action-accent-bg: var(--tdc-brand-accent);             /* Light coral */
+  --tdc-action-accent-bg-hover: var(--tdc-brand-accent-vibrant);
+  --tdc-action-accent-bg-active: var(--tdc-primitive-red-500);
+  --tdc-action-accent-text: var(--tdc-primitive-neutral-900);
+
+  /* Dark variant for coral buttons */
+  --tdc-action-accent-dark-bg: var(--tdc-brand-accent-dark);
+  --tdc-action-accent-dark-bg-hover: var(--tdc-primitive-red-600);
+  --tdc-action-accent-dark-text: var(--tdc-primitive-neutral-0);
+
+  --tdc-action-mascot-bg: var(--tdc-brand-mascot);
+  --tdc-action-mascot-bg-hover: var(--tdc-primitive-yellow-400);
+  --tdc-action-mascot-bg-active: var(--tdc-primitive-yellow-500);
+  --tdc-action-mascot-text: var(--tdc-primitive-neutral-900);
+
+  --tdc-action-ghost-bg: transparent;
+  --tdc-action-ghost-bg-hover: var(--tdc-primitive-neutral-100);
+  --tdc-action-ghost-bg-active: var(--tdc-primitive-neutral-200);
+  --tdc-action-ghost-text: var(--tdc-primitive-neutral-800);
+  --tdc-action-ghost-border: var(--tdc-primitive-neutral-300);
+
+  /* Links */
+  --tdc-link-color: var(--tdc-brand-primary);
+  --tdc-link-color-hover: var(--tdc-primitive-green-700);
+  --tdc-link-color-visited: var(--tdc-brand-secondary);
+
+  /* --- SURFACE COLORS (backgrounds) --- */
+  --tdc-surface-page: var(--tdc-primitive-neutral-0);
+  --tdc-surface-raised: var(--tdc-primitive-neutral-0);
+  --tdc-surface-sunken: var(--tdc-primitive-neutral-50);
+  --tdc-surface-overlay: rgba(0, 0, 0, 0.5);
+  --tdc-surface-inverse: var(--tdc-primitive-neutral-900);
+
+  /* Section backgrounds (one-pager) - using TDC's actual pastel palette */
+  --tdc-surface-hero: var(--tdc-brand-primary);               /* #a9ddb1 - signature mint */
+  --tdc-surface-about: var(--tdc-primitive-neutral-0);
+  --tdc-surface-speakers: var(--tdc-brand-secondary-light);   /* #ded4ee - soft lavender */
+  --tdc-surface-program: var(--tdc-primitive-neutral-50);
+  --tdc-surface-tickets: var(--tdc-brand-accent-light);       /* #ffdbd6 - soft coral */
+  --tdc-surface-partners: var(--tdc-primitive-neutral-0);
+  --tdc-surface-contact: var(--tdc-primitive-neutral-800);    /* #292929 - TDC dark */
+  --tdc-surface-footer: var(--tdc-primitive-neutral-800);
+
+  /* --- TEXT COLORS --- */
+  --tdc-text-primary: var(--tdc-primitive-neutral-900);
+  --tdc-text-secondary: var(--tdc-primitive-neutral-600);
+  --tdc-text-tertiary: var(--tdc-primitive-neutral-500);
+  --tdc-text-disabled: var(--tdc-primitive-neutral-400);
+  --tdc-text-inverse: var(--tdc-primitive-neutral-0);
+  --tdc-text-inverse-secondary: var(--tdc-primitive-neutral-300);
+
+  /* Text on colored backgrounds */
+  --tdc-text-on-primary: var(--tdc-primitive-neutral-900);
+  --tdc-text-on-secondary: var(--tdc-primitive-neutral-0);
+  --tdc-text-on-accent: var(--tdc-primitive-neutral-0);
+  --tdc-text-on-mascot: var(--tdc-primitive-neutral-900);
+
+  /* --- BORDER COLORS --- */
+  --tdc-border-default: var(--tdc-primitive-neutral-200);
+  --tdc-border-strong: var(--tdc-primitive-neutral-300);
+  --tdc-border-subtle: var(--tdc-primitive-neutral-100);
+  --tdc-border-focus: var(--tdc-brand-primary);
+  --tdc-border-error: var(--tdc-primitive-red-500);
+  --tdc-border-success: var(--tdc-primitive-green-500);
+  --tdc-border-inverse: var(--tdc-primitive-neutral-700);
+
+  /* --- FEEDBACK COLORS --- */
+  --tdc-feedback-success: var(--tdc-primitive-green-500);
+  --tdc-feedback-success-light: var(--tdc-primitive-green-50);
+  --tdc-feedback-error: var(--tdc-primitive-red-500);
+  --tdc-feedback-error-light: var(--tdc-primitive-red-50);
+  --tdc-feedback-warning: var(--tdc-primitive-yellow-400);
+  --tdc-feedback-warning-light: var(--tdc-primitive-yellow-50);
+  --tdc-feedback-info: var(--tdc-primitive-blue-400);
+  --tdc-feedback-info-light: var(--tdc-primitive-blue-50);
+
+  /* --- INTERACTIVE STATES --- */
+  --tdc-state-hover: rgba(0, 0, 0, 0.04);
+  --tdc-state-active: rgba(0, 0, 0, 0.08);
+  --tdc-state-focus-ring: var(--tdc-brand-primary);
+  --tdc-state-focus-ring-offset: 2px;
+  --tdc-state-disabled-opacity: 0.5;
+
+  /* ============================================
+     TIER 2: SEMANTIC SPACING
+     ============================================ */
+  
+  /* Inline spacing (horizontal: padding, gaps) */
+  --tdc-space-inline-xs: var(--tdc-primitive-space-1);   /* 4px */
+  --tdc-space-inline-sm: var(--tdc-primitive-space-2);   /* 8px */
+  --tdc-space-inline-md: var(--tdc-primitive-space-4);   /* 16px */
+  --tdc-space-inline-lg: var(--tdc-primitive-space-6);   /* 24px */
+  --tdc-space-inline-xl: var(--tdc-primitive-space-8);   /* 32px */
+
+  /* Stack spacing (vertical: margins, gaps) */
+  --tdc-space-stack-xs: var(--tdc-primitive-space-1);    /* 4px */
+  --tdc-space-stack-sm: var(--tdc-primitive-space-2);    /* 8px */
+  --tdc-space-stack-md: var(--tdc-primitive-space-4);    /* 16px */
+  --tdc-space-stack-lg: var(--tdc-primitive-space-8);    /* 32px */
+  --tdc-space-stack-xl: var(--tdc-primitive-space-12);   /* 48px */
+  --tdc-space-stack-2xl: var(--tdc-primitive-space-16);  /* 64px */
+
+  /* Section spacing */
+  --tdc-space-section: var(--tdc-primitive-space-24);    /* 96px */
+  --tdc-space-section-sm: var(--tdc-primitive-space-16); /* 64px */
+
+  /* ============================================
+     TIER 2: SEMANTIC TYPOGRAPHY
+     ============================================ */
+  
+  --tdc-font-family-base: var(--tdc-primitive-font-sans);
+  --tdc-font-family-heading: var(--tdc-primitive-font-sans);
+  --tdc-font-family-mono: var(--tdc-primitive-font-mono);
+
+  /* Type scale */
+  --tdc-text-display: var(--tdc-primitive-font-size-5xl);
+  --tdc-text-h1: var(--tdc-primitive-font-size-4xl);
+  --tdc-text-h2: var(--tdc-primitive-font-size-3xl);
+  --tdc-text-h3: var(--tdc-primitive-font-size-2xl);
+  --tdc-text-h4: var(--tdc-primitive-font-size-xl);
+  --tdc-text-h5: var(--tdc-primitive-font-size-lg);
+  --tdc-text-lead: var(--tdc-primitive-font-size-lg);
+  --tdc-text-body: var(--tdc-primitive-font-size-base);
+  --tdc-text-body-sm: var(--tdc-primitive-font-size-sm);
+  --tdc-text-caption: var(--tdc-primitive-font-size-xs);
+  --tdc-text-overline: var(--tdc-primitive-font-size-xs);
+
+  /* Line heights */
+  --tdc-leading-heading: var(--tdc-primitive-line-height-tight);
+  --tdc-leading-body: var(--tdc-primitive-line-height-normal);
+  --tdc-leading-relaxed: var(--tdc-primitive-line-height-relaxed);
+
+  /* Font weights */
+  --tdc-weight-normal: var(--tdc-primitive-font-weight-normal);
+  --tdc-weight-medium: var(--tdc-primitive-font-weight-medium);
+  --tdc-weight-semibold: var(--tdc-primitive-font-weight-semibold);
+  --tdc-weight-bold: var(--tdc-primitive-font-weight-bold);
+
+  /* ============================================
+     TIER 2: SEMANTIC RADII & SHADOWS
+     ============================================ */
+  
+  --tdc-radius-button: var(--tdc-primitive-radius-md);
+  --tdc-radius-input: var(--tdc-primitive-radius-md);
+  --tdc-radius-card: var(--tdc-primitive-radius-lg);
+  --tdc-radius-modal: var(--tdc-primitive-radius-xl);
+  --tdc-radius-section: var(--tdc-primitive-radius-2xl);
+  --tdc-radius-pill: var(--tdc-primitive-radius-full);
+
+  --tdc-shadow-button: var(--tdc-primitive-shadow-sm);
+  --tdc-shadow-button-hover: var(--tdc-primitive-shadow-md);
+  --tdc-shadow-card: var(--tdc-primitive-shadow-md);
+  --tdc-shadow-card-hover: var(--tdc-primitive-shadow-lg);
+  --tdc-shadow-dropdown: var(--tdc-primitive-shadow-lg);
+  --tdc-shadow-modal: var(--tdc-primitive-shadow-xl);
+
+  /* ============================================
+     TIER 2: SEMANTIC ANIMATION
+     ============================================ */
+  
+  --tdc-duration-instant: var(--tdc-primitive-duration-instant);
+  --tdc-duration-fast: var(--tdc-primitive-duration-150);
+  --tdc-duration-normal: var(--tdc-primitive-duration-300);
+  --tdc-duration-slow: var(--tdc-primitive-duration-500);
+
+  --tdc-ease-default: var(--tdc-primitive-ease-in-out);
+  --tdc-ease-in: var(--tdc-primitive-ease-in);
+  --tdc-ease-out: var(--tdc-primitive-ease-out);
+  --tdc-ease-bounce: var(--tdc-primitive-ease-bounce);
+
+  --tdc-transition-fast: var(--tdc-duration-fast) var(--tdc-ease-default);
+  --tdc-transition-normal: var(--tdc-duration-normal) var(--tdc-ease-default);
+  --tdc-transition-slow: var(--tdc-duration-slow) var(--tdc-ease-default);
+  --tdc-transition-bounce: var(--tdc-duration-normal) var(--tdc-ease-bounce);
+
+  /* ============================================
+     TIER 2: LAYOUT
+     ============================================ */
+  
+  --tdc-container-sm: 640px;
+  --tdc-container-md: 768px;
+  --tdc-container-lg: 1024px;
+  --tdc-container-xl: 1200px;
+  --tdc-container-2xl: 1400px;
+  --tdc-container-padding: var(--tdc-primitive-space-4);
+
+  /* Navigation */
+  --tdc-nav-height: 4rem;
+  --tdc-nav-height-mobile: 3.5rem;
+
+  /* Z-index scale */
+  --tdc-z-dropdown: 100;
+  --tdc-z-sticky: 200;
+  --tdc-z-fixed: 300;
+  --tdc-z-modal-backdrop: 400;
+  --tdc-z-modal: 500;
+  --tdc-z-popover: 600;
+  --tdc-z-tooltip: 700;
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --tdc-text-display: var(--tdc-primitive-font-size-4xl);
+    --tdc-text-h1: var(--tdc-primitive-font-size-3xl);
+    --tdc-text-h2: var(--tdc-primitive-font-size-2xl);
+    --tdc-text-h3: var(--tdc-primitive-font-size-xl);
+    --tdc-text-h4: var(--tdc-primitive-font-size-lg);
+    --tdc-text-lead: var(--tdc-primitive-font-size-md);
+
+    --tdc-space-section: var(--tdc-primitive-space-16);
+    --tdc-space-section-sm: var(--tdc-primitive-space-12);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --tdc-text-display: var(--tdc-primitive-font-size-3xl);
+    --tdc-text-h1: var(--tdc-primitive-font-size-2xl);
+    --tdc-text-h2: var(--tdc-primitive-font-size-xl);
+    
+    --tdc-container-padding: var(--tdc-primitive-space-3);
+  }
+}
+
+/* ============================================
+   DARK MODE (inverse sections like footer)
+   ============================================ */
+
+[data-theme="dark"],
+.theme-dark {
+  --tdc-surface-page: var(--tdc-primitive-neutral-900);
+  --tdc-surface-raised: var(--tdc-primitive-neutral-800);
+  --tdc-surface-sunken: var(--tdc-primitive-neutral-1000);
+
+  --tdc-text-primary: var(--tdc-primitive-neutral-0);
+  --tdc-text-secondary: var(--tdc-primitive-neutral-300);
+  --tdc-text-tertiary: var(--tdc-primitive-neutral-400);
+
+  --tdc-border-default: var(--tdc-primitive-neutral-700);
+  --tdc-border-strong: var(--tdc-primitive-neutral-600);
+  --tdc-border-subtle: var(--tdc-primitive-neutral-800);
+
+  --tdc-state-hover: rgba(255, 255, 255, 0.08);
+  --tdc-state-active: rgba(255, 255, 255, 0.12);
+
+  --tdc-link-color: var(--tdc-brand-primary-light);
+  --tdc-link-color-hover: var(--tdc-primitive-green-200);
+}

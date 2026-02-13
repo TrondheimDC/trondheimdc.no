@@ -1,0 +1,207 @@
+/**
+ * TDC Design System - Button Component
+ * 
+ * All buttons use SEMANTIC tokens, not primitive colors.
+ * To change the brand color, update _tokens.css - no changes needed here!
+ * 
+ * Usage:
+ *   <button class="btn">Default</button>
+ *   <button class="btn btn--primary">Primary Action</button>
+ *   <button class="btn btn--secondary">Secondary</button>
+ *   <button class="btn btn--ghost">Ghost</button>
+ *   <button class="btn btn--mascot">Fun/Duck</button>
+ *   
+ * Sizes:
+ *   <button class="btn btn--primary btn--sm">Small</button>
+ *   <button class="btn btn--primary btn--lg">Large</button>
+ */
+
+.btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tdc-space-inline-sm);
+  
+  /* Sizing - using component tokens */
+  padding: var(--tdc-button-padding-y) var(--tdc-button-padding-x);
+  min-height: 2.75rem;
+  
+  /* Typography */
+  font-size: var(--tdc-button-font-size);
+  font-weight: var(--tdc-button-font-weight);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  
+  /* Shape */
+  border: 2px solid transparent;
+  border-radius: var(--tdc-button-radius);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: 
+    background-color var(--tdc-button-transition),
+    border-color var(--tdc-button-transition),
+    color var(--tdc-button-transition),
+    transform var(--tdc-button-transition),
+    box-shadow var(--tdc-button-transition);
+  
+  /* Default (same as ghost) */
+  background-color: var(--tdc-action-ghost-background);
+  color: var(--tdc-action-ghost-text);
+  border-color: var(--tdc-action-ghost-border);
+}
+
+/* Hover - subtle lift effect */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tdc-shadow-md);
+}
+
+/* Active - press down */
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--tdc-shadow-sm);
+}
+
+/* Focus */
+.btn:focus-visible {
+  outline: 2px solid var(--tdc-state-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Disabled */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: var(--tdc-state-disabled-opacity);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   VARIANTS - Using semantic action tokens
+   ============================================ */
+
+/* Primary - Main call-to-action */
+.btn--primary {
+  background-color: var(--tdc-action-primary-background);
+  color: var(--tdc-action-primary-text);
+  border-color: var(--tdc-action-primary-background);
+}
+
+.btn--primary:hover {
+  background-color: var(--tdc-action-primary-background-hover);
+  border-color: var(--tdc-action-primary-background-hover);
+}
+
+/* Secondary - Supporting actions */
+.btn--secondary {
+  background-color: var(--tdc-action-secondary-background);
+  color: var(--tdc-action-secondary-text);
+  border-color: var(--tdc-action-secondary-background);
+}
+
+.btn--secondary:hover {
+  background-color: var(--tdc-action-secondary-background-hover);
+  border-color: var(--tdc-action-secondary-background-hover);
+}
+
+/* Ghost - Minimal, outline style */
+.btn--ghost {
+  background-color: var(--tdc-action-ghost-background);
+  color: var(--tdc-action-ghost-text);
+  border-color: var(--tdc-action-ghost-border);
+}
+
+.btn--ghost:hover {
+  background-color: var(--tdc-action-ghost-background-hover);
+}
+
+/* Mascot/Fun - Duck yellow! For playful CTAs */
+.btn--mascot {
+  background-color: var(--tdc-brand-mascot);
+  color: var(--tdc-text-on-mascot);
+  border-color: var(--tdc-brand-mascot);
+}
+
+.btn--mascot:hover {
+  background-color: var(--tdc-brand-mascot-light);
+  border-color: var(--tdc-brand-mascot-light);
+}
+
+/* Danger - Destructive actions */
+.btn--danger {
+  background-color: var(--tdc-feedback-error);
+  color: var(--tdc-primitive-neutral-100);
+  border-color: var(--tdc-feedback-error);
+}
+
+.btn--danger:hover {
+  background-color: var(--tdc-primitive-red-400);
+  border-color: var(--tdc-primitive-red-400);
+}
+
+/* ============================================
+   SIZES
+   ============================================ */
+
+.btn--sm {
+  padding: var(--tdc-space-inline-xs) var(--tdc-space-inline-md);
+  min-height: 2rem;
+  font-size: var(--tdc-text-body-sm);
+}
+
+.btn--lg {
+  padding: var(--tdc-space-inline-md) var(--tdc-space-inline-xl);
+  min-height: 3.5rem;
+  font-size: var(--tdc-text-h4);
+}
+
+/* ============================================
+   MODIFIERS
+   ============================================ */
+
+/* Full width */
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/* Icon only (square) */
+.btn--icon {
+  padding: var(--tdc-button-padding-y);
+  aspect-ratio: 1;
+  min-height: auto;
+}
+
+/* With icon - icon inherits size */
+.btn svg,
+.btn .icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+}
+
+/* Loading state */
+.btn--loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 1.25em;
+  height: 1.25em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--tdc-radius-full);
+  animation: btn-spinner 0.6s linear infinite;
+}
+
+@keyframes btn-spinner {
+  to { transform: rotate(360deg); }
+}

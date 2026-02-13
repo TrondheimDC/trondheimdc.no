@@ -1,0 +1,168 @@
+/**
+ * Section Component
+ * =================
+ * Page sections for one-pager layout
+ */
+
+.section {
+  --section-bg: var(--tdc-surface-page);
+  --section-text: var(--tdc-text-primary);
+  --section-padding-y: var(--tdc-space-section);
+
+  position: relative;
+  padding: var(--section-padding-y) 0;
+  background-color: var(--section-bg);
+  color: var(--section-text);
+}
+
+.section__container {
+  width: 100%;
+  max-width: var(--tdc-container-xl);
+  margin: 0 auto;
+  padding: 0 var(--tdc-container-padding);
+}
+
+.section__container--narrow {
+  max-width: var(--tdc-container-md);
+}
+
+.section__container--wide {
+  max-width: var(--tdc-container-2xl);
+}
+
+/* Section header */
+.section__header {
+  text-align: center;
+  margin-bottom: var(--tdc-space-stack-xl);
+}
+
+.section__header--left {
+  text-align: left;
+}
+
+.section__overline {
+  display: block;
+  font-size: var(--tdc-text-overline);
+  font-weight: var(--tdc-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tdc-primitive-tracking-wider);
+  color: var(--tdc-brand-primary);
+  margin-bottom: var(--tdc-space-stack-sm);
+}
+
+.section__title {
+  font-size: var(--tdc-text-h2);
+  font-weight: var(--tdc-weight-bold);
+  line-height: var(--tdc-leading-heading);
+  color: inherit;
+  margin: 0 0 var(--tdc-space-stack-md);
+}
+
+.section__subtitle {
+  font-size: var(--tdc-text-lead);
+  color: var(--tdc-text-secondary);
+  line-height: var(--tdc-leading-relaxed);
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+.section__header--left .section__subtitle {
+  margin: 0;
+}
+
+/* ============================================
+   SECTION VARIANTS (colored backgrounds)
+   ============================================ */
+
+.section--hero {
+  --section-bg: var(--tdc-surface-hero);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.section--about {
+  --section-bg: var(--tdc-surface-about);
+}
+
+.section--speakers {
+  --section-bg: var(--tdc-surface-speakers);
+}
+
+.section--program {
+  --section-bg: var(--tdc-surface-program);
+}
+
+.section--tickets {
+  --section-bg: var(--tdc-surface-tickets);
+}
+
+.section--partners {
+  --section-bg: var(--tdc-surface-partners);
+}
+
+.section--contact,
+.section--inverse {
+  --section-bg: var(--tdc-surface-contact);
+  --section-text: var(--tdc-text-inverse);
+}
+
+.section--inverse .section__subtitle {
+  color: var(--tdc-text-inverse-secondary);
+}
+
+.section--inverse .section__overline {
+  color: var(--tdc-brand-primary-light);
+}
+
+/* ============================================
+   SECTION SIZES
+   ============================================ */
+
+.section--sm {
+  --section-padding-y: var(--tdc-space-section-sm);
+}
+
+.section--lg {
+  --section-padding-y: var(--tdc-primitive-space-32);
+}
+
+.section--full {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================
+   SECTION DECORATIONS
+   ============================================ */
+
+/* Wave top */
+.section--wave-top::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: inherit;
+  clip-path: ellipse(60% 100% at 50% 100%);
+  transform: translateY(-100%);
+}
+
+/* Angled */
+.section--angled {
+  clip-path: polygon(0 5%, 100% 0, 100% 95%, 0 100%);
+  padding-top: calc(var(--section-padding-y) + 3rem);
+  padding-bottom: calc(var(--section-padding-y) + 3rem);
+}
+
+@media (max-width: 768px) {
+  .section {
+    --section-padding-y: var(--tdc-space-section-sm);
+  }
+  
+  .section--sm {
+    --section-padding-y: var(--tdc-primitive-space-12);
+  }
+}

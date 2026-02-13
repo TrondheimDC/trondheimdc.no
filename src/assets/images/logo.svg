@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- TDC Logo with Duck -->
+  <defs>
+    <linearGradient id="duckGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD633"/>
+      <stop offset="100%" style="stop-color:#FFCC00"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#4f8256"/>
+  
+  <!-- Duck body -->
+  <ellipse cx="50" cy="58" rx="28" ry="22" fill="url(#duckGrad)"/>
+  
+  <!-- Duck wing -->
+  <ellipse cx="55" cy="62" rx="12" ry="10" fill="#FFC107" transform="rotate(-15 55 62)"/>
+  
+  <!-- Duck head -->
+  <circle cx="42" cy="38" r="18" fill="url(#duckGrad)"/>
+  
+  <!-- Duck beak -->
+  <ellipse cx="26" cy="40" rx="8" ry="5" fill="#FF9500"/>
+  
+  <!-- Duck eye -->
+  <circle cx="38" cy="34" r="4" fill="#1a1a1a"/>
+  <circle cx="36" cy="32" r="1.5" fill="#fff"/>
+  
+  <!-- TDC text -->
+  <text x="50" y="92" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#fff">TDC</text>
+</svg>

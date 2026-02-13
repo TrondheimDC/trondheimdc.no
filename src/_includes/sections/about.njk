@@ -1,0 +1,62 @@
+<tdc-section id="about" variant="about" lazy>
+  <div class="container">
+    <header class="section__header text-center" data-animate="slide-up">
+      <h2>{{ "about.title" | t(lang) }}</h2>
+      <p class="lead">{{ "about.intro" | t(lang) }}</p>
+    </header>
+
+    <div class="about__grid bento" data-animate-stagger>
+      <div class="card card--primary bento__item--span-2">
+        <div class="card__body">
+          <h3 class="card__title">{{ site.event.venue }}</h3>
+          <p class="card__text">{{ site.event.address }}</p>
+          <p class="card__subtitle">{{ site.event.date | formatDate(lang) }}</p>
+        </div>
+      </div>
+
+      <div class="card card--mascot">
+        <div class="card__body text-center">
+          <tdc-duck size="lg" animation="waddle" mood="excited"></tdc-duck>
+          <p class="card__title">🦆</p>
+          <p class="card__text text-sm">{{ "about.mascot_hi" | t(lang) }}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__body">
+          <h3 class="card__title">40+</h3>
+          <p class="card__text">{{ "about.speakers" | t(lang) }}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__body">
+          <h3 class="card__title">2</h3>
+          <p class="card__text">{{ "about.days" | t(lang) }}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__body">
+          <h3 class="card__title">500+</h3>
+          <p class="card__text">{{ "about.attendees" | t(lang) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</tdc-section>
+
+<style>
+  .section__header {
+    margin-bottom: var(--tdc-space-stack-xl);
+  }
+
+  .section__header h2 {
+    margin-bottom: var(--tdc-space-stack-md);
+  }
+
+  .about__grid {
+    max-width: 900px;
+    margin-inline: auto;
+  }
+</style>

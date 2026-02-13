@@ -1,0 +1,223 @@
+/**
+ * Card Component
+ * ==============
+ * Variants: default, elevated, outlined, colored
+ * Features: hover effects, clickable, media support
+ */
+
+.card {
+  /* Tier 3: Component tokens */
+  --card-bg: var(--tdc-surface-raised);
+  --card-border: var(--tdc-border-default);
+  --card-radius: var(--tdc-radius-card);
+  --card-shadow: var(--tdc-shadow-card);
+  --card-shadow-hover: var(--tdc-shadow-card-hover);
+  --card-padding: var(--tdc-space-stack-lg);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: 
+    box-shadow var(--tdc-transition-normal),
+    transform var(--tdc-transition-normal),
+    border-color var(--tdc-transition-fast);
+}
+
+/* Clickable card */
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card--clickable:active {
+  transform: translateY(0);
+}
+
+/* Card sections */
+.card__media {
+  position: relative;
+  overflow: hidden;
+}
+
+.card__media img,
+.card__media video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.card__media--ratio-16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.card__media--ratio-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.card__media--ratio-1-1 {
+  aspect-ratio: 1 / 1;
+}
+
+.card__header {
+  padding: var(--card-padding);
+  padding-bottom: 0;
+}
+
+.card__body {
+  padding: var(--card-padding);
+  flex: 1;
+}
+
+.card__footer {
+  padding: var(--card-padding);
+  padding-top: 0;
+  margin-top: auto;
+}
+
+.card__title {
+  font-size: var(--tdc-text-h4);
+  font-weight: var(--tdc-weight-bold);
+  line-height: var(--tdc-leading-heading);
+  color: var(--tdc-text-primary);
+  margin: 0 0 var(--tdc-space-stack-sm);
+}
+
+.card__subtitle {
+  font-size: var(--tdc-text-body-sm);
+  color: var(--tdc-text-secondary);
+  margin: 0;
+}
+
+.card__text {
+  font-size: var(--tdc-text-body);
+  color: var(--tdc-text-secondary);
+  line-height: var(--tdc-leading-body);
+}
+
+/* ============================================
+   VARIANTS
+   ============================================ */
+
+/* Elevated (stronger shadow) */
+.card--elevated {
+  --card-shadow: var(--tdc-shadow-card-hover);
+  --card-shadow-hover: var(--tdc-primitive-shadow-xl);
+  --card-border: transparent;
+}
+
+/* Outlined (no shadow) */
+.card--outlined {
+  --card-shadow: none;
+  --card-shadow-hover: none;
+  --card-border: var(--tdc-border-strong);
+}
+
+.card--outlined:hover {
+  --card-border: var(--tdc-brand-primary);
+}
+
+/* Flat (no shadow, no border) */
+.card--flat {
+  --card-shadow: none;
+  --card-shadow-hover: none;
+  --card-border: transparent;
+}
+
+/* ============================================
+   COLORED CARDS (brand surfaces)
+   ============================================ */
+
+.card--primary {
+  --card-bg: var(--tdc-brand-primary-lighter);
+  --card-border: var(--tdc-brand-primary-light);
+}
+
+.card--secondary {
+  --card-bg: var(--tdc-brand-secondary-lighter);
+  --card-border: var(--tdc-brand-secondary-light);
+}
+
+.card--accent {
+  --card-bg: var(--tdc-brand-accent-lighter);
+  --card-border: var(--tdc-brand-accent-light);
+}
+
+.card--mascot {
+  --card-bg: var(--tdc-brand-mascot-light);
+  --card-border: var(--tdc-primitive-yellow-200);
+}
+
+.card--inverse {
+  --card-bg: var(--tdc-surface-inverse);
+  --card-border: var(--tdc-border-inverse);
+}
+
+.card--inverse .card__title {
+  color: var(--tdc-text-inverse);
+}
+
+.card--inverse .card__subtitle,
+.card--inverse .card__text {
+  color: var(--tdc-text-inverse-secondary);
+}
+
+/* ============================================
+   SIZES
+   ============================================ */
+
+.card--sm {
+  --card-padding: var(--tdc-space-stack-md);
+  --card-radius: var(--tdc-primitive-radius-md);
+}
+
+.card--lg {
+  --card-padding: var(--tdc-space-stack-xl);
+  --card-radius: var(--tdc-primitive-radius-xl);
+}
+
+/* ============================================
+   CARD GRID
+   ============================================ */
+
+.card-grid {
+  display: grid;
+  gap: var(--tdc-space-stack-lg);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.card-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.card-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.card-grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+  .card-grid--2,
+  .card-grid--3,
+  .card-grid--4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .card-grid--3,
+  .card-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,33 @@
+/**
+ * TDC Design System - Dark Theme (Default)
+ * 
+ * This is the default theme. The tokens in _tokens.css are already
+ * set up for dark mode, so this file is mainly for explicit .tdc-dark class
+ * usage and for any dark-mode-specific overrides.
+ */
+
+.tdc-dark,
+:root {
+  /* Dark mode is default - tokens.css already has these values */
+  /* This file exists for explicit dark mode and potential overrides */
+  
+  color-scheme: dark;
+}
+
+/* Force dark mode regardless of system preference */
+@media (prefers-color-scheme: light) {
+  .tdc-dark {
+    /* Re-apply dark values if user explicitly wants dark mode */
+    --tdc-surface-page: var(--tdc-primitive-neutral-800);
+    --tdc-surface-elevated: var(--tdc-primitive-neutral-700);
+    --tdc-surface-sunken: var(--tdc-primitive-neutral-900);
+    
+    --tdc-text-primary: var(--tdc-primitive-neutral-100);
+    --tdc-text-secondary: var(--tdc-primitive-neutral-400);
+    
+    --tdc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --tdc-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --tdc-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --tdc-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+}

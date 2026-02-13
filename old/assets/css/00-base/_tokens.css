@@ -1,0 +1,319 @@
+/**
+ * TDC Design System - Design Tokens
+ * 
+ * Architecture: 3-Tier Token System
+ * ================================
+ * 
+ * TIER 1 - Primitives: Raw color/size values (don't use directly in components)
+ * TIER 2 - Semantic: Contextual tokens describing PURPOSE (use these!)
+ * TIER 3 - Component: Component-specific tokens (for complex components)
+ * 
+ * WHY THIS ARCHITECTURE?
+ * - Change --tdc-primitive-purple-3 to green? Only update Tier 2 mappings
+ * - Want dark mode? Override Tier 2 semantic tokens
+ * - Consistent language: "action", "surface", "feedback" not "purple", "green"
+ */
+
+:root {
+  /* ============================================
+     TIER 1: PRIMITIVE TOKENS
+     Raw color values from Figma - DO NOT use directly in components!
+     These are the "source of truth" values.
+     ============================================ */
+
+  /* Greens */
+  --tdc-primitive-green-100: #a9ddb1;
+  --tdc-primitive-green-200: #94cc9d;
+  --tdc-primitive-green-300: #80be8a;
+  --tdc-primitive-green-400: #4f8256;
+
+  /* Reds / Coral */
+  --tdc-primitive-red-50: #ffdbd6;
+  --tdc-primitive-red-100: #ff8675;
+  --tdc-primitive-red-200: #ea7564;
+  --tdc-primitive-red-300: #ce5d4d;
+  --tdc-primitive-red-400: #BD5647;
+
+  /* Purples */
+  --tdc-primitive-purple-50: #ded4ee;
+  --tdc-primitive-purple-100: #bda9dd;
+  --tdc-primitive-purple-200: #817abc;
+  --tdc-primitive-purple-300: #6a63a0;
+
+  /* Yellows (Duck colors!) */
+  --tdc-primitive-yellow-100: #FFE066;
+  --tdc-primitive-yellow-200: #FFCC00;
+  --tdc-primitive-yellow-300: #E6B800;
+  --tdc-primitive-yellow-400: #CC9900;
+
+  /* Pinks / Rosa */
+  --tdc-primitive-pink-100: #FFB8D0;
+  --tdc-primitive-pink-200: #FF8FB3;
+  --tdc-primitive-pink-300: #FF6696;
+
+  /* Blues */
+  --tdc-primitive-blue-100: #A8D4FF;
+  --tdc-primitive-blue-200: #70B8FF;
+  --tdc-primitive-blue-300: #3D9EFF;
+
+  /* Neutrals / Blacks */
+  --tdc-primitive-neutral-100: #ffffff;
+  --tdc-primitive-neutral-200: #f5f5f5;
+  --tdc-primitive-neutral-300: #e0e0e0;
+  --tdc-primitive-neutral-400: #9e9e9e;
+  --tdc-primitive-neutral-500: #616161;
+  --tdc-primitive-neutral-600: #434343;
+  --tdc-primitive-neutral-700: #363636;
+  --tdc-primitive-neutral-800: #292929;
+  --tdc-primitive-neutral-900: #1a1a1a;
+  --tdc-primitive-neutral-1000: #000000;
+
+  /* ============================================
+     TIER 2: SEMANTIC TOKENS
+     Use these in your CSS! They describe PURPOSE not color.
+     ============================================ */
+
+  /* --- BRAND --- */
+  /* Primary brand color - the main TDC identity */
+  --tdc-brand-primary: var(--tdc-primitive-green-400);
+  --tdc-brand-primary-light: var(--tdc-primitive-green-100);
+  --tdc-brand-primary-hover: var(--tdc-primitive-green-200);
+
+  /* Secondary brand color - accent/supporting */
+  --tdc-brand-secondary: var(--tdc-primitive-purple-300);
+  --tdc-brand-secondary-light: var(--tdc-primitive-purple-50);
+  --tdc-brand-secondary-hover: var(--tdc-primitive-purple-200);
+
+  /* Tertiary - special accent (coral/red) */
+  --tdc-brand-tertiary: var(--tdc-primitive-red-300);
+  --tdc-brand-tertiary-light: var(--tdc-primitive-red-50);
+  --tdc-brand-tertiary-hover: var(--tdc-primitive-red-100);
+
+  /* Mascot/Fun - Duck yellow! */
+  --tdc-brand-mascot: var(--tdc-primitive-yellow-200);
+  --tdc-brand-mascot-light: var(--tdc-primitive-yellow-100);
+  --tdc-brand-mascot-dark: var(--tdc-primitive-yellow-400);
+
+  /* --- ACTIONS (buttons, links, interactive elements) --- */
+  --tdc-action-primary-background: var(--tdc-brand-primary);
+  --tdc-action-primary-background-hover: var(--tdc-brand-primary-hover);
+  --tdc-action-primary-text: var(--tdc-primitive-neutral-100);
+
+  --tdc-action-secondary-background: var(--tdc-brand-secondary);
+  --tdc-action-secondary-background-hover: var(--tdc-brand-secondary-hover);
+  --tdc-action-secondary-text: var(--tdc-primitive-neutral-100);
+
+  --tdc-action-ghost-background: transparent;
+  --tdc-action-ghost-background-hover: var(--tdc-primitive-neutral-800);
+  --tdc-action-ghost-text: var(--tdc-primitive-neutral-100);
+  --tdc-action-ghost-border: var(--tdc-primitive-neutral-600);
+
+  --tdc-action-link: var(--tdc-brand-tertiary);
+  --tdc-action-link-hover: var(--tdc-primitive-red-100);
+  --tdc-action-link-visited: var(--tdc-primitive-purple-200);
+
+  /* --- SURFACES (backgrounds) --- */
+  --tdc-surface-page: var(--tdc-primitive-neutral-800);
+  --tdc-surface-elevated: var(--tdc-primitive-neutral-700);
+  --tdc-surface-sunken: var(--tdc-primitive-neutral-900);
+  --tdc-surface-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Colored surfaces for sections */
+  --tdc-surface-accent-primary: var(--tdc-brand-primary-light);
+  --tdc-surface-accent-secondary: var(--tdc-brand-secondary-light);
+  --tdc-surface-accent-tertiary: var(--tdc-brand-tertiary-light);
+  --tdc-surface-accent-mascot: var(--tdc-brand-mascot-light);
+
+  /* --- TEXT --- */
+  --tdc-text-primary: var(--tdc-primitive-neutral-100);
+  --tdc-text-secondary: var(--tdc-primitive-neutral-400);
+  --tdc-text-tertiary: var(--tdc-primitive-neutral-500);
+  --tdc-text-disabled: var(--tdc-primitive-neutral-600);
+
+  /* Text on colored backgrounds */
+  --tdc-text-on-primary: var(--tdc-primitive-neutral-1000);
+  --tdc-text-on-secondary: var(--tdc-primitive-neutral-100);
+  --tdc-text-on-accent: var(--tdc-primitive-neutral-800);
+  --tdc-text-on-mascot: var(--tdc-primitive-neutral-800);
+
+  /* Inverse (for light backgrounds) */
+  --tdc-text-inverse-primary: var(--tdc-primitive-neutral-800);
+  --tdc-text-inverse-secondary: var(--tdc-primitive-neutral-600);
+
+  /* --- BORDERS --- */
+  --tdc-border-default: var(--tdc-primitive-neutral-600);
+  --tdc-border-subtle: var(--tdc-primitive-neutral-700);
+  --tdc-border-strong: var(--tdc-primitive-neutral-400);
+  --tdc-border-focus: var(--tdc-brand-tertiary);
+  --tdc-border-interactive: var(--tdc-brand-primary);
+
+  /* --- FEEDBACK (status, alerts, validation) --- */
+  --tdc-feedback-success: var(--tdc-primitive-green-300);
+  --tdc-feedback-success-light: var(--tdc-primitive-green-100);
+  --tdc-feedback-error: var(--tdc-primitive-red-300);
+  --tdc-feedback-error-light: var(--tdc-primitive-red-50);
+  --tdc-feedback-warning: var(--tdc-primitive-yellow-200);
+  --tdc-feedback-warning-light: var(--tdc-primitive-yellow-100);
+  --tdc-feedback-info: var(--tdc-primitive-blue-200);
+  --tdc-feedback-info-light: var(--tdc-primitive-blue-100);
+
+  /* --- INTERACTIVE STATES --- */
+  --tdc-state-hover-overlay: rgba(255, 255, 255, 0.08);
+  --tdc-state-active-overlay: rgba(255, 255, 255, 0.12);
+  --tdc-state-focus-ring: var(--tdc-brand-tertiary);
+  --tdc-state-disabled-opacity: 0.5;
+
+  /* ============================================
+     TIER 2: SPACING (Semantic)
+     ============================================ */
+  
+  /* Primitive spacing */
+  --tdc-primitive-space-1: 0.25rem;  /* 4px */
+  --tdc-primitive-space-2: 0.5rem;   /* 8px */
+  --tdc-primitive-space-3: 0.75rem;  /* 12px */
+  --tdc-primitive-space-4: 1rem;     /* 16px */
+  --tdc-primitive-space-5: 1.5rem;   /* 24px */
+  --tdc-primitive-space-6: 2rem;     /* 32px */
+  --tdc-primitive-space-7: 3rem;     /* 48px */
+  --tdc-primitive-space-8: 4rem;     /* 64px */
+  --tdc-primitive-space-9: 6rem;     /* 96px */
+  --tdc-primitive-space-10: 8rem;    /* 128px */
+
+  /* Semantic spacing */
+  --tdc-space-inline-xs: var(--tdc-primitive-space-1);
+  --tdc-space-inline-sm: var(--tdc-primitive-space-2);
+  --tdc-space-inline-md: var(--tdc-primitive-space-4);
+  --tdc-space-inline-lg: var(--tdc-primitive-space-5);
+  --tdc-space-inline-xl: var(--tdc-primitive-space-6);
+
+  --tdc-space-stack-xs: var(--tdc-primitive-space-1);
+  --tdc-space-stack-sm: var(--tdc-primitive-space-2);
+  --tdc-space-stack-md: var(--tdc-primitive-space-4);
+  --tdc-space-stack-lg: var(--tdc-primitive-space-6);
+  --tdc-space-stack-xl: var(--tdc-primitive-space-8);
+
+  --tdc-space-section: var(--tdc-primitive-space-9);
+  --tdc-space-page-gutter: var(--tdc-primitive-space-5);
+
+  /* ============================================
+     TIER 2: TYPOGRAPHY (Semantic)
+     ============================================ */
+  
+  /* Primitive sizes */
+  --tdc-primitive-font-size-xs: 0.75rem;   /* 12px */
+  --tdc-primitive-font-size-sm: 0.875rem;  /* 14px */
+  --tdc-primitive-font-size-base: 1rem;    /* 16px */
+  --tdc-primitive-font-size-md: 1.125rem;  /* 18px */
+  --tdc-primitive-font-size-lg: 1.25rem;   /* 20px */
+  --tdc-primitive-font-size-xl: 1.5rem;    /* 24px */
+  --tdc-primitive-font-size-2xl: 2rem;     /* 32px */
+  --tdc-primitive-font-size-3xl: 2.5rem;   /* 40px */
+  --tdc-primitive-font-size-4xl: 3rem;     /* 48px */
+
+  /* Semantic typography */
+  --tdc-text-display: var(--tdc-primitive-font-size-4xl);
+  --tdc-text-h1: var(--tdc-primitive-font-size-3xl);
+  --tdc-text-h2: var(--tdc-primitive-font-size-2xl);
+  --tdc-text-h3: var(--tdc-primitive-font-size-xl);
+  --tdc-text-h4: var(--tdc-primitive-font-size-lg);
+  --tdc-text-lead: var(--tdc-primitive-font-size-lg);
+  --tdc-text-body: var(--tdc-primitive-font-size-base);
+  --tdc-text-body-sm: var(--tdc-primitive-font-size-sm);
+  --tdc-text-caption: var(--tdc-primitive-font-size-xs);
+
+  /* Line heights */
+  --tdc-leading-tight: 1.2;
+  --tdc-leading-normal: 1.5;
+  --tdc-leading-relaxed: 1.75;
+
+  /* Font weights */
+  --tdc-weight-normal: 400;
+  --tdc-weight-medium: 500;
+  --tdc-weight-semibold: 600;
+  --tdc-weight-bold: 700;
+
+  /* ============================================
+     TIER 2: RADII & SHADOWS (Semantic)
+     ============================================ */
+  
+  --tdc-radius-sm: 4px;
+  --tdc-radius-md: 8px;
+  --tdc-radius-lg: 12px;
+  --tdc-radius-xl: 16px;
+  --tdc-radius-full: 9999px;
+
+  --tdc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --tdc-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --tdc-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --tdc-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  /* ============================================
+     TIER 2: ANIMATION (Semantic)
+     ============================================ */
+  
+  --tdc-duration-instant: 0ms;
+  --tdc-duration-fast: 150ms;
+  --tdc-duration-normal: 300ms;
+  --tdc-duration-slow: 500ms;
+  --tdc-duration-slower: 800ms;
+
+  --tdc-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --tdc-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --tdc-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --tdc-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ============================================
+     TIER 3: COMPONENT TOKENS
+     Specific to individual components - override these for customization
+     ============================================ */
+
+  /* --- Button Component --- */
+  --tdc-button-padding-x: var(--tdc-space-inline-lg);
+  --tdc-button-padding-y: var(--tdc-space-inline-md);
+  --tdc-button-radius: var(--tdc-radius-md);
+  --tdc-button-font-size: var(--tdc-text-body);
+  --tdc-button-font-weight: var(--tdc-weight-semibold);
+  --tdc-button-transition: var(--tdc-duration-fast) var(--tdc-ease-default);
+
+  /* --- Card Component --- */
+  --tdc-card-padding: var(--tdc-space-stack-lg);
+  --tdc-card-radius: var(--tdc-radius-lg);
+  --tdc-card-background: var(--tdc-surface-elevated);
+  --tdc-card-border: var(--tdc-border-subtle);
+  --tdc-card-shadow: var(--tdc-shadow-md);
+
+  /* --- Navigation Component --- */
+  --tdc-nav-height: 4rem;
+  --tdc-nav-background: var(--tdc-surface-page);
+  --tdc-nav-text: var(--tdc-text-primary);
+  --tdc-nav-text-hover: var(--tdc-brand-primary-light);
+
+  /* --- Section Component --- */
+  --tdc-section-padding-y: var(--tdc-space-section);
+  --tdc-section-max-width: 1200px;
+
+  /* --- Hero Component --- */
+  --tdc-hero-min-height: 100vh;
+  --tdc-hero-background: var(--tdc-surface-page);
+
+  /* --- Footer Component --- */
+  --tdc-footer-background: var(--tdc-surface-sunken);
+  --tdc-footer-text: var(--tdc-text-secondary);
+}
+
+/* ============================================
+   RESPONSIVE OVERRIDES
+   Adjust semantic tokens for different screens
+   ============================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --tdc-text-display: var(--tdc-primitive-font-size-3xl);
+    --tdc-text-h1: var(--tdc-primitive-font-size-2xl);
+    --tdc-text-h2: var(--tdc-primitive-font-size-xl);
+    --tdc-text-lead: var(--tdc-primitive-font-size-md);
+    
+    --tdc-space-section: var(--tdc-primitive-space-7);
+    --tdc-space-page-gutter: var(--tdc-primitive-space-4);
+  }
+}

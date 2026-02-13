@@ -1,0 +1,89 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <p class="footer__copyright">
+          © {% year %} {{ "footer.copyright" | t(lang) }}
+        </p>
+      </div>
+      
+      <nav class="footer__links" aria-label="Footer navigation">
+        <a href="{% if lang == 'en' %}/en{% endif %}/coc/">{{ "footer.coc" | t(lang) }}</a>
+        <a href="{% if lang == 'en' %}/en{% endif %}/privacy/">{{ "footer.privacy" | t(lang) }}</a>
+      </nav>
+
+      <div class="footer__lang">
+        <a href="/" class="footer__lang-link{% if lang != 'en' %} footer__lang-link--active{% endif %}">NO</a>
+        <span aria-hidden="true">|</span>
+        <a href="/en/" class="footer__lang-link{% if lang == 'en' %} footer__lang-link--active{% endif %}">EN</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: var(--tdc-primitive-space-6) 0;
+    background-color: var(--tdc-surface-inverse);
+    color: var(--tdc-text-inverse);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tdc-primitive-space-4);
+  }
+
+  .footer__copyright {
+    font-size: var(--tdc-primitive-font-size-sm);
+    color: var(--tdc-primitive-neutral-400);
+  }
+
+  .footer__links {
+    display: flex;
+    gap: var(--tdc-primitive-space-4);
+  }
+
+  .footer__links a {
+    font-size: var(--tdc-primitive-font-size-sm);
+    color: var(--tdc-primitive-neutral-400);
+    text-decoration: none;
+    transition: color var(--tdc-transition-fast);
+  }
+
+  .footer__links a:hover {
+    color: var(--tdc-text-inverse);
+  }
+
+  .footer__lang {
+    display: flex;
+    align-items: center;
+    gap: var(--tdc-primitive-space-2);
+    font-size: var(--tdc-primitive-font-size-sm);
+    color: var(--tdc-primitive-neutral-400);
+  }
+
+  .footer__lang-link {
+    color: var(--tdc-primitive-neutral-400);
+    text-decoration: none;
+    transition: color var(--tdc-transition-fast);
+  }
+
+  .footer__lang-link:hover {
+    color: var(--tdc-text-inverse);
+  }
+
+  .footer__lang-link--active {
+    color: var(--tdc-text-inverse);
+    font-weight: var(--tdc-primitive-font-weight-medium);
+  }
+
+  @media (max-width: 600px) {
+    .footer__inner {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>

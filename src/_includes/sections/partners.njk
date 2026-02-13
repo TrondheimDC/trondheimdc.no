@@ -1,0 +1,56 @@
+<tdc-section id="partners" variant="partners" lazy>
+  <div class="container">
+    <header class="section__header text-center" data-animate="slide-up">
+      <h2>{{ "partners.title" | t(lang) }}</h2>
+      <p class="lead">{{ "partners.subtitle" | t(lang) }}</p>
+    </header>
+
+    <div class="partners__placeholder text-center" data-animate="fade">
+      <p class="text-secondary">{{ "partners.coming_soon" | t(lang) }}</p>
+    </div>
+
+    <div class="text-center" style="margin-top: var(--tdc-space-stack-xl);" data-animate="slide-up">
+      <p class="text-secondary" style="margin-bottom: var(--tdc-space-stack-md);">
+        {{ "partners.interested" | t(lang) }}
+      </p>
+      <a href="mailto:partner@trondheimdc.no" class="btn btn--primary">
+        {{ "partners.become" | t(lang) }}
+      </a>
+    </div>
+  </div>
+</tdc-section>
+
+<style>
+  .partners__tier {
+    margin-bottom: var(--tdc-space-stack-xl);
+  }
+
+  .partners__logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--tdc-primitive-space-6);
+  }
+
+  .partners__logo {
+    display: block;
+    opacity: 0.8;
+    transition: opacity var(--tdc-transition-fast);
+  }
+
+  .partners__logo:hover {
+    opacity: 1;
+  }
+
+  .partners__logo img {
+    max-width: 200px;
+    height: auto;
+    filter: grayscale(100%);
+    transition: filter var(--tdc-transition-normal);
+  }
+
+  .partners__logo:hover img {
+    filter: grayscale(0%);
+  }
+</style>
