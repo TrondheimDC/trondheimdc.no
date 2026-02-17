@@ -2,16 +2,15 @@
 layout: default.njk
 ---
 
-<tdc-nav {% if nav_transparent %}transparent{% endif %}></tdc-nav>
+{# Set lang-scoped translations #}
+{% set t = i18n[lang] %}
 
-<main id="main">
-  {% include "sections/hero.njk" %}
-  {% include "sections/about.njk" %}
-  {% include "sections/speakers.njk" %}
-  {% include "sections/program.njk" %}
-  {% include "sections/tickets.njk" %}
-  {% include "sections/partners.njk" %}
-  {% include "sections/contact.njk" %}
-</main>
-
-{% include "footer.njk" %}
+{% include "sections/hero.njk" %}
+{% include "sections/about.njk" %}
+{% include "sections/cfp.njk" %}
+{% include "sections/speakers.njk" %}
+{% include "sections/program.njk" %}
+{% include "sections/tickets.njk" %}
+{% include "sections/partners.njk" %}
+{% include "sections/coc.njk" %}
+{% include "sections/contact.njk" %}

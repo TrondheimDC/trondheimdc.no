@@ -1,97 +1,26 @@
-<tdc-section id="tickets" variant="tickets" lazy>
+{% from "components/button.njk" import button %}
+{% from "components/card.njk" import card %}
+
+<tdc-section>
+<section class="section section--tickets" id="tickets" data-animate aria-labelledby="tickets-title">
   <div class="container">
-    <header class="section__header text-center" data-animate="slide-up">
-      <h2>{{ "tickets.title" | t(lang) }}</h2>
-      <p class="lead">{{ "tickets.subtitle" | t(lang) }}</p>
-    </header>
-
-    <div class="tickets__grid bento bento--3" data-animate-stagger>
-      <!-- Early Bird -->
-      <div class="card card--outline hover-lift">
-        <div class="card__body text-center">
-          <span class="tag tag--mascot">{{ "tickets.early_bird" | t(lang) }}</span>
-          <h3 class="tickets__price" style="margin-top: var(--tdc-space-stack-md);">2 990 kr</h3>
-          <p class="text-sm text-secondary">{{ "tickets.per_person" | t(lang) }}</p>
-          
-          <ul class="tickets__features stack--sm" style="margin-top: var(--tdc-space-stack-md);">
-            <li>✓ {{ "tickets.conf_days" | t(lang) }}</li>
-            <li>✓ {{ "tickets.all_sessions" | t(lang) }}</li>
-            <li>✓ {{ "tickets.lunch" | t(lang) }}</li>
-            <li>✓ {{ "tickets.party" | t(lang) }}</li>
-          </ul>
-
-          <a href="#" class="btn btn--mascot btn--block" style="margin-top: var(--tdc-space-stack-lg);">
-            {{ "tickets.buy_now" | t(lang) }}
-          </a>
-        </div>
-      </div>
-
-      <!-- Regular -->
-      <div class="card card--primary hover-lift">
-        <div class="card__body text-center">
-          <span class="tag tag--primary">{{ "tickets.regular" | t(lang) }}</span>
-          <h3 class="tickets__price" style="margin-top: var(--tdc-space-stack-md);">3 990 kr</h3>
-          <p class="text-sm text-secondary">{{ "tickets.per_person" | t(lang) }}</p>
-          
-          <ul class="tickets__features stack--sm" style="margin-top: var(--tdc-space-stack-md);">
-            <li>✓ {{ "tickets.conf_days" | t(lang) }}</li>
-            <li>✓ {{ "tickets.all_sessions" | t(lang) }}</li>
-            <li>✓ {{ "tickets.lunch" | t(lang) }}</li>
-            <li>✓ {{ "tickets.party" | t(lang) }}</li>
-          </ul>
-
-          <a href="#" class="btn btn--primary btn--block" style="margin-top: var(--tdc-space-stack-lg);">
-            {{ "tickets.buy_now" | t(lang) }}
-          </a>
-        </div>
-      </div>
-
-      <!-- Student -->
-      <div class="card card--outline hover-lift">
-        <div class="card__body text-center">
-          <span class="tag tag--secondary">{{ "tickets.student" | t(lang) }}</span>
-          <h3 class="tickets__price" style="margin-top: var(--tdc-space-stack-md);">990 kr</h3>
-          <p class="text-sm text-secondary">{{ "tickets.per_person" | t(lang) }}</p>
-          
-          <ul class="tickets__features stack--sm" style="margin-top: var(--tdc-space-stack-md);">
-            <li>✓ {{ "tickets.conf_days" | t(lang) }}</li>
-            <li>✓ {{ "tickets.all_sessions" | t(lang) }}</li>
-            <li>✓ {{ "tickets.lunch" | t(lang) }}</li>
-            <li>✓ {{ "tickets.student_id" | t(lang) }}</li>
-          </ul>
-
-          <a href="#" class="btn btn--secondary btn--block" style="margin-top: var(--tdc-space-stack-lg);">
-            {{ "tickets.buy_now" | t(lang) }}
-          </a>
-        </div>
-      </div>
+    <div class="section__header text-center">
+      <h2 class="section__title" id="tickets-title">{{ t.tickets.title }}</h2>
+      <p class="section__subtitle" style="margin-inline: auto;">{{ t.tickets.description }}</p>
     </div>
 
-    <p class="text-center text-secondary" style="margin-top: var(--tdc-space-stack-lg);">
-      {{ "tickets.vat_note" | t(lang) }}
-    </p>
+    <div class="grid grid--2" style="--grid-gap: var(--tdc-space-xl); max-width: 48rem; margin-inline: auto;">
+      <div class="card card--purple text-center stack">
+        <h3 class="card__title">🎟️ {{ t.tickets.attendee_title }}</h3>
+        <p class="card__body">{{ t.tickets.attendee_desc }}</p>
+        {{ button(t.tickets.cta, site.ticketUrl, "dark") }}
+      </div>
+      <div class="card card--purple text-center stack">
+        <h3 class="card__title">🤝 {{ t.tickets.partner_title }}</h3>
+        <p class="card__body">{{ t.tickets.partner_desc }}</p>
+        {{ button(t.tickets.partner_cta, "#partners", "dark") }}
+      </div>
+    </div>
   </div>
+</section>
 </tdc-section>
-
-<style>
-  .tickets__grid {
-    max-width: 900px;
-    margin-inline: auto;
-  }
-
-  .tickets__price {
-    font-size: var(--tdc-primitive-font-size-4xl);
-    font-weight: var(--tdc-primitive-font-weight-bold);
-    color: var(--tdc-brand-primary);
-  }
-
-  .tickets__features {
-    text-align: left;
-    padding-left: var(--tdc-space-inline-md);
-  }
-
-  .tickets__features li {
-    padding: var(--tdc-primitive-space-1) 0;
-    color: var(--tdc-text-secondary);
-  }
-</style>

@@ -1,56 +1,56 @@
-<tdc-section id="partners" variant="partners" lazy>
-  <div class="container">
-    <header class="section__header text-center" data-animate="slide-up">
-      <h2>{{ "partners.title" | t(lang) }}</h2>
-      <p class="lead">{{ "partners.subtitle" | t(lang) }}</p>
-    </header>
+{% from "components/button.njk" import button %}
+{% from "components/partner-logo.njk" import partnerLogo %}
 
-    <div class="partners__placeholder text-center" data-animate="fade">
-      <p class="text-secondary">{{ "partners.coming_soon" | t(lang) }}</p>
+<tdc-section>
+<section class="section section--partners" id="partners" data-animate aria-labelledby="partners-title">
+  <div class="container">
+    <div class="section__header text-center">
+      <h2 class="section__title" id="partners-title">{{ t.partners.heading }}</h2>
     </div>
 
-    <div class="text-center" style="margin-top: var(--tdc-space-stack-xl);" data-animate="slide-up">
-      <p class="text-secondary" style="margin-bottom: var(--tdc-space-stack-md);">
-        {{ "partners.interested" | t(lang) }}
+    {# Partner logos — shuffled via JS #}
+    <div class="partner-logos" data-shuffle>
+      {{ partnerLogo("Bekk", "https://bekk.no", "/assets/images/partners/bekk.svg") }}
+      {{ partnerLogo("Bouvet", "https://bouvet.no", "/assets/images/partners/bouvet.svg") }}
+      {{ partnerLogo("Capgemini", "https://capgemini.no", "/assets/images/partners/capgemini.svg") }}
+      {{ partnerLogo("ITsjefen", "https://itsjefen.no", "/assets/images/partners/itsjefen.svg") }}
+      {{ partnerLogo("Kantega", "https://www.kantega.no/", "/assets/images/partners/kantega.svg") }}
+      {{ partnerLogo("Systek", "https://systek.no", "/assets/images/partners/systek.svg") }}
+      {{ partnerLogo("Tieto", "https://www.tieto.com/", "/assets/images/partners/tieto.svg") }}
+      {{ partnerLogo("Variant", "https://variant.no", "/assets/images/partners/variant.svg") }}
+      {{ partnerLogo("Webstep", "https://webstep.no", "/assets/images/partners/webstep.svg") }}
+      {{ partnerLogo("NAV", "https://www.nav.no/", "/assets/images/partners/nav.svg") }}
+      {{ partnerLogo("Itema", "https://itema.no", "/assets/images/partners/itema.svg") }}
+      {{ partnerLogo("EL og IT forbundet", "https://elogit.no", "/assets/images/partners/ELogIT.png") }}
+      {{ partnerLogo("Computas", "https://computas.no", "/assets/images/partners/Computas_logo_liggende_hvit.png") }}
+      {{ partnerLogo("Norconsult Digital", "https://norconsultdigital.no/", "/assets/images/partners/norconsult-digital-svg-white.svg") }}
+    </div>
+
+    {# Partner info & CTA #}
+    <div class="stack text-center mt-2xl" style="align-items: center;">
+      <h3>{{ t.partners.hero_title }}</h3>
+      <p class="lead" style="margin-inline: auto;">{{ t.partners.hero_subtitle }}</p>
+      <p>{{ t.partners.hero_stats }}</p>
+
+      <div class="stack--sm mt-lg">
+        <h4>{{ t.partners.includes_title }}</h4>
+        <ul style="list-style: disc; text-align: left; display: inline-block; padding-inline-start: 1.5rem;">
+          {% for item in t.partners.includes %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <p class="mt-lg"><strong>{{ t.partners.price }}</strong></p>
+
+      <div class="mt-lg">
+        {{ button(t.partners.cta_button, "mailto:" + site.partnerEmail, "white", "lg") }}
+      </div>
+
+      <p class="mt-md">{{ t.partners.contact_text }}
+        <a href="mailto:{{ site.partnerEmail }}" style="text-decoration: underline;">{{ site.partnerEmail }}</a>
       </p>
-      <a href="mailto:partner@trondheimdc.no" class="btn btn--primary">
-        {{ "partners.become" | t(lang) }}
-      </a>
     </div>
   </div>
+</section>
 </tdc-section>
-
-<style>
-  .partners__tier {
-    margin-bottom: var(--tdc-space-stack-xl);
-  }
-
-  .partners__logos {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: var(--tdc-primitive-space-6);
-  }
-
-  .partners__logo {
-    display: block;
-    opacity: 0.8;
-    transition: opacity var(--tdc-transition-fast);
-  }
-
-  .partners__logo:hover {
-    opacity: 1;
-  }
-
-  .partners__logo img {
-    max-width: 200px;
-    height: auto;
-    filter: grayscale(100%);
-    transition: filter var(--tdc-transition-normal);
-  }
-
-  .partners__logo:hover img {
-    filter: grayscale(0%);
-  }
-</style>

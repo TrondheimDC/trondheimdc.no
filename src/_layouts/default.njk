@@ -1,41 +1,41 @@
 <!DOCTYPE html>
-<html lang="{{ lang | default('no') }}">
+<html lang="{{ lang }}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% if title %}{{ title }} | {% endif %}{{ site.title }}</title>
-  <meta name="description" content="{{ description | default(site.description_no if lang != 'en' else site.description_en) }}">
-  
-  <!-- Preconnect to external resources -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
-  <!-- Favicon -->
-  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.svg">
-  
-  <!-- CSS -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title | default("TDC 2026") }}</title>
+  <meta name="description" content="{{ description | default(site.description) }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
   <link rel="stylesheet" href="/assets/css/main.css">
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content="{{ title | default(site.title) }}">
-  <meta property="og:description" content="{{ description | default(site.description_no) }}">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
-  <meta property="og:image" content="{{ site.url }}/assets/images/og-image.svg">
-  
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="{{ site.social.twitter }}">
+
+  <!-- Matomo Analytics -->
+  <script>
+    var _paq = window._paq = window._paq || [];
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    _paq.push(['enableHeartBeatTimer']);
+    (function() {
+      var u="//stats.trondheimdc.no/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
 </head>
 <body>
   <a href="#main" class="skip-link">
-    {{ "common.skip_to_main" | t(lang) }}
+    {% if lang == "en" %}Skip to content{% else %}Hopp til innhold{% endif %}
   </a>
 
-  {{ content | safe }}
+  {% include "partials/nav.njk" %}
 
-  <!-- JavaScript -->
+  <main id="main">
+    {{ content | safe }}
+  </main>
+
+  {% include "partials/footer.njk" %}
+
   <script type="module" src="/assets/js/main.js"></script>
 </body>
 </html>

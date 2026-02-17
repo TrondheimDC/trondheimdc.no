@@ -1,10 +1,11 @@
 {
-  "name": "tdc-2025",
+  "name": "tdc-2026-website",
   "version": "1.0.0",
+  "description": "Trondheim Developer Conference 2026 website",
   "type": "module",
   "scripts": {
-    "dev": "bunx @11ty/eleventy --serve",
-    "build": "bunx @11ty/eleventy",
+    "dev": "eleventy --serve --watch",
+    "build": "eleventy",
     "clean": "rm -rf _site"
   },
   "devDependencies": {

@@ -1,0 +1,10 @@
+{# Card macro #}
+{% macro card(title, body, href=null, variant="", cta=null) %}
+<div class="card{% if variant %} card--{{ variant }}{% endif %}">
+  {% if title %}<h3 class="card__title">{{ title }}</h3>{% endif %}
+  {% if body %}<p class="card__body">{{ body }}</p>{% endif %}
+  {% if cta and href %}
+    <a href="{{ href }}" class="btn btn--dark btn--sm">{{ cta }}</a>
+  {% endif %}
+</div>
+{% endmacro %}

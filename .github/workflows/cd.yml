@@ -4,11 +4,8 @@ name: CD - Build, Lint, Test, Deploy
 on:
   push:
     branches: ["main"]
-
-  # Allows manual trigger from Actions tab
   workflow_dispatch:
 
-# Allow only one concurrent deployment
 concurrency:
   group: "deploy"
   cancel-in-progress: false
@@ -23,25 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
+          bun-version: latest
 
       - name: Install dependencies
-        run: |
-          gem install jekyll bundler
-          if [ -f Gemfile ]; then bundle install; fi
+        working-directory: src
+        run: bun install --frozen-lockfile
 
-      - name: Build Jekyll site
-        run: jekyll build
+      - name: Build site
+        working-directory: src
+        run: bun run build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: _site/
+          path: src/_site/
           retention-days: 1
 
   lint:
@@ -55,18 +51,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: src/_site/
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
+          bun-version: latest
 
       - name: Install HTMLHint
-        run: npm install -g htmlhint
+        run: bun install -g htmlhint
 
       - name: Lint HTML files
-        run: htmlhint "_site/**/*.html" --config .htmlhintrc || true
+        run: htmlhint "src/_site/**/*.html" || true
         continue-on-error: true
 
   test:
@@ -80,26 +76,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: src/_site/
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Check internal links
+        uses: chabad360/htmlproofer@master
         with:
-          ruby-version: '3.2'
-
-      - name: Install html-proofer
-        run: gem install html-proofer
-
-      - name: Test HTML with html-proofer
-        run: |
-          htmlproofer _site \
-            --disable-external \
-            --ignore-urls "/^http:\/\/localhost/,/^http:\/\/127.0.0.1/" \
-            --allow-hash-href \
-            --ignore-empty-alt \
-            --ignore-missing-alt \
-            || true
-        continue-on-error: true
+          directory: src/_site
+          arguments: --disable-external --allow-hash-href
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -112,29 +95,30 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: src/_site/
 
       - name: Copy site to tests folder
-        run: cp -r _site tests/
+        run: cp -r src/_site tests/
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
+          bun-version: latest
 
       - name: Install dependencies
         working-directory: tests
-        run: npm ci
+        run: bun install
 
       - name: Install Playwright browsers
         working-directory: tests
-        run: npx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium
 
       - name: Run Playwright tests
         working-directory: tests
-        run: npm run test:ci
+        run: bun run test:ci
         env:
           CI: true
+          BASE_URL: http://localhost:4000
 
       - name: Upload test results
         if: always()
@@ -155,7 +139,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: src/_site/
 
       - name: Setup SSH
         run: |
@@ -168,7 +152,7 @@ jobs:
         run: |
           rsync -rlvz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            _site/ \
+            src/_site/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Cleanup SSH key
@@ -182,17 +166,15 @@ jobs:
     steps:
       - name: Create job summary
         run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| 🏗️ Build | ${{ needs.build.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🧪 HTML Test | ${{ needs.test.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🎭 E2E Tests | ${{ needs.e2e-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🌐 Deploy | ${{ needs.deploy.result == 'success' && '✅ Deployed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Details" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| HTML Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy | ${{ needs.deploy.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

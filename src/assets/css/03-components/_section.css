@@ -1,168 +1,80 @@
-/**
- * Section Component
- * =================
- * Page sections for one-pager layout
- */
-
+/* Section component */
 .section {
-  --section-bg: var(--tdc-surface-page);
-  --section-text: var(--tdc-text-primary);
-  --section-padding-y: var(--tdc-space-section);
+  --_section-bg: var(--tdc-primitive-white);
+  --_section-color: var(--tdc-text-primary);
 
-  position: relative;
-  padding: var(--section-padding-y) 0;
-  background-color: var(--section-bg);
-  color: var(--section-text);
+  padding-block: var(--tdc-space-4xl);
+  background: var(--_section-bg);
+  color: var(--_section-color);
 }
 
-.section__container {
-  width: 100%;
-  max-width: var(--tdc-container-xl);
-  margin: 0 auto;
-  padding: 0 var(--tdc-container-padding);
+.section--hero { --_section-bg: var(--tdc-surface-hero); }
+.section--about { --_section-bg: var(--tdc-surface-about); }
+.section--speakers { --_section-bg: var(--tdc-surface-speakers); }
+.section--program { --_section-bg: var(--tdc-surface-program); }
+.section--tickets { --_section-bg: var(--tdc-surface-tickets); }
+.section--partners {
+  --_section-bg: var(--tdc-surface-partners);
+  --_section-color: var(--tdc-text-on-dark);
+}
+.section--cfp { --_section-bg: var(--tdc-brand-primary); }
+.section--coc { --_section-bg: var(--tdc-primitive-gray-50); }
+
+/* Force light text in dark sections */
+.section--partners h2,
+.section--partners h3,
+.section--partners h4,
+.section--partners p,
+.section--partners li,
+.section--partners .lead,
+.section--partners .section__title,
+.section--partners .section__subtitle,
+.section--partners a,
+.section--dark h2,
+.section--dark h3,
+.section--dark h4,
+.section--dark p,
+.section--dark li,
+.section--dark .lead,
+.section--dark a {
+  color: inherit;
 }
 
-.section__container--narrow {
-  max-width: var(--tdc-container-md);
+.section--dark {
+  --_section-bg: var(--tdc-surface-footer);
+  --_section-color: var(--tdc-text-on-dark);
 }
 
-.section__container--wide {
-  max-width: var(--tdc-container-2xl);
-}
-
-/* Section header */
 .section__header {
-  text-align: center;
-  margin-bottom: var(--tdc-space-stack-xl);
-}
-
-.section__header--left {
-  text-align: left;
-}
-
-.section__overline {
-  display: block;
-  font-size: var(--tdc-text-overline);
-  font-weight: var(--tdc-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--tdc-primitive-tracking-wider);
-  color: var(--tdc-brand-primary);
-  margin-bottom: var(--tdc-space-stack-sm);
+  margin-block-end: var(--tdc-space-2xl);
 }
 
 .section__title {
-  font-size: var(--tdc-text-h2);
-  font-weight: var(--tdc-weight-bold);
-  line-height: var(--tdc-leading-heading);
-  color: inherit;
-  margin: 0 0 var(--tdc-space-stack-md);
+  font-size: var(--tdc-text-3xl);
+  font-weight: 700;
 }
 
 .section__subtitle {
-  font-size: var(--tdc-text-lead);
+  font-size: var(--tdc-text-lg);
   color: var(--tdc-text-secondary);
-  line-height: var(--tdc-leading-relaxed);
-  max-width: 60ch;
-  margin: 0 auto;
+  margin-block-start: var(--tdc-space-sm);
+  max-width: 50ch;
 }
 
-.section__header--left .section__subtitle {
-  margin: 0;
-}
-
-/* ============================================
-   SECTION VARIANTS (colored backgrounds)
-   ============================================ */
-
-.section--hero {
-  --section-bg: var(--tdc-surface-hero);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
-.section--about {
-  --section-bg: var(--tdc-surface-about);
-}
-
-.section--speakers {
-  --section-bg: var(--tdc-surface-speakers);
-}
-
-.section--program {
-  --section-bg: var(--tdc-surface-program);
-}
-
-.section--tickets {
-  --section-bg: var(--tdc-surface-tickets);
-}
-
-.section--partners {
-  --section-bg: var(--tdc-surface-partners);
-}
-
-.section--contact,
-.section--inverse {
-  --section-bg: var(--tdc-surface-contact);
-  --section-text: var(--tdc-text-inverse);
-}
-
-.section--inverse .section__subtitle {
-  color: var(--tdc-text-inverse-secondary);
-}
-
-.section--inverse .section__overline {
-  color: var(--tdc-brand-primary-light);
-}
-
-/* ============================================
-   SECTION SIZES
-   ============================================ */
-
-.section--sm {
-  --section-padding-y: var(--tdc-space-section-sm);
-}
-
-.section--lg {
-  --section-padding-y: var(--tdc-primitive-space-32);
-}
-
-.section--full {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
-/* ============================================
-   SECTION DECORATIONS
-   ============================================ */
-
-/* Wave top */
-.section--wave-top::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: inherit;
-  clip-path: ellipse(60% 100% at 50% 100%);
-  transform: translateY(-100%);
-}
-
-/* Angled */
-.section--angled {
-  clip-path: polygon(0 5%, 100% 0, 100% 95%, 0 100%);
-  padding-top: calc(var(--section-padding-y) + 3rem);
-  padding-bottom: calc(var(--section-padding-y) + 3rem);
-}
-
-@media (max-width: 768px) {
-  .section {
-    --section-padding-y: var(--tdc-space-section-sm);
+@media (min-width: 768px) {
+  .section__title {
+    font-size: var(--tdc-text-4xl);
   }
-  
-  .section--sm {
-    --section-padding-y: var(--tdc-primitive-space-12);
-  }
+}
+
+/* Scroll animation */
+.section[data-animate] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section[data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }

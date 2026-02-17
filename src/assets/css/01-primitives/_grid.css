@@ -1,0 +1,13 @@
+/* Grid — Auto-fit responsive grid */
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--tdc-space-lg));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--grid-min, 16rem), 100%), 1fr)
+  );
+}
+
+.grid--2 { --grid-min: 20rem; }
+.grid--3 { --grid-min: 16rem; }
+.grid--4 { --grid-min: 14rem; }

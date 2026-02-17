@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "tdc-2025",
+      "name": "tdc-2026-website",
       "devDependencies": {
         "@11ty/eleventy": "^3.0.0",
       },

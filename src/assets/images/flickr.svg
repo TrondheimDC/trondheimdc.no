@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flickr">
+	<!-- Monochrome with transparent glyph: black background, punched-out circles become transparent -->
+	<mask id="holes" x="0" y="0" width="24" height="24" maskUnits="userSpaceOnUse">
+		<!-- White area = visible; black = transparent hole -->
+		<rect width="24" height="24" rx="4" fill="#ffffff"/>
+		<circle cx="9" cy="12" r="4" fill="#000000"/>
+		<circle cx="15" cy="12" r="4" fill="#000000"/>
+	</mask>
+	<rect width="24" height="24" rx="4" fill="#000" mask="url(#holes)"/>
+</svg>

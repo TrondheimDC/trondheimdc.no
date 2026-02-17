@@ -1,0 +1,273 @@
+@layer components {
+  /* ============================================
+     DUCK MASCOT
+     The TDC rubber duck — interactive & playful
+     ============================================ */
+
+  .duck {
+    --duck-size: clamp(100px, 15vw, 180px);
+    position: relative;
+    width: var(--duck-size);
+    height: var(--duck-size);
+    cursor: pointer;
+    filter: drop-shadow(0 8px 24px rgba(255, 204, 0, 0.3));
+    transition: filter 0.3s ease;
+    /* Idle floating animation */
+    animation: duck-float 3s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  .duck:hover {
+    filter: drop-shadow(0 12px 32px rgba(255, 204, 0, 0.5));
+  }
+
+  .duck__img {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ---- Float / bob animation ---- */
+  @keyframes duck-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%      { transform: translateY(-8px) rotate(1.5deg); }
+    50%      { transform: translateY(-4px) rotate(-1deg); }
+    75%      { transform: translateY(-10px) rotate(0.5deg); }
+  }
+
+  /* ---- Click: quack! ---- */
+  .duck.is-quacking {
+    animation: duck-quack 0.5s ease-in-out;
+  }
+
+  @keyframes duck-quack {
+    0%   { transform: scale(1) rotate(0); }
+    15%  { transform: scale(1.15) rotate(-5deg); }
+    30%  { transform: scale(0.95) rotate(3deg); }
+    50%  { transform: scale(1.1) rotate(-3deg); }
+    70%  { transform: scale(0.97) rotate(2deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* ---- Quack speech bubble ---- */
+  .duck__quack {
+    position: absolute;
+    top: -10px;
+    left: 60%;
+    padding: 6px 14px;
+    background: #fff;
+    color: #1a1a1a;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px) scale(0.8);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 3;
+  }
+
+  .duck__quack::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 16px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+
+  .duck__quack.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* ---- Spin trick (double-click) ---- */
+  .duck.is-spinning {
+    animation: duck-spin 0.8s ease-in-out;
+  }
+
+  @keyframes duck-spin {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(360deg) scale(1.2); }
+    100% { transform: rotate(720deg) scale(1); }
+  }
+
+  /* ---- Drag state ---- */
+  .duck.is-dragging {
+    animation: none !important;
+    cursor: grabbing;
+    filter: drop-shadow(0 16px 40px rgba(255, 204, 0, 0.6));
+    z-index: 999;
+  }
+
+  /* ---- Party mode (konami-ish) ---- */
+  .duck.is-partying {
+    animation: duck-party 0.4s ease-in-out infinite alternate;
+  }
+
+  @keyframes duck-party {
+    0%   { transform: rotate(-15deg) scale(1.05); filter: hue-rotate(0deg); }
+    100% { transform: rotate(15deg) scale(1.1); filter: hue-rotate(60deg); }
+  }
+
+  /* ---- Splash ripple on click ---- */
+  .duck__splash {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 120%;
+    height: 30px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .duck__splash.is-splashing {
+    animation: duck-splash 0.6s ease-out forwards;
+  }
+
+  @keyframes duck-splash {
+    0%   { opacity: 0.8; transform: translateX(-50%) scaleX(0.5) scaleY(0.5); }
+    100% { opacity: 0; transform: translateX(-50%) scaleX(1.5) scaleY(1.2); }
+  }
+
+  /* ---- Confetti particles ---- */
+  .duck__confetti {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .duck__confetti.is-popping {
+    animation: confetti-pop 0.8s ease-out forwards;
+  }
+
+  @keyframes confetti-pop {
+    0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--confetti-x, 30px), var(--confetti-y, -60px)) scale(0.3) rotate(180deg); }
+  }
+
+  /* ---- Respect reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .duck {
+      animation: none;
+    }
+    .duck.is-quacking,
+    .duck.is-spinning,
+    .duck.is-partying {
+      animation: none;
+    }
+  }
+
+  /* ---- TDuckC Easter egg ---- */
+  .hero__logo--tduckc {
+    transform-origin: center;
+  }
+
+  .tduckc-highlight {
+    color: var(--tdc-primitive-yellow-200, #FFCC00);
+    font-style: italic;
+    text-shadow: 0 0 12px rgba(255, 204, 0, 0.6);
+  }
+
+  /* Duck walking animation (waddle) */
+  .duck--walking .duck {
+    animation: duck-waddle 0.3s ease-in-out infinite alternate !important;
+  }
+
+  @keyframes duck-waddle {
+    0%   { transform: rotate(-8deg) translateY(0); }
+    100% { transform: rotate(8deg) translateY(-4px); }
+  }
+
+  /* ---- Cartoon cloud / poof ---- */
+  .tduckc-cloud {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: clamp(180px, 40vw, 320px);
+    height: clamp(120px, 25vw, 220px);
+    background: radial-gradient(ellipse at center, #fff 0%, #f0f0f0 50%, #e8e8e8 80%, transparent 100%);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
+  }
+
+  .tduckc-cloud.is-active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  .tduckc-cloud.is-fading {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0;
+    transition: transform 0.6s ease, opacity 0.4s ease;
+  }
+
+  .tduckc-cloud__text {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 800;
+    color: #333;
+    z-index: 1;
+    animation: cloud-text-shake 0.15s ease-in-out infinite alternate;
+  }
+
+  @keyframes cloud-text-shake {
+    0%   { transform: translate(-1px, 1px) rotate(-1deg); }
+    100% { transform: translate(1px, -1px) rotate(1deg); }
+  }
+
+  .tduckc-cloud__poof {
+    position: absolute;
+    font-size: 2rem;
+    animation: poof-float 0.8s ease-in-out infinite alternate;
+  }
+  .tduckc-cloud__poof:first-child {
+    top: 10%;
+    left: 15%;
+  }
+  .tduckc-cloud__poof--2 {
+    top: 15%;
+    right: 18%;
+    animation-delay: 0.2s;
+  }
+  .tduckc-cloud__poof--3 {
+    bottom: 18%;
+    left: 25%;
+    animation-delay: 0.4s;
+  }
+
+  @keyframes poof-float {
+    0%   { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-8px) scale(1.2); opacity: 0.7; }
+  }
+
+  .tduckc-cloud__stars {
+    position: absolute;
+    bottom: 20%;
+    right: 15%;
+    font-size: 1.1rem;
+    animation: stars-spin 1s linear infinite;
+  }
+
+  @keyframes stars-spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}

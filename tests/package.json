@@ -1,0 +1,15 @@
+{
+  "name": "tdc-website-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for TDC 2026 website",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:ci": "playwright test --reporter=list"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "serve": "^14.2.0"
+  }
+}

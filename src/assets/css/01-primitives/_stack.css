@@ -1,0 +1,14 @@
+/* Stack — Vertical spacing between children */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack > * + * {
+  margin-block-start: var(--stack-space, var(--tdc-space-lg));
+}
+
+.stack--sm > * + * { margin-block-start: var(--tdc-space-sm); }
+.stack--md > * + * { margin-block-start: var(--tdc-space-md); }
+.stack--lg > * + * { margin-block-start: var(--tdc-space-xl); }
+.stack--xl > * + * { margin-block-start: var(--tdc-space-3xl); }

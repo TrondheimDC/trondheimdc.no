@@ -1,292 +1,94 @@
-/**
- * Button Component
- * ================
- * Variants: primary, secondary, accent, mascot, ghost, outline
- * Sizes: xs, sm, md, lg, xl
- * States: hover, active, disabled, loading
- */
-
-/* Base button */
+/* Button component */
 .btn {
-  /* Tier 3: Component tokens */
-  --btn-bg: var(--tdc-action-primary-bg);
-  --btn-bg-hover: var(--tdc-action-primary-bg-hover);
-  --btn-bg-active: var(--tdc-action-primary-bg-active);
-  --btn-text: var(--tdc-action-primary-text);
-  --btn-border: transparent;
-  --btn-padding-x: var(--tdc-space-inline-lg);
-  --btn-padding-y: var(--tdc-primitive-space-3);
-  --btn-radius: var(--tdc-radius-button);
-  --btn-font-size: var(--tdc-text-body);
-  --btn-font-weight: var(--tdc-weight-semibold);
-  --btn-shadow: var(--tdc-shadow-button);
-  --btn-shadow-hover: var(--tdc-shadow-button-hover);
-  --btn-min-height: 2.75rem;
+  --_btn-bg: var(--tdc-brand-primary);
+  --_btn-color: var(--tdc-text-on-primary);
+  --_btn-hover-bg: var(--tdc-brand-primary-mid);
 
-  /* Base styles */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--tdc-space-inline-sm);
-  min-height: var(--btn-min-height);
-  padding: var(--btn-padding-y) var(--btn-padding-x);
-  font-family: var(--tdc-font-family-base);
-  font-size: var(--btn-font-size);
-  font-weight: var(--btn-font-weight);
-  line-height: 1.25;
+  gap: var(--tdc-space-xs);
+  padding: var(--tdc-space-sm) var(--tdc-space-xl);
+  background: var(--_btn-bg);
+  color: var(--_btn-color);
+  border: 2px solid transparent;
+  border-radius: var(--tdc-radius-full);
+  font-weight: 600;
+  font-size: var(--tdc-text-base);
+  line-height: 1;
   text-decoration: none;
-  white-space: nowrap;
   cursor: pointer;
-  border: 2px solid var(--btn-border);
-  border-radius: var(--btn-radius);
-  background-color: var(--btn-bg);
-  color: var(--btn-text);
-  box-shadow: var(--btn-shadow);
-  transition: 
-    background-color var(--tdc-transition-fast),
-    border-color var(--tdc-transition-fast),
-    color var(--tdc-transition-fast),
-    transform var(--tdc-transition-fast),
-    box-shadow var(--tdc-transition-fast);
+  transition: background var(--tdc-transition-fast),
+              transform var(--tdc-transition-fast),
+              box-shadow var(--tdc-transition-fast);
+  white-space: nowrap;
 }
 
 .btn:hover {
-  background-color: var(--btn-bg-hover);
-  box-shadow: var(--btn-shadow-hover);
+  background: var(--_btn-hover-bg);
   transform: translateY(-1px);
+  box-shadow: var(--tdc-shadow-md);
 }
 
 .btn:active {
-  background-color: var(--btn-bg-active);
   transform: translateY(0);
-  box-shadow: var(--btn-shadow);
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--tdc-state-focus-ring);
-  outline-offset: var(--tdc-state-focus-ring-offset);
+  outline: 3px solid var(--tdc-brand-accent);
+  outline-offset: 2px;
 }
 
-.btn:disabled,
-.btn[aria-disabled="true"] {
-  opacity: var(--tdc-state-disabled-opacity);
-  cursor: not-allowed;
-  pointer-events: none;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Icon in button */
-.btn svg,
-.btn .icon {
-  width: 1.25em;
-  height: 1.25em;
-  flex-shrink: 0;
-}
-
-/* Icon-only button */
-.btn--icon-only {
-  padding: var(--btn-padding-y);
-  aspect-ratio: 1;
-}
-
-/* ============================================
-   VARIANTS
-   ============================================ */
-
-/* Primary Dark - for high contrast (white text) */
-.btn--primary-dark {
-  --btn-bg: var(--tdc-action-primary-dark-bg);
-  --btn-bg-hover: var(--tdc-action-primary-dark-bg-hover);
-  --btn-bg-active: var(--tdc-action-primary-dark-bg-active);
-  --btn-text: var(--tdc-action-primary-dark-text);
-}
-
-/* Secondary - Purple (pastel) */
+/* Variants */
 .btn--secondary {
-  --btn-bg: var(--tdc-action-secondary-bg);
-  --btn-bg-hover: var(--tdc-action-secondary-bg-hover);
-  --btn-bg-active: var(--tdc-action-secondary-bg-active);
-  --btn-text: var(--tdc-action-secondary-text);
+  --_btn-bg: var(--tdc-brand-secondary);
+  --_btn-hover-bg: var(--tdc-brand-secondary-mid);
 }
 
-/* Secondary Dark - for high contrast (white text) */
-.btn--secondary-dark {
-  --btn-bg: var(--tdc-action-secondary-dark-bg);
-  --btn-bg-hover: var(--tdc-action-secondary-dark-bg-hover);
-  --btn-bg-active: var(--tdc-primitive-purple-700);
-  --btn-text: var(--tdc-action-secondary-dark-text);
-}
-
-/* Accent - Red/Coral (pastel) */
 .btn--accent {
-  --btn-bg: var(--tdc-action-accent-bg);
-  --btn-bg-hover: var(--tdc-action-accent-bg-hover);
-  --btn-bg-active: var(--tdc-action-accent-bg-active);
-  --btn-text: var(--tdc-action-accent-text);
+  --_btn-bg: var(--tdc-brand-accent);
+  --_btn-hover-bg: var(--tdc-brand-accent-dark);
+  --_btn-color: var(--tdc-primitive-white);
 }
 
-/* Accent Dark - for high contrast (white text) */
-.btn--accent-dark {
-  --btn-bg: var(--tdc-action-accent-dark-bg);
-  --btn-bg-hover: var(--tdc-action-accent-dark-bg-hover);
-  --btn-bg-active: var(--tdc-primitive-red-700);
-  --btn-text: var(--tdc-action-accent-dark-text);
+.btn--outline {
+  --_btn-bg: transparent;
+  --_btn-color: var(--tdc-text-primary);
+  border-color: currentColor;
 }
 
-/* Mascot - Yellow 🦆 */
-.btn--mascot {
-  --btn-bg: var(--tdc-action-mascot-bg);
-  --btn-bg-hover: var(--tdc-action-mascot-bg-hover);
-  --btn-bg-active: var(--tdc-action-mascot-bg-active);
-  --btn-text: var(--tdc-action-mascot-text);
+.btn--outline:hover {
+  background: var(--tdc-primitive-black);
+  color: var(--tdc-primitive-white);
+  border-color: var(--tdc-primitive-black);
 }
 
-/* Ghost - Transparent with border */
-.btn--ghost {
-  --btn-bg: var(--tdc-action-ghost-bg);
-  --btn-bg-hover: var(--tdc-action-ghost-bg-hover);
-  --btn-bg-active: var(--tdc-action-ghost-bg-active);
-  --btn-text: var(--tdc-action-ghost-text);
-  --btn-border: var(--tdc-action-ghost-border);
-  --btn-shadow: none;
-  --btn-shadow-hover: none;
+.btn--white {
+  --_btn-bg: var(--tdc-primitive-white);
+  --_btn-color: var(--tdc-primitive-black);
+  --_btn-hover-bg: var(--tdc-primitive-gray-100);
 }
 
-/* Outline variants */
-.btn--outline-primary {
-  --btn-bg: transparent;
-  --btn-bg-hover: var(--tdc-brand-primary-lighter);
-  --btn-bg-active: var(--tdc-brand-primary-light);
-  --btn-text: var(--tdc-brand-primary);
-  --btn-border: var(--tdc-brand-primary);
-  --btn-shadow: none;
+.btn--dark {
+  --_btn-bg: var(--tdc-primitive-black);
+  --_btn-color: var(--tdc-primitive-white);
+  --_btn-hover-bg: var(--tdc-primitive-gray-800);
 }
 
-.btn--outline-secondary {
-  --btn-bg: transparent;
-  --btn-bg-hover: var(--tdc-brand-secondary-lighter);
-  --btn-bg-active: var(--tdc-brand-secondary-light);
-  --btn-text: var(--tdc-brand-secondary);
-  --btn-border: var(--tdc-brand-secondary);
-  --btn-shadow: none;
-}
-
-.btn--outline-accent {
-  --btn-bg: transparent;
-  --btn-bg-hover: var(--tdc-brand-accent-lighter);
-  --btn-bg-active: var(--tdc-brand-accent-light);
-  --btn-text: var(--tdc-brand-accent);
-  --btn-border: var(--tdc-brand-accent);
-  --btn-shadow: none;
-}
-
-/* Inverse (for dark backgrounds) */
-.btn--inverse {
-  --btn-bg: var(--tdc-primitive-neutral-0);
-  --btn-bg-hover: var(--tdc-primitive-neutral-100);
-  --btn-bg-active: var(--tdc-primitive-neutral-200);
-  --btn-text: var(--tdc-primitive-neutral-900);
-}
-
-.btn--outline-inverse {
-  --btn-bg: transparent;
-  --btn-bg-hover: rgba(255, 255, 255, 0.1);
-  --btn-bg-active: rgba(255, 255, 255, 0.15);
-  --btn-text: var(--tdc-primitive-neutral-0);
-  --btn-border: var(--tdc-primitive-neutral-0);
-  --btn-shadow: none;
-}
-
-/* ============================================
-   SIZES
-   ============================================ */
-
-.btn--xs {
-  --btn-padding-x: var(--tdc-space-inline-sm);
-  --btn-padding-y: var(--tdc-primitive-space-1);
-  --btn-font-size: var(--tdc-text-caption);
-  --btn-min-height: 1.75rem;
-  --btn-radius: var(--tdc-primitive-radius-sm);
-}
-
+/* Sizes */
 .btn--sm {
-  --btn-padding-x: var(--tdc-space-inline-md);
-  --btn-padding-y: var(--tdc-primitive-space-2);
-  --btn-font-size: var(--tdc-text-body-sm);
-  --btn-min-height: 2.25rem;
+  padding: var(--tdc-space-2xs) var(--tdc-space-md);
+  font-size: var(--tdc-text-sm);
 }
 
 .btn--lg {
-  --btn-padding-x: var(--tdc-space-inline-xl);
-  --btn-padding-y: var(--tdc-primitive-space-4);
-  --btn-font-size: var(--tdc-primitive-font-size-md);
-  --btn-min-height: 3.25rem;
+  padding: var(--tdc-space-md) var(--tdc-space-2xl);
+  font-size: var(--tdc-text-lg);
 }
 
-.btn--xl {
-  --btn-padding-x: var(--tdc-primitive-space-10);
-  --btn-padding-y: var(--tdc-primitive-space-5);
-  --btn-font-size: var(--tdc-primitive-font-size-lg);
-  --btn-min-height: 4rem;
-  --btn-radius: var(--tdc-primitive-radius-lg);
-}
-
-/* Full width */
-.btn--block {
-  display: flex;
-  width: 100%;
-}
-
-/* Rounded/pill */
-.btn--pill {
-  --btn-radius: var(--tdc-radius-pill);
-}
-
-/* Loading state */
-.btn--loading {
-  position: relative;
-  color: transparent;
-  pointer-events: none;
-}
-
-.btn--loading::after {
-  content: "";
-  position: absolute;
+/* Icon */
+.btn__icon {
+  display: inline-flex;
   width: 1.25em;
   height: 1.25em;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: btn-spin 0.6s linear infinite;
-}
-
-@keyframes btn-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ============================================
-   BUTTON GROUP
-   ============================================ */
-
-.btn-group {
-  display: inline-flex;
-}
-
-.btn-group .btn {
-  border-radius: 0;
-}
-
-.btn-group .btn:first-child {
-  border-radius: var(--btn-radius) 0 0 var(--btn-radius);
-}
-
-.btn-group .btn:last-child {
-  border-radius: 0 var(--btn-radius) var(--btn-radius) 0;
-}
-
-.btn-group .btn + .btn {
-  margin-left: -2px;
 }

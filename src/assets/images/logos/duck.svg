@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- TDC Rubber Duck Mascot -->
+  <!-- Body -->
+  <ellipse cx="100" cy="140" rx="65" ry="45" fill="#FFCC00"/>
+  <ellipse cx="100" cy="140" rx="65" ry="45" fill="url(#bodyGrad)" opacity="0.3"/>
+
+  <!-- Water ripples -->
+  <ellipse cx="100" cy="175" rx="75" ry="12" fill="#3D9EFF" opacity="0.25"/>
+  <ellipse cx="100" cy="180" rx="60" ry="8" fill="#3D9EFF" opacity="0.15"/>
+
+  <!-- Neck -->
+  <ellipse cx="90" cy="105" rx="30" ry="25" fill="#FFCC00"/>
+
+  <!-- Head -->
+  <circle cx="85" cy="72" r="35" fill="#FFCC00"/>
+  <circle cx="85" cy="72" r="35" fill="url(#headGrad)" opacity="0.2"/>
+
+  <!-- Eye (left, visible) -->
+  <circle cx="72" cy="62" r="7" fill="#1a1a1a"/>
+  <circle cx="70" cy="59" r="2.5" fill="#ffffff"/>
+
+  <!-- Eyebrow -->
+  <path d="M62 52 Q72 46 82 52" stroke="#E6B800" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Beak -->
+  <path d="M50 72 Q40 68 38 75 Q36 82 50 80 Z" fill="#FF8F00"/>
+  <path d="M50 76 Q42 78 50 80" stroke="#E65100" stroke-width="0.8" fill="none"/>
+
+  <!-- Wing -->
+  <path d="M120 120 Q155 110 160 135 Q158 155 130 155 Q115 150 120 120Z" fill="#E6B800" opacity="0.6"/>
+
+  <!-- Tail feathers -->
+  <path d="M155 125 Q175 110 170 130" stroke="#E6B800" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M158 130 Q178 120 172 138" stroke="#FFCC00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Chest highlight -->
+  <ellipse cx="85" cy="135" rx="25" ry="20" fill="#FFE066" opacity="0.5"/>
+
+  <!-- Head highlight -->
+  <circle cx="75" cy="60" r="12" fill="#FFE066" opacity="0.35"/>
+
+  <!-- Tiny crown / conference badge -->
+  <g transform="translate(72, 32) rotate(-10)">
+    <polygon points="0,12 4,0 8,8 12,0 16,8 20,0 24,12" fill="#5CB85C" opacity="0.9"/>
+    <rect x="0" y="12" width="24" height="4" rx="1" fill="#5CB85C" opacity="0.9"/>
+  </g>
+
+  <defs>
+    <radialGradient id="bodyGrad" cx="40%" cy="30%">
+      <stop offset="0%" stop-color="#FFE066"/>
+      <stop offset="100%" stop-color="#FFCC00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="headGrad" cx="35%" cy="30%">
+      <stop offset="0%" stop-color="#FFE066"/>
+      <stop offset="100%" stop-color="#FFCC00" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
