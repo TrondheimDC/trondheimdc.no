@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title | default("TDC 2026") }}</title>
   <meta name="description" content="{{ description | default(site.description) }}">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
 
   <!-- Matomo Analytics -->
   <script>
@@ -36,6 +36,6 @@
 
   {% include "partials/footer.njk" %}
 
-  <script type="module" src="/assets/js/main.js"></script>
+  <script type="module" src="{{ '/assets/js/main.js' | url }}"></script>
 </body>
 </html>

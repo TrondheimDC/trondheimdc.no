@@ -1,4 +1,8 @@
 export default function (eleventyConfig) {
+  // Path prefix for preview/staging deploys (e.g. /secret_new_duck_site/)
+  // Set via ELEVENTY_PATH_PREFIX env var, defaults to "/" for normal deploys
+  const pathPrefix = process.env.ELEVENTY_PATH_PREFIX || "/";
+
   // Pass through static assets
   eleventyConfig.addPassthroughCopy("assets/images");
   eleventyConfig.addPassthroughCopy("assets/css");
@@ -27,6 +31,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addWatchTarget("assets/js/");
 
   return {
+    pathPrefix,
     dir: {
       input: ".",
       output: "_site",
