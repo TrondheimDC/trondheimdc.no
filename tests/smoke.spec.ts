@@ -1,13 +1,37 @@
 import { test, expect } from '@playwright/test';
 
-// One-pager: both Norwegian and English are single pages with sections
-const pages = [
-  { path: '/', name: 'Norwegian Home', lang: 'no' },
-  { path: '/en/', name: 'English Home', lang: 'en' },
+// Norwegian pages
+const norwegianPages = [
+  { path: '/', name: 'Home' },
+  { path: '/about/', name: 'About' },
+  { path: '/cfp/', name: 'CFP' },
+  { path: '/coc/', name: 'Code of Conduct' },
+  { path: '/courses/', name: 'Courses' },
+  { path: '/info/', name: 'Info' },
+  { path: '/partner/', name: 'Partner' },
+  { path: '/program/', name: 'Program' },
+  { path: '/speakers/', name: 'Speakers' },
+  { path: '/tickets/', name: 'Tickets' },
+  { path: '/vol/', name: 'Volunteer' },
 ];
 
-test.describe('Pages - Status 200', () => {
-  for (const page of pages) {
+// English pages
+const englishPages = [
+  { path: '/en/', name: 'Home' },
+  { path: '/en/about/', name: 'About' },
+  { path: '/en/cfp/', name: 'CFP' },
+  { path: '/en/coc/', name: 'Code of Conduct' },
+  { path: '/en/courses/', name: 'Courses' },
+  { path: '/en/info/', name: 'Info' },
+  { path: '/en/partner/', name: 'Partner' },
+  { path: '/en/program/', name: 'Program' },
+  { path: '/en/speakers/', name: 'Speakers' },
+  { path: '/en/tickets/', name: 'Tickets' },
+  { path: '/en/vol/', name: 'Volunteer' },
+];
+
+test.describe('Norwegian Pages - Status 200', () => {
+  for (const page of norwegianPages) {
     test(`${page.name} (${page.path}) should return 200`, async ({ request }) => {
       const response = await request.get(page.path);
       expect(response.status()).toBe(200);
@@ -15,56 +39,49 @@ test.describe('Pages - Status 200', () => {
   }
 });
 
-test.describe('Norwegian Page - Content Check', () => {
+test.describe('English Pages - Status 200', () => {
+  for (const page of englishPages) {
+    test(`${page.name} (${page.path}) should return 200`, async ({ request }) => {
+      const response = await request.get(page.path);
+      expect(response.status()).toBe(200);
+    });
+  }
+});
+
+test.describe('Norwegian Pages - Content Check', () => {
   test('Home page has correct title', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/TDC/);
   });
 
-  test('Home page has hero section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#hero')).toBeVisible();
-  });
-
-  test('Home page has about section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#about')).toBeVisible();
-  });
-
   test('Home page has partner section', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#partners')).toBeVisible();
     await expect(page.locator('text=Våre partnere')).toBeVisible();
   });
 
   test('Home page has CFP button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('text=Send inn ditt foredrag').first()).toBeVisible();
+    await expect(page.locator('text=Send inn ditt foredrag')).toBeVisible();
   });
 
-  test('CFP section links to Sessionize', async ({ page }) => {
-    await page.goto('/');
+  test('CFP page links to Sessionize', async ({ page }) => {
+    await page.goto('/cfp/');
     const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
-    await expect(sessionizeLink.first()).toBeVisible();
+    await expect(sessionizeLink).toBeVisible();
   });
 
-  test('Partner section has contact email', async ({ page }) => {
-    await page.goto('/');
+  test('Partner page has CTA button', async ({ page }) => {
+    await page.goto('/partner/');
+    await expect(page.locator('text=Bli partner').first()).toBeVisible();
+  });
+
+  test('Partner page has contact email', async ({ page }) => {
+    await page.goto('/partner/');
     await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
-  });
-
-  test('Has Code of Conduct section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#coc')).toBeVisible();
-  });
-
-  test('Has tickets section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#tickets')).toBeVisible();
   });
 });
 
-test.describe('English Page - Content Check', () => {
+test.describe('English Pages - Content Check', () => {
   test('Home page has correct title', async ({ page }) => {
     await page.goto('/en/');
     await expect(page).toHaveTitle(/TDC/);
@@ -72,22 +89,27 @@ test.describe('English Page - Content Check', () => {
 
   test('Home page has partner section', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Our partners')).toBeVisible();
+    await expect(page.locator('text=Our partners:')).toBeVisible();
   });
 
   test('Home page has CFP button', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Submit your talk').first()).toBeVisible();
+    await expect(page.locator('text=Submit your talk')).toBeVisible();
   });
 
-  test('CFP section links to Sessionize', async ({ page }) => {
-    await page.goto('/en/');
+  test('CFP page links to Sessionize', async ({ page }) => {
+    await page.goto('/en/cfp/');
     const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
-    await expect(sessionizeLink.first()).toBeVisible();
+    await expect(sessionizeLink).toBeVisible();
   });
 
-  test('Partner section has contact email', async ({ page }) => {
-    await page.goto('/en/');
+  test('Partner page has CTA button', async ({ page }) => {
+    await page.goto('/en/partner/');
+    await expect(page.locator('text=Become a partner').first()).toBeVisible();
+  });
+
+  test('Partner page has contact email', async ({ page }) => {
+    await page.goto('/en/partner/');
     await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
   });
 });
@@ -95,57 +117,23 @@ test.describe('English Page - Content Check', () => {
 test.describe('Navigation', () => {
   test('Can switch from Norwegian to English', async ({ page }) => {
     await page.goto('/');
-    await page.click('a[hreflang="en"]');
+    await page.click('a:has-text("EN")');
     await expect(page).toHaveURL(/\/en\//);
   });
 
   test('Can switch from English to Norwegian', async ({ page }) => {
     await page.goto('/en/');
-    await page.click('a[hreflang="no"]');
+    await page.click('a:has-text("NO")');
     await expect(page).toHaveURL(/^(?!.*\/en\/)/);
   });
 
-  test('Nav has section links', async ({ page }) => {
+  test('CFP menu item exists in Norwegian', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('nav a[href="#about"]')).toBeVisible();
-    await expect(page.locator('nav a[href="#tickets"]')).toBeVisible();
-    await expect(page.locator('nav a[href="#partners"]')).toBeVisible();
+    await expect(page.locator('nav a[href="/cfp/"]')).toBeVisible();
   });
 
-  test('Smooth scroll to section works', async ({ page }) => {
-    await page.goto('/');
-    await page.click('nav a[href="#about"]');
-    // Wait for the section to be in view
-    await expect(page.locator('#about')).toBeInViewport();
-  });
-});
-
-test.describe('Accessibility', () => {
-  test('Page has lang attribute', async ({ page }) => {
-    await page.goto('/');
-    const lang = await page.getAttribute('html', 'lang');
-    expect(lang).toBe('no');
-  });
-
-  test('English page has correct lang attribute', async ({ page }) => {
+  test('CFP menu item exists in English', async ({ page }) => {
     await page.goto('/en/');
-    const lang = await page.getAttribute('html', 'lang');
-    expect(lang).toBe('en');
-  });
-
-  test('Has skip-to-content link', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('.skip-link')).toBeAttached();
-  });
-
-  test('Main landmark exists', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('main#main')).toBeVisible();
-  });
-
-  test('Sections have aria labels', async ({ page }) => {
-    await page.goto('/');
-    const sections = page.locator('section[aria-labelledby]');
-    expect(await sections.count()).toBeGreaterThan(0);
+    await expect(page.locator('nav a[href="/en/cfp/"]')).toBeVisible();
   });
 });

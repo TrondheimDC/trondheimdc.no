@@ -11,12 +11,18 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:4000',
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: isCI ? 'npx serve _site -l 4000' : 'npx serve ../src/_site -l 4000',
+  webServer: isCI ? {
+    command: 'npx serve _site -l 4000',
     url: 'http://localhost:4000',
-    reuseExistingServer: !isCI,
+    reuseExistingServer: false,
+    timeout: 120000,
+  } : {
+    command: 'npx serve ../old/_site -l 4000',
+    url: 'http://localhost:4000',
+    reuseExistingServer: true,
     timeout: 120000,
   },
+  reporter: [['list'], ['html', { open: 'never' }]],
   projects: [
     {
       name: 'chromium',
