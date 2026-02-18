@@ -1,0 +1,171 @@
+/* ════════════════════════════════════════════════════════════════
+   Duck Mate — Styles
+   Minimal CSS for container, controls, accessibility, animations.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Fullscreen overlay (pointer-events: none so page is clickable) ── */
+
+.duck-mate-container {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── Duck element (receives pointer events) ── */
+
+.duck-mate-duck {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: auto;
+  cursor: grab;
+  will-change: transform;
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.duck-mate-duck:focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.duck-mate-duck:active {
+  cursor: grabbing;
+}
+
+/* ── Controls toolbar ── */
+
+.duck-mate-ctrl-box {
+  position: fixed;
+  z-index: 1000000;
+  pointer-events: none;
+}
+
+.duck-mate-controls {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  transition: opacity 0.25s;
+  opacity: 0.7;
+}
+
+.duck-mate-controls:hover,
+.duck-mate-controls:focus-within {
+  opacity: 1;
+}
+
+.duck-mate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.duck-mate-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.duck-mate-btn:focus-visible {
+  border-color: #FFD700;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.4);
+}
+
+.duck-mate-btn:active {
+  transform: scale(0.95);
+}
+
+.duck-mate-btn--rm:hover {
+  background: rgba(255, 80, 80, 0.3);
+}
+
+/* ── High Contrast (forced-colors) ── */
+
+@media (forced-colors: active) {
+  .duck-mate-controls {
+    border: 2px solid ButtonText;
+    background: Canvas;
+  }
+  .duck-mate-btn {
+    border: 2px solid ButtonText;
+    color: ButtonText;
+    background: Canvas;
+  }
+  .duck-mate-btn:hover,
+  .duck-mate-btn:focus-visible {
+    border-color: Highlight;
+    color: Highlight;
+  }
+}
+
+/* ── Debug overlay ── */
+
+.duck-mate-debug {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #0f0;
+  font: 11px/1.4 'Consolas', 'Courier New', monospace;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Screen-reader only ── */
+
+.duck-mate-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Wave animation (multi-instance rejection) ── */
+
+@keyframes duck-mate-wave {
+  0%   { opacity: 1; transform: scale(1) translateY(0); }
+  30%  { opacity: 1; transform: scale(1.2) translateY(-10px); }
+  100% { opacity: 0; transform: scale(0.5) translateY(20px); }
+}
+
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .duck-mate-duck,
+  .duck-mate-btn {
+    transition: none !important;
+  }
+  @keyframes duck-mate-wave {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+  }
+}
