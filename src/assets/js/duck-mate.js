@@ -126,6 +126,13 @@
     ['curiosity_cone', 4, 140, true],
     ['shoo_response', 4, 100, false],
     ['scroll_wave',  4, 150, true],
+    ['read_newspaper', 6, 250, true],
+    ['eat_seeds',    6, 140, true],
+    ['duck_fight',   8, 100, true],
+    ['sunbathe',     4, 300, true],
+    ['butterfly_chase', 8, 110, true],
+    ['do_pushups',   6, 160, true],
+    ['banana_slip',  6, 120, false],
   ];
 
   /** Build atlas data mapping from the ordered sequence definitions. */
@@ -320,6 +327,84 @@
           wingAngle = -0.3 + Math.sin(t * Math.PI * 2) * 0.8; // waving
           headBob = Math.sin(t * Math.PI) * 2;
           beakOpen = 0.3;
+        }
+        // Read newspaper — sitting, looking down
+        else if (name === 'read_newspaper') {
+          squish = 0.88;
+          headBob = -5 + Math.sin(t * Math.PI * 2) * 1; // slight nod
+          bodyTilt = 0.06;
+          wingAngle = 0.3; // wings forward holding paper
+          eyeState = t > 0.7 ? 'wide' : 'open'; // surprised by headline
+          beakOpen = t > 0.7 ? 0.4 : 0;
+        }
+        // Eat seeds — deep pecking at ground, head goes all the way down
+        else if (name === 'eat_seeds') {
+          const peck = Math.sin(t * Math.PI * 3);
+          // Deep forward tilt — duck bends way down to reach seeds
+          bodyTilt = peck > 0 ? 0.35 + peck * 0.25 : 0.1; // heavy lean forward
+          headBob = peck > 0 ? -14 * peck : -2; // head plunges down to ground
+          squish = peck > 0 ? 0.88 : 1; // body compresses on peck
+          beakOpen = peck > 0.4 ? 0.7 : 0; // beak opens wide to grab seed
+          legPhase = t * Math.PI * 1.5; // slow step between pecks
+          wingAngle = peck > 0 ? -0.15 : 0; // wings tuck back on peck
+        }
+        // Duck fight — frantic flailing
+        else if (name === 'duck_fight') {
+          wingAngle = Math.sin(t * Math.PI * 8) * 0.7;
+          legPhase = t * Math.PI * 6;
+          bodyTilt = Math.sin(t * Math.PI * 4) * 0.15;
+          headBob = Math.sin(t * Math.PI * 6) * 4;
+          beakOpen = 0.8;
+          eyeState = 'wide';
+          sweatDrop = true;
+        }
+        // Sunbathe — lounging with shades
+        else if (name === 'sunbathe') {
+          squish = 0.8;
+          bodyTilt = -0.08;
+          headBob = -1 + Math.sin(t * Math.PI * 0.5) * 1;
+          eyeState = 'closed';
+          wingAngle = -0.2; // relaxed arms out
+          cheekBlush = true;
+        }
+        // Butterfly chase — eager running
+        else if (name === 'butterfly_chase') {
+          legPhase = t * Math.PI * 4;
+          headBob = 3 + Math.sin(t * Math.PI * 3) * 3; // looking up
+          wingAngle = Math.sin(t * Math.PI * 3) * 0.2;
+          eyeState = 'wide';
+          beakOpen = 0.3;
+          bodyTilt = -0.05; // leaning forward
+        }
+        // Do pushups — lying horizontal, wings push body up and down
+        else if (name === 'do_pushups') {
+          const pushPhase = Math.sin(t * Math.PI * 2);
+          bodyTilt = Math.PI / 2 * 0.85; // nearly horizontal (face-down)
+          squish = 0.85; // slightly flattened from effort
+          wingAngle = 0.8 + pushPhase * 0.45; // wings push out, flex down/up
+          headBob = -2 + pushPhase * 4; // head bobs with effort
+          eyeState = pushPhase < -0.3 ? 'closed' : 'open'; // strain on push
+          sweatDrop = true;
+          beakOpen = pushPhase < -0.3 ? 0.4 : 0;
+          legPhase = 0; // legs still, extended behind
+        }
+        // Banana slip — slipping and falling
+        else if (name === 'banana_slip') {
+          if (t < 0.3) { // walking
+            legPhase = t * Math.PI * 4;
+          } else if (t < 0.5) { // slip!
+            bodyTilt = (t - 0.3) * 4; // tilting back
+            wingAngle = 0.8;
+            eyeState = 'wide';
+            beakOpen = 0.8;
+            legPhase = t * Math.PI * 10; // flailing
+          } else { // on the ground
+            bodyTilt = 0.4;
+            squish = 0.7;
+            eyeState = 'dizzy';
+            wingAngle = 0.5;
+            headBob = -4;
+          }
         }
 
         // === DRAW THE DUCK ===
@@ -840,6 +925,8 @@
       // viewport
       this.vpW = window.innerWidth; this.vpH = window.innerHeight;
       this.scrollY = window.scrollY; this.scrollProg = 0;
+      this.scrollVel = 0; // px/s scroll velocity (positive = down)
+      this.scrolling = false; // true while actively scrolling
       // cursor
       this.curX = -1; this.curY = -1; this.curNear = false;
       // input focus
@@ -911,6 +998,8 @@
     update(dt, bb, cx) { this.elapsed += dt; }
     /** Called when leaving this state. */
     exit(bb, cx) {}
+    /** Draw overlay on top of the duck sprite (called after _drawState). */
+    postDraw(bb, cx) {}
     /** Whether this state may start given blackboard conditions. */
     canStart(bb) { return true; }
     /** Minimum ms between activations (checked by scheduler). */
@@ -961,6 +1050,30 @@
   //  §10  Behavior Definitions
   // ═══════════════════════════════════════════════════════════════
 
+  /** Shared helper: draw flapping wings overlay on the buffer canvas during flight. */
+  function _drawFlappingWings(bc, ren, elapsed, bodyColor) {
+    const mid = ren.W / 2, cy = ren.H / 2;
+    const wingFlap = Math.sin(elapsed * 18) * 0.8; // 18 rad/s ≈ 3 Hz flap
+    const wingCol = bodyColor ? bodyColor + '99' : 'rgba(255,200,0,0.5)';
+    bc.save();
+    bc.translate(mid, cy - 2);
+    // Left wing
+    bc.save();
+    bc.translate(-11, -3);
+    bc.rotate(-Math.abs(wingFlap) - 0.4);
+    bc.fillStyle = wingCol;
+    bc.beginPath(); bc.ellipse(0, 0, 15, 7, 0, 0, Math.PI); bc.fill();
+    bc.restore();
+    // Right wing
+    bc.save();
+    bc.translate(11, -3);
+    bc.rotate(Math.abs(wingFlap) + 0.4);
+    bc.fillStyle = wingCol;
+    bc.beginPath(); bc.ellipse(0, 0, 15, 7, 0, 0, -Math.PI); bc.fill();
+    bc.restore();
+    bc.restore();
+  }
+
   // ─── Ambient ───
 
   class WalkEdgeFollow extends State {
@@ -989,7 +1102,7 @@
   }
 
   class PerchAndPeer extends State {
-    constructor() { super('perch_and_peer', 'ambient'); this._el = null; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; }
+    constructor() { super('perch_and_peer', 'ambient'); this._el = null; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; this._flightDur = 1.2; }
     enter(bb, cx) {
       super.enter(bb, cx);
       this._el = bb.perches.length ? pick(bb.perches) : null;
@@ -1002,18 +1115,32 @@
         this._startY = bb.y;
         this._arriveT = 0;
         this._arriving = true;
+        // Flight duration scales with distance
+        const dist = Math.sqrt(Math.pow(this._targetX - this._startX, 2) + Math.pow(this._targetY - this._startY, 2));
+        this._flightDur = clamp(dist / 250, 0.8, 2.0);
         bb.curPerch = this._el;
         bb.onGround = false;
+        bb.facingR = this._targetX > this._startX;
       }
     }
     update(dt, bb, cx) {
       super.update(dt, bb, cx);
       if (this._arriving) {
         this._arriveT += dt;
-        const t = clamp(this._arriveT / 0.5, 0, 1);
-        const ease = 1 - Math.pow(1 - t, 3);
+        const t = clamp(this._arriveT / this._flightDur, 0, 1);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // ease-in-out
         bb.x = lerp(this._startX, this._targetX, ease);
         bb.y = lerp(this._startY, this._targetY, ease);
+        // Arc: rise higher in the middle of flight
+        const arcHeight = Math.abs(this._targetY - this._startY) * 0.4 + 40;
+        bb.y -= Math.sin(t * Math.PI) * arcHeight;
+        // Draw flapping wings
+        _drawFlappingWings(cx.ren.bc, cx.ren, this._arriveT, this._duckColor || cx.opts.duckColor);
+        // Trail particles
+        if (Math.random() < dt * 12) {
+          const fS = cx.ren.fS;
+          cx.parts.spawn({ x: bb.x + fS/2 + rand(-8,8), y: bb.y + fS, vx: rand(-15,15), vy: rand(5,20), maxLife: 0.4, size: rand(2,4), color: 'rgba(255,255,255,0.5)', type: 'circle', gravity: -10 });
+        }
         advFrame(this, dt, cx.ad, 'walk_right');
         if (t >= 1) this._arriving = false;
         return;
@@ -1025,7 +1152,7 @@
         bb.y = r.top - cx.ren.fS;
       }
       advFrame(this, dt, cx.ad, 'perch_idle');
-      if ((this.elapsed - 0.5) * 1000 > cx.tim.perchDurationMs) cx.sched.next(bb, cx);
+      if ((this.elapsed - this._flightDur) * 1000 > cx.tim.perchDurationMs) cx.sched.next(bb, cx);
     }
     exit(bb, cx) { bb.curPerch = null; bb.onGround = false; }
     canStart(bb) { return bb.perches.length > 0; }
@@ -1085,6 +1212,273 @@
     canStart(bb) { return bb.onGround; }
     get cooldownMs() { return 12000; }
     get seq() { return 'puddle_hop'; }
+  }
+
+  // ─── Ambient: Read Newspaper ───
+
+  class ReadNewspaper extends State {
+    constructor() { super('read_newspaper', 'ambient'); }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      cx.audio.playQuack();
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+
+      advFrame(this, dt, cx.ad, 'read_newspaper');
+
+      // Occasional surprised reaction (page turn)
+      if (this.elapsed > 3 && Math.floor(this.elapsed * 2) % 4 === 0) {
+        if (Math.random() < dt * 0.5) {
+          cx.parts.spawn({ x: bb.x + fS / 2, y: bb.y - 5, vx: 0, vy: -15, maxLife: 1.2, size: 12, color: '#FF3333', type: 'text', text: '!', gravity: 0 });
+        }
+      }
+
+      if (this.elapsed > 6) cx.sched.next(bb, cx);
+    }
+    postDraw(bb, cx) {
+      const bc = cx.ren.bc;
+      const mid = cx.ren.W / 2;
+      const baseY = cx.ren.H / 2;
+      const sg = cx.opts.scale;
+      const dir = bb.facingR ? 1 : -1;
+
+      // Draw newspaper held in front of duck
+      bc.save();
+      bc.translate(mid + dir * 12 * sg, baseY - 2 * sg);
+      bc.rotate(dir * -0.08);
+      const pw = 22 * sg, ph = 18 * sg;
+      // Paper background
+      bc.fillStyle = '#FFF8DC';
+      bc.fillRect(-pw / 2, -ph / 2, pw, ph);
+      // Border
+      bc.strokeStyle = '#C0B89A';
+      bc.lineWidth = 0.8 * sg;
+      bc.strokeRect(-pw / 2, -ph / 2, pw, ph);
+      // Fold line
+      bc.strokeStyle = '#DDD';
+      bc.lineWidth = 0.5;
+      bc.beginPath(); bc.moveTo(0, -ph / 2); bc.lineTo(0, ph / 2); bc.stroke();
+      // Headline text bars
+      bc.fillStyle = '#333';
+      bc.fillRect(-pw / 2 + 2, -ph / 2 + 2, pw * 0.4, 2 * sg); // big headline
+      bc.fillRect(-pw / 2 + 2, -ph / 2 + 5 * sg, pw - 4, 1 * sg);
+      bc.fillRect(-pw / 2 + 2, -ph / 2 + 7 * sg, pw * 0.8, 1 * sg);
+      bc.fillRect(-pw / 2 + 2, -ph / 2 + 9 * sg, pw - 4, 1 * sg);
+      // Photo block
+      bc.fillStyle = '#AAA';
+      bc.fillRect(pw / 2 - 8 * sg, -ph / 2 + 2, 6 * sg, 5 * sg);
+      bc.restore();
+    }
+    canStart(bb) { return bb.onGround && !bb.curNear; }
+    get cooldownMs() { return 20000; }
+    get seq() { return 'read_newspaper'; }
+  }
+
+  // ─── Ambient: Eat Seeds ───
+
+  class EatSeeds extends State {
+    constructor() { super('eat_seeds', 'ambient'); this._seeds = []; this._eaten = 0; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      // Scatter seeds on the ground near the duck
+      this._seeds = [];
+      this._eaten = 0;
+      const fS = cx.ren.fS;
+      for (let i = 0; i < 8; i++) {
+        this._seeds.push({
+          x: bb.x + fS / 2 + rand(-40, 40),
+          y: bb.y + fS - rand(0, 4),
+          alive: true,
+          size: rand(2, 4),
+        });
+      }
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+      const bc = cx.ren.bc;
+
+      // Draw seeds (in buffer-local coords)
+      const offX = -(bb.x - (cx.ren.W - fS) / 2);
+      const offY = -(bb.y - (cx.ren.H - fS) / 2);
+      bc.save();
+      for (const s of this._seeds) {
+        if (!s.alive) continue;
+        bc.fillStyle = '#8B6914';
+        bc.beginPath();
+        bc.ellipse(s.x + offX, s.y + offY, s.size, s.size * 0.6, 0.3, 0, Math.PI * 2);
+        bc.fill();
+      }
+      bc.restore();
+
+      // Duck pecks at nearest alive seed
+      const peckCycle = Math.sin(this.elapsed * Math.PI * 2.5);
+      if (peckCycle > 0.95 && this._seeds.some(s => s.alive)) {
+        // Find nearest seed
+        let best = null, bestD = Infinity;
+        for (const s of this._seeds) {
+          if (!s.alive) continue;
+          const d = Math.abs(s.x - (bb.x + fS / 2));
+          if (d < bestD) { bestD = d; best = s; }
+        }
+        if (best && bestD < 50) {
+          best.alive = false;
+          this._eaten++;
+          // Crumb particles
+          cx.parts.spawn({ x: best.x, y: best.y, vx: rand(-15, 15), vy: rand(-20, -5), maxLife: 0.4, size: 2, color: '#D4A017', type: 'circle', gravity: 100 });
+          cx.parts.spawn({ x: best.x, y: best.y, vx: rand(-10, 10), vy: rand(-15, -5), maxLife: 0.3, size: 1.5, color: '#C49B0A', type: 'circle', gravity: 120 });
+        }
+      }
+
+      // Walk slowly toward seeds
+      const aliveSeeds = this._seeds.filter(s => s.alive);
+      if (aliveSeeds.length > 0) {
+        const nearest = aliveSeeds.reduce((a, b) =>
+          Math.abs(a.x - (bb.x + fS / 2)) < Math.abs(b.x - (bb.x + fS / 2)) ? a : b
+        );
+        const dir = nearest.x > bb.x + fS / 2 ? 1 : -1;
+        bb.facingR = dir > 0;
+        bb.x += dir * 15 * dt;
+      }
+
+      advFrame(this, dt, cx.ad, 'eat_seeds');
+
+      if (aliveSeeds.length === 0 || this.elapsed > 8) {
+        // Happy quack after eating
+        if (this._eaten > 0) cx.audio.playQuack();
+        cx.sched.next(bb, cx);
+      }
+    }
+    canStart(bb) { return bb.onGround && !bb.curNear; }
+    get cooldownMs() { return 15000; }
+    get seq() { return 'eat_seeds'; }
+  }
+
+  // ─── Ambient: Sunbathe ───
+
+  class Sunbathe extends State {
+    constructor() { super('sunbathe', 'ambient'); }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+
+      // Sun rays from top
+      if (Math.random() < dt * 3) {
+        cx.parts.spawn({ x: bb.x + rand(-20, cx.ren.fS + 20), y: bb.y - 20, vx: 0, vy: 15, maxLife: 1.5, size: rand(1, 2), color: 'rgba(255,220,50,0.4)', type: 'circle', gravity: 0 });
+      }
+
+      // Content sigh bubbles
+      if (this.elapsed > 2 && Math.random() < dt * 0.3) {
+        cx.parts.spawn({ x: bb.x + cx.ren.fS * 0.7, y: bb.y - 5, vx: rand(3, 8), vy: rand(-12, -6), maxLife: 1.5, size: 10, color: '#FF69B4', type: 'text', text: '♥', gravity: -5 });
+      }
+
+      advFrame(this, dt, cx.ad, 'sunbathe');
+      if (this.elapsed > 8) cx.sched.next(bb, cx);
+    }
+    postDraw(bb, cx) {
+      const bc = cx.ren.bc;
+      const mid = cx.ren.W / 2;
+      const baseY = cx.ren.H / 2;
+      const sg = cx.opts.scale;
+      const dir = bb.facingR ? 1 : -1;
+
+      // Draw large sunglasses on top of duck's face
+      bc.save();
+      bc.translate(mid + dir * 3 * sg, baseY - 12 * sg);
+      const lW = 11 * sg, lH = 7 * sg, gap = 3 * sg;
+      // Lens shadows for depth
+      bc.fillStyle = 'rgba(0,0,0,0.15)';
+      bc.beginPath(); bc.roundRect(-lW - gap / 2 + 1, -lH / 2 + 1, lW, lH, 3 * sg); bc.fill();
+      bc.beginPath(); bc.roundRect(gap / 2 + 1, -lH / 2 + 1, lW, lH, 3 * sg); bc.fill();
+      // Dark lenses
+      bc.fillStyle = '#1a1a1a';
+      bc.beginPath(); bc.roundRect(-lW - gap / 2, -lH / 2, lW, lH, 3 * sg); bc.fill();
+      bc.beginPath(); bc.roundRect(gap / 2, -lH / 2, lW, lH, 3 * sg); bc.fill();
+      // Bright glare highlights
+      bc.fillStyle = 'rgba(255,255,255,0.4)';
+      bc.beginPath(); bc.roundRect(-lW - gap / 2 + 2 * sg, -lH / 2 + 1.5 * sg, 4 * sg, 2.5 * sg, 1.5 * sg); bc.fill();
+      bc.beginPath(); bc.roundRect(gap / 2 + 2 * sg, -lH / 2 + 1.5 * sg, 4 * sg, 2.5 * sg, 1.5 * sg); bc.fill();
+      // Thick frame outline
+      bc.strokeStyle = '#222';
+      bc.lineWidth = 1.8 * sg;
+      bc.beginPath(); bc.roundRect(-lW - gap / 2, -lH / 2, lW, lH, 3 * sg); bc.stroke();
+      bc.beginPath(); bc.roundRect(gap / 2, -lH / 2, lW, lH, 3 * sg); bc.stroke();
+      // Bridge
+      bc.lineWidth = 2 * sg;
+      bc.beginPath(); bc.moveTo(-gap / 2, 0); bc.lineTo(gap / 2, 0); bc.stroke();
+      // Arms extending to sides of head
+      bc.beginPath(); bc.moveTo(-lW - gap / 2, 0); bc.lineTo(-lW - gap / 2 - 7 * sg, -1 * sg); bc.stroke();
+      bc.beginPath(); bc.moveTo(lW + gap / 2, 0); bc.lineTo(lW + gap / 2 + 7 * sg, -1 * sg); bc.stroke();
+      bc.restore();
+    }
+    canStart(bb) { return bb.onGround && !bb.curNear && bb.tod === 'day'; }
+    get cooldownMs() { return 30000; }
+    get seq() { return 'sunbathe'; }
+  }
+
+  // ─── Ambient: Do Pushups ───
+
+  class DoPushups extends State {
+    constructor() { super('do_pushups', 'ambient'); this._count = 0; this._lastPush = 0; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      this._count = 0; this._lastPush = 0;
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+      const bc = cx.ren.bc;
+      const mid = cx.ren.W / 2;
+      const baseY = cx.ren.H / 2;
+
+      // Count pushups — push phase goes down = body lifts up
+      const pushPhase = Math.sin(this.elapsed * Math.PI * 2);
+      if (pushPhase < -0.9 && this.elapsed - this._lastPush > 0.4) {
+        this._count++;
+        this._lastPush = this.elapsed;
+        // Ground dust puff under wings
+        const dustX = bb.x + fS / 2;
+        const dustY = bb.y + fS;
+        cx.parts.spawn({ x: dustX - 12, y: dustY, vx: rand(-15, -5), vy: rand(-8, -2), maxLife: 0.35, size: rand(3, 5), color: 'rgba(180,160,120,0.4)', type: 'circle', gravity: 30 });
+        cx.parts.spawn({ x: dustX + 12, y: dustY, vx: rand(5, 15), vy: rand(-8, -2), maxLife: 0.35, size: rand(3, 5), color: 'rgba(180,160,120,0.4)', type: 'circle', gravity: 30 });
+      }
+
+      // Draw ground shadow under the horizontal duck
+      bc.save();
+      bc.fillStyle = 'rgba(0,0,0,0.1)';
+      bc.beginPath();
+      bc.ellipse(mid, baseY + fS * 0.45, fS * 0.45, 3, 0, 0, Math.PI * 2);
+      bc.fill();
+      bc.restore();
+
+      // Draw count above head (offset to the right since duck is horizontal)
+      if (this._count > 0) {
+        bc.save();
+        bc.font = `bold ${12 * cx.opts.scale}px sans-serif`;
+        bc.fillStyle = '#FF4444';
+        bc.textAlign = 'center';
+        bc.fillText(this._count.toString(), mid + (bb.facingR ? 18 : -18), baseY - 20);
+        bc.textAlign = 'start';
+        bc.restore();
+      }
+
+      // Sweat drops — more frequent since it's hard work
+      if (this._count > 2 && Math.random() < dt * 5) {
+        cx.parts.spawn({ x: bb.x + fS / 2 + rand(-8, 8), y: bb.y - 5, vx: rand(-15, 15), vy: rand(-25, -10), maxLife: 0.6, size: rand(2, 4), color: '#87CEEB', type: 'circle', gravity: 80 });
+      }
+
+      // Effort face emoji at counts 5 and 8
+      if ((this._count === 5 || this._count === 8) && this.elapsed - this._lastPush < 0.15) {
+        cx.parts.spawn({ x: bb.x + fS / 2, y: bb.y - 15, vx: 0, vy: -15, maxLife: 1.2, size: 12, color: '#FF6347', type: 'text', text: '💪', gravity: -5 });
+      }
+
+      advFrame(this, dt, cx.ad, 'do_pushups');
+      if (this._count >= 8 || this.elapsed > 7) cx.sched.next(bb, cx);
+    }
+    canStart(bb) { return bb.onGround && !bb.curNear; }
+    get cooldownMs() { return 25000; }
+    get seq() { return 'do_pushups'; }
   }
 
   // ─── Medium Gags ───
@@ -1195,6 +1589,170 @@
     canStart(bb) { return medGagOK(bb, DEF_TIMING); }
     get cooldownMs() { return DEF_TIMING.mediumGagCooldownMs; }
     get seq() { return 'umbrella_pop'; }
+  }
+
+  // ─── Medium Gag: Butterfly Chase ───
+
+  class ButterflyChase extends State {
+    constructor() { super('butterfly_chase', 'medium_gag'); this._bx = 0; this._by = 0; this._bvx = 0; this._bvy = 0; this._caught = false; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      bb.lastMedGag = bb.elapsed; bb.lastGagName = this.id;
+      const fS = cx.ren.fS;
+      // Butterfly starts near the duck and floats around
+      this._bx = bb.x + (bb.facingR ? fS + 30 : -30);
+      this._by = bb.y - 30;
+      this._bvx = (bb.facingR ? 1 : -1) * rand(40, 80);
+      this._bvy = rand(-30, -10);
+      this._caught = false;
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+      const bc = cx.ren.bc;
+
+      if (!this._caught) {
+        // Move butterfly in gentle floaty path
+        this._bvy += Math.sin(this.elapsed * 3) * 200 * dt;
+        this._bvx += Math.sin(this.elapsed * 1.7) * 100 * dt;
+        // Keep butterfly vaguely on screen
+        if (this._bx < 20) this._bvx = Math.abs(this._bvx) + 20;
+        if (this._bx > bb.vpW - 20) this._bvx = -Math.abs(this._bvx) - 20;
+        if (this._by < 20) this._bvy = Math.abs(this._bvy) + 10;
+        if (this._by > bb.vpH - 60) this._bvy = -Math.abs(this._bvy) - 10;
+        // Damping
+        this._bvx *= 0.98; this._bvy *= 0.98;
+        this._bx += this._bvx * dt;
+        this._by += this._bvy * dt;
+
+        // Duck chases butterfly
+        const dir = this._bx > bb.x + fS / 2 ? 1 : -1;
+        bb.facingR = dir > 0;
+        bb.x += dir * cx.tim.runSpeed * cx.opts.speed * dt;
+        bb.x = clamp(bb.x, 0, bb.vpW - fS);
+
+        // Draw butterfly (world coords → buffer coords)
+        const offX = -(bb.x - (cx.ren.W - fS) / 2);
+        const offY = -(bb.y - (cx.ren.H - fS) / 2);
+        const bsx = this._bx + offX;
+        const bsy = this._by + offY;
+        const wingFlap = Math.sin(this.elapsed * 14) * 0.6;
+        bc.save();
+        bc.translate(bsx, bsy);
+        // Wings
+        bc.fillStyle = '#FF69B4';
+        bc.beginPath();
+        bc.ellipse(-5, 0, 7, 5 * Math.abs(Math.cos(wingFlap)), wingFlap * 0.3, 0, Math.PI * 2);
+        bc.fill();
+        bc.fillStyle = '#DA70D6';
+        bc.beginPath();
+        bc.ellipse(5, 0, 7, 5 * Math.abs(Math.cos(wingFlap)), -wingFlap * 0.3, 0, Math.PI * 2);
+        bc.fill();
+        // Body
+        bc.fillStyle = '#333';
+        bc.beginPath(); bc.ellipse(0, 0, 2, 4, 0, 0, Math.PI * 2); bc.fill();
+        bc.restore();
+
+        // Check catch
+        const dx = this._bx - (bb.x + fS / 2);
+        const dy = this._by - (bb.y + fS / 2);
+        if (Math.sqrt(dx * dx + dy * dy) < 25) {
+          this._caught = true;
+          cx.audio.playQuack();
+          // Surprise stars
+          for (let i = 0; i < 5; i++)
+            cx.parts.spawn({ x: this._bx, y: this._by, vx: rand(-40, 40), vy: rand(-40, -10), maxLife: 0.6, size: rand(3, 6), color: pick(['#FF69B4', '#FFD700', '#DA70D6']), type: 'star', gravity: 60 });
+        }
+      }
+
+      advFrame(this, dt, cx.ad, this._caught ? 'click_emote' : 'butterfly_chase');
+
+      // Butterfly escapes after time, or end after catch celebration
+      if (this.elapsed > 6 || (this._caught && this.elapsed > 4)) cx.sched.next(bb, cx);
+    }
+    canStart(bb) { return bb.onGround && medGagOK(bb, DEF_TIMING); }
+    get cooldownMs() { return DEF_TIMING.mediumGagCooldownMs; }
+    get seq() { return 'butterfly_chase'; }
+  }
+
+  // ─── Medium Gag: Banana Slip ───
+
+  class BananaSlip extends State {
+    constructor() { super('banana_slip', 'medium_gag'); this._phase = 'walk'; this._startX = 0; this._bananaX = 0; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      bb.lastMedGag = bb.elapsed; bb.lastGagName = this.id;
+      this._phase = 'walk';
+      this._startX = bb.x;
+      // Place banana ahead
+      this._bananaX = bb.x + (bb.facingR ? rand(60, 120) : -rand(60, 120));
+      this._bananaX = clamp(this._bananaX, cx.ren.fS, bb.vpW - cx.ren.fS);
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+      const bc = cx.ren.bc;
+      const offX = -(bb.x - (cx.ren.W - fS) / 2);
+      const offY = -(bb.y - (cx.ren.H - fS) / 2);
+      const gy = bb.groundY(fS);
+
+      // Draw banana peel on the ground
+      if (this._phase === 'walk' || this._phase === 'slip') {
+        bc.save();
+        const bpx = this._bananaX + offX;
+        const bpy = gy + fS + offY - 4;
+        bc.translate(bpx, bpy);
+        bc.fillStyle = '#FFD700';
+        // Banana peel shape
+        bc.beginPath();
+        bc.moveTo(-6, 0); bc.quadraticCurveTo(-8, -5, -4, -3);
+        bc.lineTo(0, -1);
+        bc.lineTo(4, -3); bc.quadraticCurveTo(8, -5, 6, 0);
+        bc.closePath();
+        bc.fill();
+        bc.fillStyle = '#B8860B';
+        bc.beginPath(); bc.arc(0, -1, 1.5, 0, Math.PI * 2); bc.fill();
+        bc.restore();
+      }
+
+      if (this._phase === 'walk') {
+        // Walk toward banana
+        const dir = this._bananaX > bb.x + fS / 2 ? 1 : -1;
+        bb.facingR = dir > 0;
+        bb.x += dir * cx.tim.walkSpeed * cx.opts.speed * dt;
+        advFrame(this, dt, cx.ad, 'walk_right');
+        // Reached banana?
+        if (Math.abs(bb.x + fS / 2 - this._bananaX) < 10) {
+          this._phase = 'slip';
+        }
+      } else if (this._phase === 'slip') {
+        advFrame(this, dt, cx.ad, 'banana_slip');
+        // Slide forward
+        bb.x += (bb.facingR ? 1 : -1) * 80 * dt;
+        if (this.elapsed > 1.5) {
+          this._phase = 'fallen';
+          cx.audio.playSplash();
+          // Impact stars
+          for (let i = 0; i < 6; i++)
+            cx.parts.spawn({ x: bb.x + fS / 2, y: bb.y + fS, vx: rand(-50, 50), vy: rand(-40, -10), maxLife: 0.5, size: rand(3, 5), color: '#FFD700', type: 'star', gravity: 150 });
+        }
+      } else {
+        // Fallen — dizzy on ground
+        const starA = this.elapsed * 5;
+        const mid = cx.ren.W / 2;
+        for (let i = 0; i < 3; i++) {
+          const a = starA + i * (Math.PI * 2 / 3);
+          bc.fillStyle = '#FFD700';
+          bc.font = `${7 * cx.opts.scale}px sans-serif`;
+          bc.fillText('★', mid + Math.cos(a) * 12 - 3, cx.ren.H / 2 - 18 + Math.sin(a) * 5);
+        }
+        advFrame(this, dt, cx.ad, 'banana_slip');
+        if (this.elapsed > 4) cx.sched.next(bb, cx);
+      }
+    }
+    canStart(bb) { return bb.onGround && medGagOK(bb, DEF_TIMING); }
+    get cooldownMs() { return DEF_TIMING.mediumGagCooldownMs; }
+    get seq() { return 'banana_slip'; }
   }
 
   // ─── Big Gags ───
@@ -1500,6 +2058,94 @@
     get seq() { return 'shoo_response'; }
   }
 
+  class DuckFight extends State {
+    constructor() { super('duck_fight', 'safety'); this._otherBB = null; this._cloudX = 0; this._cloudY = 0; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      bb.onGround = true;
+      cx.audio.playQuack();
+    }
+    setOpponent(otherBB) { this._otherBB = otherBB; }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const fS = cx.ren.fS;
+      const bc = cx.ren.bc;
+      const mid = cx.ren.W / 2;
+      const baseY = cx.ren.H / 2;
+
+      // Keep ducks close together
+      if (this._otherBB) {
+        const midX = (bb.x + this._otherBB.x) / 2;
+        bb.x = lerp(bb.x, midX - 5, dt * 3);
+      }
+
+      // Draw cartoon fight cloud
+      const cloudScale = Math.min(this.elapsed * 3, 1); // grows in
+      const shake = Math.sin(this.elapsed * 30) * 3;
+      bc.save();
+      bc.translate(mid + shake, baseY + 5);
+      bc.scale(cloudScale, cloudScale);
+
+      // Big puffy cloud shape
+      bc.fillStyle = 'rgba(220,220,220,0.85)';
+      bc.beginPath();
+      bc.arc(0, 0, 22, 0, Math.PI * 2);
+      bc.arc(-12, -8, 14, 0, Math.PI * 2);
+      bc.arc(12, -6, 13, 0, Math.PI * 2);
+      bc.arc(-8, 10, 12, 0, Math.PI * 2);
+      bc.arc(10, 8, 14, 0, Math.PI * 2);
+      bc.fill();
+
+      // Action words and symbols rotating around
+      const symbols = ['★', '💥', '!', '✦', '#', '☆', '!?'];
+      bc.font = `bold ${9 * cx.opts.scale}px sans-serif`;
+      for (let i = 0; i < 5; i++) {
+        const a = this.elapsed * 6 + i * (Math.PI * 2 / 5);
+        const r = 16 + Math.sin(this.elapsed * 8 + i) * 6;
+        const sx = Math.cos(a) * r;
+        const sy = Math.sin(a) * r * 0.6;
+        bc.fillStyle = pick(['#FF3333', '#FFD700', '#FF6B6B', '#333']);
+        bc.fillText(symbols[i % symbols.length], sx - 4, sy + 4);
+      }
+
+      // Limbs poking out of cloud
+      const limbT = this.elapsed * 8;
+      // Wing poking out left
+      bc.fillStyle = cx.opts.duckColor || '#FFCC00';
+      bc.save();
+      bc.translate(-22, Math.sin(limbT) * 5);
+      bc.rotate(Math.sin(limbT * 1.3) * 0.5);
+      bc.beginPath(); bc.ellipse(0, 0, 8, 4, 0.3, 0, Math.PI); bc.fill();
+      bc.restore();
+      // Foot poking out right
+      bc.fillStyle = '#FF8C00';
+      bc.save();
+      bc.translate(20, 10 + Math.sin(limbT + 1) * 4);
+      bc.rotate(Math.sin(limbT * 0.9) * 0.4);
+      bc.beginPath(); bc.ellipse(0, 0, 5, 3, 0, 0, Math.PI * 2); bc.fill();
+      bc.restore();
+
+      bc.restore();
+
+      // Feather particles flying out
+      if (Math.random() < dt * 8) {
+        const col = pick(['#FFCC00', '#FFE44D', '#FFF', '#FF8C00']);
+        cx.parts.spawn({ x: bb.x + fS / 2 + rand(-20, 20), y: bb.y + fS / 2 + rand(-15, 15), vx: rand(-60, 60), vy: rand(-60, -20), maxLife: 0.8, size: rand(3, 6), color: col, type: 'circle', gravity: 80 });
+      }
+
+      advFrame(this, dt, cx.ad, 'duck_fight');
+
+      // Fight ends — both ducks bounce apart
+      if (this.elapsed > 2.5) {
+        bb.vx = (bb.facingR ? -1 : 1) * 100;
+        bb.vy = -120;
+        bb.onGround = false;
+        cx.sched.force('collision_bounce', bb, cx);
+      }
+    }
+    get seq() { return 'duck_fight'; }
+  }
+
   class PeekABoo extends State {
     constructor() { super('peek_a_boo', 'interaction'); }
     enter(bb, cx) {
@@ -1543,7 +2189,7 @@
   // ─── Contextual ───
 
   class WalkOnSurface extends State {
-    constructor() { super('walk_on_surface', 'ambient'); this._tx = 0; this._surf = null; this._done = false; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; }
+    constructor() { super('walk_on_surface', 'ambient'); this._tx = 0; this._surf = null; this._done = false; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; this._flightDur = 1.0; }
     enter(bb, cx) {
       super.enter(bb, cx);
       this._done = false;
@@ -1557,6 +2203,8 @@
       this._startY = bb.y;
       this._arriveT = 0;
       this._arriving = true;
+      const dist = Math.sqrt(Math.pow(this._targetX - this._startX, 2) + Math.pow(this._targetY - this._startY, 2));
+      this._flightDur = clamp(dist / 250, 0.6, 1.8);
       bb.onGround = false;
       this._tx = rand(this._surf.left + fS * 0.5, this._surf.right - fS * 0.5);
       bb.facingR = this._tx > bb.x;
@@ -1564,13 +2212,20 @@
     update(dt, bb, cx) {
       super.update(dt, bb, cx);
       if (this._done || !this._surf) { cx.sched.next(bb, cx); return; }
-      // Smooth arrival phase
+      // Flapping flight arrival phase
       if (this._arriving) {
         this._arriveT += dt;
-        const t = clamp(this._arriveT / 0.5, 0, 1);
-        const ease = 1 - Math.pow(1 - t, 3);
+        const t = clamp(this._arriveT / this._flightDur, 0, 1);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         bb.x = lerp(this._startX, this._targetX, ease);
         bb.y = lerp(this._startY, this._targetY, ease);
+        const arcHeight = Math.abs(this._targetY - this._startY) * 0.35 + 30;
+        bb.y -= Math.sin(t * Math.PI) * arcHeight;
+        _drawFlappingWings(cx.ren.bc, cx.ren, this._arriveT, this._duckColor || cx.opts.duckColor);
+        if (Math.random() < dt * 10) {
+          const fS = cx.ren.fS;
+          cx.parts.spawn({ x: bb.x + fS/2 + rand(-8,8), y: bb.y + fS, vx: rand(-12,12), vy: rand(5,15), maxLife: 0.35, size: rand(2,3), color: 'rgba(255,255,255,0.4)', type: 'circle', gravity: -10 });
+        }
         advFrame(this, dt, cx.ad, 'walk_right');
         if (t >= 1) this._arriving = false;
         return;
@@ -1598,35 +2253,39 @@
   }
 
   class ClimbToSurface extends State {
-    constructor() { super('climb_to_surface', 'ambient'); this._surf = null; this._startY = 0; this._targetY = 0; this._ph = 0; }
+    constructor() { super('climb_to_surface', 'ambient'); this._surf = null; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._ph = 0; this._flightDur = 1.5; }
     enter(bb, cx) {
       super.enter(bb, cx);
       this._ph = 0;
       if (bb.surfaces.length === 0) return;
       this._surf = pick(bb.surfaces);
       const fS = cx.ren.fS;
+      this._startX = bb.x;
       this._startY = bb.y;
       this._targetY = this._surf.top - fS;
-      // Move x toward the surface center
-      bb.facingR = (this._surf.left + this._surf.width / 2) > bb.x;
+      this._targetX = clamp(this._surf.left + this._surf.width / 2 - fS / 2, this._surf.left, this._surf.right - fS);
+      const dist = Math.sqrt(Math.pow(this._targetX - this._startX, 2) + Math.pow(this._targetY - this._startY, 2));
+      this._flightDur = clamp(dist / 200, 0.8, 2.0);
+      bb.facingR = this._targetX > bb.x;
       bb.onGround = false;
     }
     update(dt, bb, cx) {
       super.update(dt, bb, cx);
       if (!this._surf) { cx.sched.next(bb, cx); return; }
       this._ph += dt;
-      const dur = 1.5; // seconds to climb
-      const t = clamp(this._ph / dur, 0, 1);
-      // Ease-out cubic
-      const ease = 1 - Math.pow(1 - t, 3);
+      const t = clamp(this._ph / this._flightDur, 0, 1);
+      const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      bb.x = lerp(this._startX, this._targetX, ease);
       bb.y = lerp(this._startY, this._targetY, ease);
-      // Move x toward surface center
-      const fS = cx.ren.fS;
-      const targetX = clamp(this._surf.left + this._surf.width / 2 - fS / 2, this._surf.left, this._surf.right - fS);
-      bb.x = lerp(bb.x, targetX, dt * 2);
+      const arcHeight = Math.abs(this._targetY - this._startY) * 0.3 + 30;
+      bb.y -= Math.sin(t * Math.PI) * arcHeight;
+      _drawFlappingWings(cx.ren.bc, cx.ren, this._ph, this._duckColor || cx.opts.duckColor);
+      if (Math.random() < dt * 8) {
+        const fS = cx.ren.fS;
+        cx.parts.spawn({ x: bb.x + fS/2 + rand(-8,8), y: bb.y + fS, vx: rand(-10,10), vy: rand(5,15), maxLife: 0.3, size: rand(2,3), color: 'rgba(255,255,255,0.4)', type: 'circle', gravity: -10 });
+      }
       advFrame(this, dt, cx.ad, 'walk_right');
       if (t >= 1) {
-        // Arrived on surface — transition to walking on it
         bb.y = this._targetY;
         cx.sched.next(bb, cx);
       }
@@ -1634,6 +2293,180 @@
     exit(bb, cx) { /* leave onGround false — next state will set it */ }
     canStart(bb) { return bb.surfaces.length > 0 && bb.onGround && !bb.inputFocused; }
     get cooldownMs() { return 12000; }
+    get seq() { return 'walk_right'; }
+  }
+
+  class LadderClimb extends State {
+    // Phases: 'walk' → walk to ladder base x, 'place' → ladder pops up, 'climb' → climb rung by rung, 'settle' → idle on top
+    constructor() {
+      super('ladder_climb', 'medium_gag');
+      this._tgt = null; this._phase = 'walk';
+      this._ladderX = 0; this._baseY = 0; this._topY = 0;
+      this._ph = 0; this._climbDur = 0; this._placeDur = 0.6;
+      this._rungSpacing = 14; this._ladderW = 18;
+      this._ladderProgress = 0; // 0-1 how much ladder is placed
+    }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      this._ph = 0; this._phase = 'walk'; this._ladderProgress = 0;
+      // Gather targets: surfaces, perches, AND interactive elements (buttons, links, etc.)
+      const targets = [];
+      const fS = cx.ren.fS;
+      if (bb.surfaces.length) bb.surfaces.forEach(s => targets.push({ x: s.left + s.width / 2, y: s.top }));
+      if (bb.perches.length) bb.perches.forEach(p => { const r = p.getBoundingClientRect(); targets.push({ x: r.left + r.width / 2, y: r.top }); });
+      // Scan for buttons, links, and other interactive edges
+      const interSel = 'button, a.btn, a.button, [role="button"], .btn, input[type="submit"], input[type="button"], .cta, .tag, .badge, .chip, .tab, [data-perch]';
+      try {
+        document.querySelectorAll(interSel).forEach(el => {
+          const r = el.getBoundingClientRect();
+          if (r.width > 30 && r.height > 10 && r.top > 20 && r.top < bb.vpH - 30)
+            targets.push({ x: r.left + r.width / 2, y: r.top });
+        });
+      } catch {}
+      // Filter to targets above the duck (at least 40px above)
+      const above = targets.filter(t => t.y < bb.y - 40);
+      if (above.length === 0) { this._tgt = null; return; }
+      const tgt = pick(above);
+      this._tgt = tgt;
+      // Ladder base is at the duck's feet, directly below the target
+      this._ladderX = tgt.x - fS / 2;
+      this._baseY = bb.y + fS; // feet level
+      this._topY = tgt.y;      // top edge of target
+      const dist = Math.abs(this._baseY - this._topY);
+      this._climbDur = clamp(dist / 70, 2.0, 5.0); // ~70px/s climb
+      const rungCount = Math.max(3, Math.round(dist / 14));
+      this._rungSpacing = dist / rungCount;
+      bb.facingR = this._ladderX > bb.x;
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      if (!this._tgt) { cx.sched.next(bb, cx); return; }
+      const fS = cx.ren.fS;
+
+      // ── Phase 1: Walk to ladder base position ──
+      if (this._phase === 'walk') {
+        const spd = cx.tim.walkSpeed * cx.opts.speed;
+        const dir = this._ladderX > bb.x ? 1 : -1;
+        bb.facingR = dir > 0;
+        bb.x += dir * spd * dt;
+        if (Math.abs(bb.x - this._ladderX) < 5) {
+          bb.x = this._ladderX;
+          this._phase = 'place'; this._ph = 0;
+        }
+        advFrame(this, dt, cx.ad, 'walk_right');
+        return;
+      }
+
+      // ── Phase 2: Place ladder (it rises up from duck position) ──
+      if (this._phase === 'place') {
+        this._ph += dt;
+        this._ladderProgress = clamp(this._ph / this._placeDur, 0, 1);
+        // Duck watches the ladder go up — idle animation, looking up
+        advFrame(this, dt, cx.ad, 'idle_preen');
+        // Draw the ladder growing upward
+        this._drawLadder(cx, bb, this._ladderProgress, 0);
+        if (this._ladderProgress >= 1) {
+          this._phase = 'climb'; this._ph = 0;
+          bb.onGround = false;
+        }
+        return;
+      }
+
+      // ── Phase 3: Climb rung by rung ──
+      if (this._phase === 'climb') {
+        this._ph += dt;
+        const t = clamp(this._ph / this._climbDur, 0, 1);
+        // Duck moves up the ladder
+        const climbY = lerp(this._baseY - fS, this._topY - fS, t);
+        bb.y = climbY;
+        // Slight side-to-side wobble
+        bb.x = this._ladderX + Math.sin(t * Math.PI * 10) * 2.5;
+        // Draw full ladder (duck is partway up)
+        this._drawLadder(cx, bb, 1, t);
+        // Alternate sprite for climbing motion
+        const rungPhase = Math.floor(this._ph * 3.5) % 2;
+        advFrame(this, dt, cx.ad, rungPhase ? 'walk_right' : 'idle_preen');
+        // Sweat particles
+        if (Math.random() < dt * 3) {
+          cx.parts.spawn({ x: bb.x + fS/2 + rand(-10,10), y: bb.y + fS * 0.3, vx: rand(-20,20), vy: rand(-15,-5), maxLife: 0.5, size: rand(3,5), color: '#87CEEB', type: 'circle', gravity: 60 });
+        }
+        if (t >= 1) {
+          bb.y = this._topY - fS;
+          this._phase = 'settle'; this._ph = 0;
+        }
+        return;
+      }
+
+      // ── Phase 4: Settled on top ──
+      advFrame(this, dt, cx.ad, 'perch_idle');
+      this._ph += dt;
+      if (this._ph > 2) cx.sched.next(bb, cx);
+    }
+
+    /** Draw the ladder from the base to the top. ladderProg=0..1 how much is visible, climbT=0..1 where duck is. */
+    _drawLadder(cx, bb, ladderProg, climbT) {
+      const bc = cx.ren.bc;
+      const fS = cx.ren.fS;
+      const mid = cx.ren.W / 2;
+      const totalH = Math.abs(this._baseY - this._topY);
+      // The ladder extends in world-space from baseY down to topY (upward).
+      // In the buffer, the duck is centered. We need to draw the ladder
+      // relative to the duck's current position.
+      const duckWorldY = bb.y + fS / 2; // center of duck in world
+      const bufCenterY = cx.ren.H / 2;  // center of buffer
+
+      // World-to-buffer Y conversion: bufY = bufCenterY + (worldY - duckWorldY)
+      const ladderTopBuf  = bufCenterY + (this._topY - duckWorldY);
+      const ladderBaseBuf = bufCenterY + (this._baseY - duckWorldY);
+      // How much ladder is visible (during place phase it grows from bottom)
+      const visibleH = totalH * ladderProg;
+      const visTopBuf = ladderBaseBuf - visibleH;
+
+      const lW = this._ladderW * cx.opts.scale;
+      const rungS = this._rungSpacing * cx.opts.scale;
+
+      bc.save();
+      bc.strokeStyle = '#8B5E3C';
+      bc.lineWidth = 2.5 * cx.opts.scale;
+      // Left rail
+      bc.beginPath();
+      bc.moveTo(mid - lW/2, visTopBuf);
+      bc.lineTo(mid - lW/2, ladderBaseBuf);
+      bc.stroke();
+      // Right rail
+      bc.beginPath();
+      bc.moveTo(mid + lW/2, visTopBuf);
+      bc.lineTo(mid + lW/2, ladderBaseBuf);
+      bc.stroke();
+      // Rungs
+      bc.strokeStyle = '#A0724A';
+      bc.lineWidth = 2 * cx.opts.scale;
+      const rungCount = Math.round(totalH / this._rungSpacing);
+      for (let i = 0; i <= rungCount; i++) {
+        const ry = ladderBaseBuf - (i * rungS);
+        if (ry < visTopBuf - 1) break; // above visible portion
+        bc.beginPath();
+        bc.moveTo(mid - lW/2, ry);
+        bc.lineTo(mid + lW/2, ry);
+        bc.stroke();
+      }
+      bc.restore();
+    }
+
+    exit(bb, cx) { bb.onGround = false; }
+    canStart(bb) {
+      if (bb.inputFocused || !bb.onGround) return false;
+      // Need at least one target above the duck (40px minimum gap)
+      for (const s of bb.surfaces) { if (s.top < bb.y - 40) return true; }
+      for (const p of bb.perches) { if (p.getBoundingClientRect().top < bb.y - 40) return true; }
+      // Also check buttons/interactive elements
+      try {
+        const btns = document.querySelectorAll('button, a.btn, a.button, [role="button"], .btn, .cta');
+        for (const el of btns) { const r = el.getBoundingClientRect(); if (r.top > 20 && r.top < bb.y - 40 && r.width > 30) return true; }
+      } catch {}
+      return false;
+    }
+    get cooldownMs() { return 25000; }
     get seq() { return 'walk_right'; }
   }
 
@@ -1646,7 +2479,7 @@
   }
 
   class SectionPerch extends State {
-    constructor() { super('section_perch', 'ambient'); this._el = null; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; }
+    constructor() { super('section_perch', 'ambient'); this._el = null; this._arriving = true; this._startX = 0; this._startY = 0; this._targetX = 0; this._targetY = 0; this._arriveT = 0; this._flightDur = 1.2; }
     enter(bb, cx) {
       super.enter(bb, cx);
       this._el = bb.perches.length ? pick(bb.perches) : null;
@@ -1659,24 +2492,34 @@
         this._startY = bb.y;
         this._arriveT = 0;
         this._arriving = true;
+        const dist = Math.sqrt(Math.pow(this._targetX - this._startX, 2) + Math.pow(this._targetY - this._startY, 2));
+        this._flightDur = clamp(dist / 250, 0.8, 2.0);
         bb.curPerch = this._el; bb.onGround = false;
+        bb.facingR = this._targetX > this._startX;
       }
     }
     update(dt, bb, cx) {
       super.update(dt, bb, cx);
       if (this._arriving) {
         this._arriveT += dt;
-        const t = clamp(this._arriveT / 0.5, 0, 1);
-        const ease = 1 - Math.pow(1 - t, 3);
+        const t = clamp(this._arriveT / this._flightDur, 0, 1);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         bb.x = lerp(this._startX, this._targetX, ease);
         bb.y = lerp(this._startY, this._targetY, ease);
+        const arcHeight = Math.abs(this._targetY - this._startY) * 0.4 + 40;
+        bb.y -= Math.sin(t * Math.PI) * arcHeight;
+        _drawFlappingWings(cx.ren.bc, cx.ren, this._arriveT, this._duckColor || cx.opts.duckColor);
+        if (Math.random() < dt * 12) {
+          const fS = cx.ren.fS;
+          cx.parts.spawn({ x: bb.x + fS/2 + rand(-8,8), y: bb.y + fS, vx: rand(-15,15), vy: rand(5,20), maxLife: 0.4, size: rand(2,4), color: 'rgba(255,255,255,0.5)', type: 'circle', gravity: -10 });
+        }
         advFrame(this, dt, cx.ad, 'walk_right');
         if (t >= 1) this._arriving = false;
         return;
       }
       if (this._el) { const r = this._el.getBoundingClientRect(); bb.x = r.left+r.width/2-cx.ren.fS/2; bb.y = r.top-cx.ren.fS; }
       advFrame(this,dt,cx.ad,'perch_idle');
-      if ((this.elapsed - 0.5) * 1000 > cx.tim.perchDurationMs * 1.5) cx.sched.next(bb,cx);
+      if ((this.elapsed - this._flightDur) * 1000 > cx.tim.perchDurationMs * 1.5) cx.sched.next(bb,cx);
     }
     exit(bb, cx) { bb.curPerch = null; bb.onGround = false; }
     canStart(bb) { return bb.perches.length > 0 && !bb.inputFocused; }
@@ -1716,7 +2559,7 @@
       }
 
       // Gather candidates (exclude manual-only states)
-      const skip = new Set(['pick_up_drag_drop','land_recover','collision_bounce']);
+      const skip = new Set(['pick_up_drag_drop','land_recover','collision_bounce','duck_fight']);
       const cands = [];
       for (const [id, st] of Object.entries(this._hsm.states)) {
         if (skip.has(id)) continue;
@@ -1991,11 +2834,13 @@
       [
         new WalkEdgeFollow(), new PerchAndPeer(), new IdlePreen(), new IdleNap(), new PuddleHop(),
         new BreadHeist(), new PaperPlaneChase(), new CameraShy(), new FishbowlMoment(), new UmbrellaPop(),
+        new ButterflyChase(), new BananaSlip(),
         new UfoAbductDrop(), new ShowerCloud(), new BathtubFlop(), new StagePerformance(), new CloneParade(),
         new CuriosityCone(), new ShooResponse(), new PickUpDragDrop(), new LandRecover(),
-        new CollisionBounce(),
+        new CollisionBounce(), new DuckFight(),
+        new ReadNewspaper(), new EatSeeds(), new Sunbathe(), new DoPushups(),
         new PeekABoo(), new ClickEmote(), new ScrollAwareWave(), new SectionPerch(),
-        new WalkOnSurface(), new ClimbToSurface(),
+        new WalkOnSurface(), new ClimbToSurface(), new LadderClimb(),
       ].forEach(s => this._hsm.register(s));
       this._hsm.setDefault('idle_preen');
     }
@@ -2028,11 +2873,24 @@
       this._hResize = () => { bb.vpW = window.innerWidth; bb.vpH = window.innerHeight; };
       window.addEventListener('resize', this._hResize);
 
-      // Scroll
+      // Scroll — track velocity for levitation
+      this._lastScrollY = window.scrollY;
+      this._lastScrollT = performance.now();
+      this._scrollTimer = null;
       this._hScroll = () => {
+        const now = performance.now();
+        const dy = window.scrollY - this._lastScrollY;
+        const dtMs = Math.max(now - this._lastScrollT, 1);
+        bb.scrollVel = (dy / dtMs) * 1000; // px/s
+        bb.scrolling = true;
+        this._lastScrollY = window.scrollY;
+        this._lastScrollT = now;
         bb.scrollY = window.scrollY;
         const max = document.documentElement.scrollHeight - window.innerHeight;
         bb.scrollProg = max > 0 ? window.scrollY / max : 0;
+        // Debounce scroll-stop detection
+        clearTimeout(this._scrollTimer);
+        this._scrollTimer = setTimeout(() => { bb.scrolling = false; bb.scrollVel = 0; }, 120);
       };
       window.addEventListener('scroll', this._hScroll, { passive: true });
 
@@ -2150,6 +3008,9 @@
       }
 
       if (!this._paused) {
+        // ─── Scroll levitation ───
+        this._applyScrollLevitation(dt);
+
         this._hsm.update(dt, bb, this._cx);
         this._parts.update(dt);
         this._checkCollisions(dt);
@@ -2158,6 +3019,11 @@
 
       // Draw current state sprite
       this._drawState();
+
+      // Draw overlays on top of the duck sprite
+      if (this._hsm.current && this._hsm.current.postDraw) {
+        this._hsm.current.postDraw(bb, this._cx);
+      }
 
       // Draw particles (transform to buffer-local coords)
       const bc = this._ren.bc;
@@ -2198,6 +3064,49 @@
       this._bb.y = clamp(this._bb.y, 0, this._bb.vpH - fS);
     }
 
+    /**
+     * Scroll levitation: while the user scrolls, ducks float up gently.
+     * When scrolling stops, gravity kicks back in via the scheduler auto-fall.
+     */
+    _applyScrollLevitation(dt) {
+      const bb = this._bb;
+      const st = this._hsm.current;
+      // Don't levitate during drag, safety states, or while already flying to a perch
+      if (!st || bb.dragging) return;
+      const skip = ['pick_up_drag_drop', 'collision_bounce', 'land_recover', 'perch_and_peer', 'section_perch', 'ladder_climb'];
+      if (skip.includes(st.id)) return;
+      // Also skip if the state is in its flying/arriving phase
+      if (st._arriving) return;
+
+      if (bb.scrolling && Math.abs(bb.scrollVel) > 30) {
+        const fS = this._ren.fS;
+        if (bb.scrollVel > 0) {
+          // Scrolling DOWN → ducks levitate upward
+          const lift = clamp(bb.scrollVel * 0.35, 20, 200);
+          bb.y -= lift * dt;
+          bb.onGround = false;
+          // Floaty upward particles
+          if (Math.random() < dt * 6) {
+            this._parts.spawn({ x: bb.x + fS/2 + rand(-12,12), y: bb.y + fS + 4, vx: rand(-10,10), vy: rand(10,30), maxLife: 0.4, size: rand(2,4), color: 'rgba(200,220,255,0.6)', type: 'circle', gravity: 20 });
+          }
+        } else {
+          // Scrolling UP → ducks get pushed downward
+          const push = clamp(Math.abs(bb.scrollVel) * 0.3, 15, 160);
+          const groundY = bb.groundY(fS);
+          bb.y = Math.min(bb.y + push * dt, groundY);
+          if (bb.y >= groundY) { bb.y = groundY; bb.onGround = true; }
+          else { bb.onGround = false; }
+          // Downward swoosh particles
+          if (Math.random() < dt * 4) {
+            this._parts.spawn({ x: bb.x + fS/2 + rand(-10,10), y: bb.y - 4, vx: rand(-8,8), vy: rand(-30,-10), maxLife: 0.3, size: rand(2,3), color: 'rgba(180,200,220,0.4)', type: 'circle', gravity: 40 });
+          }
+        }
+      }
+      // When scrolling stops and duck is in the air, the scheduler's auto-fall
+      // (in Scheduler.next()) will route it through LandRecover automatically
+      // when the current state ends. No additional logic needed.
+    }
+
     /** Check collisions with other DuckMate instances. */
     _checkCollisions(dt) {
       if (_instances.length < 2) return;
@@ -2205,7 +3114,7 @@
       const fS = this._ren.fS;
       const st = this._hsm.current;
       // Don't collide during drag, landing, or already bouncing
-      if (!st || bb.dragging || st.id === 'collision_bounce' || st.id === 'land_recover' || st.id === 'pick_up_drag_drop') return;
+      if (!st || bb.dragging || st.id === 'collision_bounce' || st.id === 'land_recover' || st.id === 'pick_up_drag_drop' || st.id === 'duck_fight') return;
 
       const myCx = bb.x + fS / 2;
       const myCy = bb.y + fS / 2;
@@ -2215,7 +3124,7 @@
         if (other === this || other._dead || other._paused) continue;
         const ob = other._bb;
         const oSt = other._hsm.current;
-        if (!oSt || ob.dragging || oSt.id === 'collision_bounce' || oSt.id === 'land_recover') continue;
+        if (!oSt || ob.dragging || oSt.id === 'collision_bounce' || oSt.id === 'land_recover' || oSt.id === 'duck_fight') continue;
 
         const oCx = ob.x + other._ren.fS / 2;
         const oCy = ob.y + other._ren.fS / 2;
@@ -2224,20 +3133,30 @@
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < hitR + other._ren.fS * 0.4) {
-          // Collision! Determine bounce direction
-          const nx = dist > 0 ? dx / dist : (Math.random() > 0.5 ? 1 : -1);
-          const ny = dist > 0 ? dy / dist : 0;
-          const bounceSpeed = 120 + Math.random() * 80;
+          // 30% chance of a full cartoon fight instead of just bouncing
+          if (Math.random() < 0.3 && bb.onGround && ob.onGround) {
+            // Duck fight!
+            this._sched.force('duck_fight', bb, this._cx);
+            other._sched.force('duck_fight', ob, other._cx);
+            // Tell both fight states about their opponent
+            const myFight = this._hsm.current;
+            const otherFight = other._hsm.current;
+            if (myFight && myFight.setOpponent) myFight.setOpponent(ob);
+            if (otherFight && otherFight.setOpponent) otherFight.setOpponent(bb);
+          } else {
+            // Normal bounce
+            const nx = dist > 0 ? dx / dist : (Math.random() > 0.5 ? 1 : -1);
+            const ny = dist > 0 ? dy / dist : 0;
+            const bounceSpeed = 120 + Math.random() * 80;
 
-          // This duck bounces away
-          bb.vx = nx * bounceSpeed;
-          bb.vy = ny * bounceSpeed - 80; // upward pop
-          this._sched.force('collision_bounce', bb, this._cx);
+            bb.vx = nx * bounceSpeed;
+            bb.vy = ny * bounceSpeed - 80;
+            this._sched.force('collision_bounce', bb, this._cx);
 
-          // Other duck bounces opposite
-          ob.vx = -nx * bounceSpeed;
-          ob.vy = -ny * bounceSpeed - 80;
-          other._sched.force('collision_bounce', ob, other._cx);
+            ob.vx = -nx * bounceSpeed;
+            ob.vy = -ny * bounceSpeed - 80;
+            other._sched.force('collision_bounce', ob, other._cx);
+          }
 
           // Spawn collision particles at midpoint
           const px = (bb.x + ob.x) / 2 + fS / 2;
