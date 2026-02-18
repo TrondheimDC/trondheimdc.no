@@ -1,0 +1,49 @@
+<svg viewBox="0 0 570 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ============================================
+       TDuckC Logo — Yellow edition 🦆
+       T + Duck + u + c + k + C
+       Using the same geometric letter style
+       ============================================ -->
+
+  <!-- T (uppercase, WHITE, scale 0.6667 from 138×180 → 92×120) -->
+  <g transform="translate(0,0) scale(0.6667)">
+    <rect width="138" height="60" fill="white"/>
+    <rect x="35" y="60" width="68" height="60" fill="#F0F0F0"/>
+    <rect x="35" y="120" width="68" height="60" fill="#E0E0E0"/>
+  </g>
+
+  <!-- D (uppercase, YELLOW, scale 0.6667 → 92×120) -->
+  <g transform="translate(101, 0) scale(0.6667)">
+    <path d="M0 0H78C111.137 0 138 26.8629 138 60H0V0Z" fill="#FFCC00"/>
+    <path d="M0 60H138V120H0V60Z" fill="#E6B800"/>
+    <path d="M0 120H138C138 153.137 111.137 180 78 180H0V120Z" fill="#CC9900"/>
+  </g>
+
+  <!-- u (lowercase, scale 0.6 → 83×108, bottom-aligned at y=12) -->
+  <g transform="translate(202, 12) scale(0.6)">
+    <path d="M0 0H138V60H0V0Z" fill="#FFCC00"/>
+    <path d="M0 60H138V120H0V60Z" fill="#E6B800"/>
+    <path d="M0 120H138C138 153.137 111.137 180 78 180H60C26.8629 180 0 153.137 0 120Z" fill="#CC9900"/>
+  </g>
+
+  <!-- c (lowercase C, scale 0.6 → 83×108, bottom-aligned at y=12) -->
+  <g transform="translate(293, 12) scale(0.6)">
+    <path d="M0 60C0 26.8629 26.8629 0 60 0H138V60H0Z" fill="#FFCC00"/>
+    <path d="M0 60H69V120H0V60Z" fill="#E6B800"/>
+    <path d="M0 120H138V180H60C26.8629 180 0 153.137 0 120Z" fill="#CC9900"/>
+  </g>
+
+  <!-- k (lowercase K, scale 0.6 → 83×108, bottom-aligned at y=12) -->
+  <g transform="translate(384, 12) scale(0.6)">
+    <path d="M0 0H138C138 33.1371 111.137 60 78 60H0V0Z" fill="#FFCC00"/>
+    <path d="M0 60H78C111.137 60 138 86.8629 138 120H0V60Z" fill="#E6B800"/>
+    <path d="M0 120H138V180H0V120Z" fill="#CC9900"/>
+  </g>
+
+  <!-- C (uppercase, WHITE, scale 0.6667 → 92×120) -->
+  <g transform="translate(475, 0) scale(0.6667)">
+    <path d="M0 60C0 26.8629 26.8629 0 60 0H138V60H0Z" fill="white"/>
+    <path d="M0 60H69V120H0V60Z" fill="#F0F0F0"/>
+    <path d="M0 120H138V180H60C26.8629 180 0 153.137 0 120Z" fill="#E0E0E0"/>
+  </g>
+</svg>
