@@ -1,0 +1,75 @@
+{
+  "$comment": "Duck Mate — Tunable animation timing and cooldowns. Edit values here without touching code.",
+  "animation": {
+    "walkSpeed": 60,
+    "runSpeed": 140,
+    "eggWobbleSpeed": 4,
+    "blinkIntervalMs": 3500,
+    "blinkDurationMs": 200,
+    "defaultFrameDurationMs": 120
+  },
+  "idle": {
+    "idleMinMs": 3000,
+    "idleMaxMs": 8000,
+    "napDurationMs": 12000,
+    "preenDurationMs": 4000,
+    "perchDurationMs": 6000
+  },
+  "cooldowns": {
+    "mediumGagCooldownMs": 90000,
+    "bigGagCooldownMs": 180000,
+    "interactionCooldownMs": 5000,
+    "walk_edge_follow": 0,
+    "perch_and_peer": 10000,
+    "idle_preen": 5000,
+    "idle_nap": 15000,
+    "puddle_hop": 12000,
+    "bread_heist": 90000,
+    "paper_plane_chase": 90000,
+    "camera_shy": 90000,
+    "fishbowl_moment": 90000,
+    "umbrella_pop": 90000,
+    "ufo_abduct_drop": 180000,
+    "shower_cloud": 180000,
+    "bathtub_flop": 180000,
+    "stage_performance": 180000,
+    "clone_parade": 180000,
+    "curiosity_cone": 8000,
+    "shoo_response": 5000,
+    "peek_a_boo": 15000,
+    "click_emote": 1000,
+    "scroll_aware_wave": 20000,
+    "section_perch": 15000
+  },
+  "physics": {
+    "gravity": 600,
+    "dragThrowMultiplier": 0.3,
+    "bounceRestitution": 0.3
+  },
+  "scheduler": {
+    "gagSuppressDuringFocus": true,
+    "groupWeights": {
+      "ambient": 3.0,
+      "medium_gag": 0.8,
+      "big_gag": 0.4,
+      "interaction": 1.5
+    },
+    "nightNapMultiplier": 3.0,
+    "recencyPenalty": 0.2
+  },
+  "particles": {
+    "maxLive": 60,
+    "splashCount": 5,
+    "confettiCount": 8,
+    "zzzSpawnRate": 0.8,
+    "rainSpawnRate": 12
+  },
+  "audio": {
+    "defaultVolume": 0.4,
+    "quackFreqStart": 800,
+    "quackFreqEnd": 400,
+    "quackDuration": 0.15,
+    "splashDuration": 0.2,
+    "splashFilterFreq": 2000
+  }
+}

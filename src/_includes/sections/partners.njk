@@ -1,0 +1,58 @@
+{% from "components/button.njk" import button %}
+{% from "components/partner-logo.njk" import partnerLogo %}
+
+<tdc-section>
+<section class="section section--partners" id="partners" data-animate aria-labelledby="partners-title">
+  <div class="container">
+    <div class="section__header text-center">
+      <h2 class="section__title" id="partners-title">{{ t.partners.heading }}</h2>
+    </div>
+
+    {# Partner logos — shuffled via JS #}
+    <div class="partner-logos" data-shuffle>
+      {{ partnerLogo("Bekk", "https://bekk.no", "/assets/images/partners/bekk.svg") }}
+      {{ partnerLogo("Bouvet", "https://bouvet.no", "/assets/images/partners/bouvet.svg") }}
+      {{ partnerLogo("Capgemini", "https://capgemini.no", "/assets/images/partners/capgemini.svg") }}
+      {{ partnerLogo("ITsjefen", "https://itsjefen.no", "/assets/images/partners/itsjefen.svg") }}
+      {{ partnerLogo("Kantega", "https://www.kantega.no/", "/assets/images/partners/kantega.svg") }}
+      {{ partnerLogo("Systek", "https://systek.no", "/assets/images/partners/systek.svg") }}
+      {{ partnerLogo("Tieto", "https://www.tieto.com/", "/assets/images/partners/tieto.svg") }}
+      {{ partnerLogo("Variant", "https://variant.no", "/assets/images/partners/variant.svg") }}
+      {{ partnerLogo("Webstep", "https://webstep.no", "/assets/images/partners/webstep.svg") }}
+      {{ partnerLogo("NAV", "https://www.nav.no/", "/assets/images/partners/nav.svg") }}
+      {{ partnerLogo("Itema", "https://itema.no", "/assets/images/partners/itema.svg") }}
+      {{ partnerLogo("EL og IT forbundet", "https://elogit.no", "/assets/images/partners/ELogIT.png") }}
+      {{ partnerLogo("Computas", "https://computas.no", "/assets/images/partners/Computas_logo_liggende_hvit.png") }}
+      {{ partnerLogo("Norconsult Digital", "https://norconsultdigital.no/", "/assets/images/partners/norconsult-digital-svg-white.svg") }}
+      {{ partnerLogo("AKVA group", "https://www.akvagroup.com/", "/assets/images/partners/akvagroup.svg") }}
+      {{ partnerLogo("Miles", "https://www.miles.no/", "/assets/images/partners/miles.png") }}
+    </div>
+
+    {# Partner info & CTA #}
+    <div class="stack text-center mt-2xl" style="align-items: center;">
+      <h3>{{ t.partners.hero_title }}</h3>
+      <p class="lead" style="margin-inline: auto;">{{ t.partners.hero_subtitle }}</p>
+      <p>{{ t.partners.hero_stats }}</p>
+
+      <div class="stack--sm mt-lg">
+        <h4>{{ t.partners.includes_title }}</h4>
+        <ul style="list-style: disc; text-align: left; display: inline-block; padding-inline-start: 1.5rem;">
+          {% for item in t.partners.includes %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <p class="mt-lg"><strong>{{ t.partners.price }}</strong></p>
+
+      <div class="mt-lg">
+        {{ button(t.partners.cta_button, "mailto:" + site.partnerEmail, "white", "lg") }}
+      </div>
+
+      <p class="mt-md">{{ t.partners.contact_text }}
+        <a href="mailto:{{ site.partnerEmail }}" style="text-decoration: underline;">{{ site.partnerEmail }}</a>
+      </p>
+    </div>
+  </div>
+</section>
+</tdc-section>

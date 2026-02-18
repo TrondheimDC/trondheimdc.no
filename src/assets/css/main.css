@@ -1,0 +1,28 @@
+/* TDC 2026 Design System — Main CSS Entry Point */
+/* Using CSS Cascade Layers for specificity control */
+
+@layer base, primitives, layout, components, utilities;
+
+@import "00-base/_tokens.css" layer(base);
+@import "00-base/_reset.css" layer(base);
+@import "00-base/_typography.css" layer(base);
+
+@import "01-primitives/_stack.css" layer(primitives);
+@import "01-primitives/_cluster.css" layer(primitives);
+@import "01-primitives/_grid.css" layer(primitives);
+@import "01-primitives/_switcher.css" layer(primitives);
+
+@import "02-layout/_layout.css" layer(layout);
+
+@import "03-components/_button.css" layer(components);
+@import "03-components/_card.css" layer(components);
+@import "03-components/_hero.css" layer(components);
+@import "03-components/_nav.css" layer(components);
+@import "03-components/_section.css" layer(components);
+@import "03-components/_tag.css" layer(components);
+@import "03-components/_partner-logo.css" layer(components);
+@import "03-components/_duck.css" layer(components);
+@import "03-components/_footer.css" layer(components);
+
+@import "04-utilities/_animations.css" layer(utilities);
+@import "04-utilities/_spacing.css" layer(utilities);

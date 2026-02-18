@@ -1,0 +1,49 @@
+/* Card component */
+.card {
+  --_card-bg: var(--tdc-primitive-white);
+  --_card-padding: var(--tdc-space-xl);
+
+  background: var(--_card-bg);
+  border-radius: var(--tdc-radius-lg);
+  padding: var(--_card-padding);
+  box-shadow: var(--tdc-shadow-sm);
+  transition: box-shadow var(--tdc-transition-normal),
+              transform var(--tdc-transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--tdc-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card--flat {
+  box-shadow: none;
+}
+
+.card--flat:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.card--purple {
+  --_card-bg: var(--tdc-primitive-purple-100);
+}
+
+.card--coral {
+  --_card-bg: var(--tdc-surface-tickets);
+}
+
+.card--green {
+  --_card-bg: var(--tdc-brand-primary);
+}
+
+.card__title {
+  font-size: var(--tdc-text-xl);
+  font-weight: 700;
+  margin-block-end: var(--tdc-space-sm);
+}
+
+.card__body {
+  color: var(--tdc-text-secondary);
+  margin-block-end: var(--tdc-space-lg);
+}

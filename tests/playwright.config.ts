@@ -4,7 +4,7 @@ const isCI = !!process.env.CI;
 
 export default defineConfig({
   testDir: '.',
-  testIgnore: ['_site/**'],
+  testIgnore: ['_site/**', 'node_modules/**'],
   timeout: 30000,
   retries: isCI ? 2 : 0,
   use: {
@@ -17,11 +17,16 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120000,
   } : {
-    command: 'bundle exec jekyll serve',
-    cwd: '..',
+    command: 'npx serve ../old/_site -l 4000',
     url: 'http://localhost:4000',
     reuseExistingServer: true,
     timeout: 120000,
   },
   reporter: [['list'], ['html', { open: 'never' }]],
+  projects: [
+    {
+      name: 'chromium',
+      use: { browserName: 'chromium' },
+    },
+  ],
 });

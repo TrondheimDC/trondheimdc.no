@@ -1,0 +1,82 @@
+/* Modern CSS Reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  min-height: 100vh;
+  line-height: var(--tdc-leading-normal);
+  font-family: var(--tdc-font-family);
+  font-size: var(--tdc-text-base);
+  color: var(--tdc-text-primary);
+  background: var(--tdc-primitive-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* Skip to content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--tdc-space-md);
+  padding: var(--tdc-space-xs) var(--tdc-space-md);
+  background: var(--tdc-brand-primary);
+  color: var(--tdc-text-primary);
+  border-radius: var(--tdc-radius-md);
+  font-weight: 600;
+  z-index: 1000;
+  transition: top var(--tdc-transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--tdc-space-xs);
+}

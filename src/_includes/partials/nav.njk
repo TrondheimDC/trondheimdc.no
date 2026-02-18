@@ -1,0 +1,30 @@
+{% set t = i18n[lang] %}
+
+<tdc-nav>
+  <nav class="site-nav" aria-label="{% if lang == 'en' %}Main navigation{% else %}Hovednavigasjon{% endif %}">
+    <div class="site-nav__inner">
+      <a href="{% if lang == 'en' %}{{ '/en/' | url }}{% else %}{{ '/' | url }}{% endif %}" class="site-nav__brand" aria-label="TDC 2026 — {% if lang == 'en' %}Home{% else %}Hjem{% endif %}">
+        <img src="{{ '/assets/images/logos/TDC_white.svg' | url }}" alt="TDC logo" class="site-nav__logo" width="80" height="40">
+      </a>
+
+      <button class="site-nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="{% if lang == 'en' %}Toggle menu{% else %}Åpne meny{% endif %}">
+        <span aria-hidden="true">☰</span>
+      </button>
+
+      <div class="site-nav__links" id="nav-links" role="list">
+        <a href="#about" class="site-nav__link" data-section="about">{{ t.nav.about }}</a>
+        <a href="#cfp" class="site-nav__link" data-section="cfp">{{ t.nav.cfp }}</a>
+        <a href="#speakers" class="site-nav__link" data-section="speakers">{{ t.nav.speakers }}</a>
+        <a href="#program" class="site-nav__link" data-section="program">{{ t.nav.program }}</a>
+        <a href="#tickets" class="site-nav__link" data-section="tickets">{{ t.nav.tickets }}</a>
+        <a href="#partners" class="site-nav__link" data-section="partners">{{ t.nav.partners }}</a>
+        <a href="#coc" class="site-nav__link" data-section="coc">{{ t.nav.coc }}</a>
+
+        <div class="site-nav__lang">
+          <a href="{{ '/' | url }}" hreflang="no" {% if lang == "no" %}aria-current="page"{% endif %}>NO</a>
+          <a href="{{ '/en/' | url }}" hreflang="en" {% if lang == "en" %}aria-current="page"{% endif %}>EN</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</tdc-nav>

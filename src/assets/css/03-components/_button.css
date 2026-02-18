@@ -1,0 +1,94 @@
+/* Button component */
+.btn {
+  --_btn-bg: var(--tdc-brand-primary);
+  --_btn-color: var(--tdc-text-on-primary);
+  --_btn-hover-bg: var(--tdc-brand-primary-mid);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tdc-space-xs);
+  padding: var(--tdc-space-sm) var(--tdc-space-xl);
+  background: var(--_btn-bg);
+  color: var(--_btn-color);
+  border: 2px solid transparent;
+  border-radius: var(--tdc-radius-full);
+  font-weight: 600;
+  font-size: var(--tdc-text-base);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--tdc-transition-fast),
+              transform var(--tdc-transition-fast),
+              box-shadow var(--tdc-transition-fast);
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--_btn-hover-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--tdc-shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--tdc-brand-accent);
+  outline-offset: 2px;
+}
+
+/* Variants */
+.btn--secondary {
+  --_btn-bg: var(--tdc-brand-secondary);
+  --_btn-hover-bg: var(--tdc-brand-secondary-mid);
+}
+
+.btn--accent {
+  --_btn-bg: var(--tdc-brand-accent);
+  --_btn-hover-bg: var(--tdc-brand-accent-dark);
+  --_btn-color: var(--tdc-primitive-white);
+}
+
+.btn--outline {
+  --_btn-bg: transparent;
+  --_btn-color: var(--tdc-text-primary);
+  border-color: currentColor;
+}
+
+.btn--outline:hover {
+  background: var(--tdc-primitive-black);
+  color: var(--tdc-primitive-white);
+  border-color: var(--tdc-primitive-black);
+}
+
+.btn--white {
+  --_btn-bg: var(--tdc-primitive-white);
+  --_btn-color: var(--tdc-primitive-black);
+  --_btn-hover-bg: var(--tdc-primitive-gray-100);
+}
+
+.btn--dark {
+  --_btn-bg: var(--tdc-primitive-black);
+  --_btn-color: var(--tdc-primitive-white);
+  --_btn-hover-bg: var(--tdc-primitive-gray-800);
+}
+
+/* Sizes */
+.btn--sm {
+  padding: var(--tdc-space-2xs) var(--tdc-space-md);
+  font-size: var(--tdc-text-sm);
+}
+
+.btn--lg {
+  padding: var(--tdc-space-md) var(--tdc-space-2xl);
+  font-size: var(--tdc-text-lg);
+}
+
+/* Icon */
+.btn__icon {
+  display: inline-flex;
+  width: 1.25em;
+  height: 1.25em;
+}

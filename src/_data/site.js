@@ -1,0 +1,28 @@
+export default {
+  title: "TDC 2026",
+  description: "Trondheim Developer Conference 2026",
+  url: "https://trondheimdc.no",
+  date: "2026-10-19",
+  venue: "Clarion Hotel Trondheim",
+  email: "connect@trondheimdc.no",
+  partnerEmail: "partner@trondheimdc.no",
+  cfpUrl: "https://sessionize.com/tdc-2026/",
+  ticketUrl: "#tickets",
+  partnerOrderUrl: "#partners",
+  sessionizeEventId: "",
+  social: {
+    facebook: "https://www.facebook.com/TDConf",
+    linkedin: "https://www.linkedin.com/company/trondheimdc/",
+    youtube: "https://www.youtube.com/@trondheimdc/videos",
+    flickr: "https://www.flickr.com/people/trondheimdc/",
+  },
+  stats: {
+    year: 2026,
+    edition: "12th",
+    tracks: 6,
+    talks: "35+",
+    attendees: "900+",
+    partners: "30+",
+    since: 2012,
+  },
+};

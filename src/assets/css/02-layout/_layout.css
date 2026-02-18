@@ -1,0 +1,32 @@
+/* Layout — Container, page sections, spacing */
+.container {
+  max-width: var(--tdc-content-width);
+  margin-inline: auto;
+  padding-inline: var(--tdc-space-lg);
+}
+
+.container--narrow {
+  max-width: var(--tdc-narrow-width);
+}
+
+/* Visually hidden but accessible */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Text alignment utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Flex alignment */
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }

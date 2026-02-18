@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Duck Mate Sprite Atlas Specification — 1024×1024 max, 64×64 frames, 2px gutter",
+  "meta": {
+    "version": "1.0.0",
+    "frameSize": 64,
+    "gutter": 2,
+    "cellPitch": 66,
+    "columns": 15,
+    "atlasWidth": 1024,
+    "atlasHeight": 1024,
+    "imageFile": "atlas.png"
+  },
+  "sequences": {
+    "walk_right": {
+      "frameCount": 8,
+      "frameDurationMs": 120,
+      "loop": true,
+      "mirror": "walk_left",
+      "frames": [
+        { "x": 0,   "y": 0, "w": 64, "h": 64 },
+        { "x": 66,  "y": 0, "w": 64, "h": 64 },
+        { "x": 132, "y": 0, "w": 64, "h": 64 },
+        { "x": 198, "y": 0, "w": 64, "h": 64 },
+        { "x": 264, "y": 0, "w": 64, "h": 64 },
+        { "x": 330, "y": 0, "w": 64, "h": 64 },
+        { "x": 396, "y": 0, "w": 64, "h": 64 },
+        { "x": 462, "y": 0, "w": 64, "h": 64 }
+      ]
+    },
+    "idle_preen": {
+      "frameCount": 6,
+      "frameDurationMs": 120,
+      "loop": true,
+      "frames": [
+        { "x": 528, "y": 0, "w": 64, "h": 64 },
+        { "x": 594, "y": 0, "w": 64, "h": 64 },
+        { "x": 660, "y": 0, "w": 64, "h": 64 },
+        { "x": 726, "y": 0, "w": 64, "h": 64 },
+        { "x": 792, "y": 0, "w": 64, "h": 64 },
+        { "x": 858, "y": 0, "w": 64, "h": 64 }
+      ]
+    },
+    "idle_nap": {
+      "frameCount": 4,
+      "frameDurationMs": 400,
+      "loop": true,
+      "overlay": "zzz",
+      "frames": [
+        { "x": 924, "y": 0, "w": 64, "h": 64 },
+        { "x": 0,   "y": 66, "w": 64, "h": 64 },
+        { "x": 66,  "y": 66, "w": 64, "h": 64 },
+        { "x": 132, "y": 66, "w": 64, "h": 64 }
+      ]
+    },
+    "run_panic": {
+      "frameCount": 6,
+      "frameDurationMs": 80,
+      "loop": true,
+      "frames": [
+        { "x": 198, "y": 66, "w": 64, "h": 64 },
+        { "x": 264, "y": 66, "w": 64, "h": 64 },
+        { "x": 330, "y": 66, "w": 64, "h": 64 },
+        { "x": 396, "y": 66, "w": 64, "h": 64 },
+        { "x": 462, "y": 66, "w": 64, "h": 64 },
+        { "x": 528, "y": 66, "w": 64, "h": 64 }
+      ]
+    },
+    "dragged": {
+      "frameCount": 2,
+      "frameDurationMs": 200,
+      "loop": true,
+      "frames": [
+        { "x": 594, "y": 66, "w": 64, "h": 64 },
+        { "x": 660, "y": 66, "w": 64, "h": 64 }
+      ]
+    },
+    "land_recover": {
+      "frameCount": 4,
+      "frameDurationMs": 150,
+      "loop": false,
+      "frames": [
+        { "x": 726, "y": 66, "w": 64, "h": 64 },
+        { "x": 792, "y": 66, "w": 64, "h": 64 },
+        { "x": 858, "y": 66, "w": 64, "h": 64 },
+        { "x": 924, "y": 66, "w": 64, "h": 64 }
+      ]
+    },
+    "ufo_abduct_drop": {
+      "frameCount": 8,
+      "frameDurationMs": 140,
+      "loop": true,
+      "frames": [
+        { "x": 0,   "y": 132, "w": 64, "h": 64 },
+        { "x": 66,  "y": 132, "w": 64, "h": 64 },
+        { "x": 132, "y": 132, "w": 64, "h": 64 },
+        { "x": 198, "y": 132, "w": 64, "h": 64 },
+        { "x": 264, "y": 132, "w": 64, "h": 64 },
+        { "x": 330, "y": 132, "w": 64, "h": 64 },
+        { "x": 396, "y": 132, "w": 64, "h": 64 },
+        { "x": 462, "y": 132, "w": 64, "h": 64 }
+      ]
+    },
+    "shower_cloud": {
+      "frameCount": 8,
+      "frameDurationMs": 140,
+      "loop": true,
+      "frames": [
+        { "x": 528, "y": 132, "w": 64, "h": 64 },
+        { "x": 594, "y": 132, "w": 64, "h": 64 },
+        { "x": 660, "y": 132, "w": 64, "h": 64 },
+        { "x": 726, "y": 132, "w": 64, "h": 64 },
+        { "x": 792, "y": 132, "w": 64, "h": 64 },
+        { "x": 858, "y": 132, "w": 64, "h": 64 },
+        { "x": 924, "y": 132, "w": 64, "h": 64 },
+        { "x": 0,   "y": 198, "w": 64, "h": 64 }
+      ]
+    },
+    "bathtub_flop": {
+      "frameCount": 8,
+      "frameDurationMs": 140,
+      "loop": true,
+      "frames": [
+        { "x": 66,  "y": 198, "w": 64, "h": 64 },
+        { "x": 132, "y": 198, "w": 64, "h": 64 },
+        { "x": 198, "y": 198, "w": 64, "h": 64 },
+        { "x": 264, "y": 198, "w": 64, "h": 64 },
+        { "x": 330, "y": 198, "w": 64, "h": 64 },
+        { "x": 396, "y": 198, "w": 64, "h": 64 },
+        { "x": 462, "y": 198, "w": 64, "h": 64 },
+        { "x": 528, "y": 198, "w": 64, "h": 64 }
+      ]
+    },
+    "bread_heist": {
+      "frameCount": 6,
+      "frameDurationMs": 130,
+      "loop": true,
+      "frames": [
+        { "x": 594, "y": 198, "w": 64, "h": 64 },
+        { "x": 660, "y": 198, "w": 64, "h": 64 },
+        { "x": 726, "y": 198, "w": 64, "h": 64 },
+        { "x": 792, "y": 198, "w": 64, "h": 64 },
+        { "x": 858, "y": 198, "w": 64, "h": 64 },
+        { "x": 924, "y": 198, "w": 64, "h": 64 }
+      ]
+    },
+    "paper_plane_chase": {
+      "frameCount": 6,
+      "frameDurationMs": 110,
+      "loop": true,
+      "frames": [
+        { "x": 0,   "y": 264, "w": 64, "h": 64 },
+        { "x": 66,  "y": 264, "w": 64, "h": 64 },
+        { "x": 132, "y": 264, "w": 64, "h": 64 },
+        { "x": 198, "y": 264, "w": 64, "h": 64 },
+        { "x": 264, "y": 264, "w": 64, "h": 64 },
+        { "x": 330, "y": 264, "w": 64, "h": 64 }
+      ]
+    },
+    "camera_shy": {
+      "frameCount": 4,
+      "frameDurationMs": 120,
+      "loop": true,
+      "frames": [
+        { "x": 396, "y": 264, "w": 64, "h": 64 },
+        { "x": 462, "y": 264, "w": 64, "h": 64 },
+        { "x": 528, "y": 264, "w": 64, "h": 64 },
+        { "x": 594, "y": 264, "w": 64, "h": 64 }
+      ]
+    },
+    "fishbowl_moment": {
+      "frameCount": 6,
+      "frameDurationMs": 150,
+      "loop": true,
+      "frames": [
+        { "x": 660, "y": 264, "w": 64, "h": 64 },
+        { "x": 726, "y": 264, "w": 64, "h": 64 },
+        { "x": 792, "y": 264, "w": 64, "h": 64 },
+        { "x": 858, "y": 264, "w": 64, "h": 64 },
+        { "x": 924, "y": 264, "w": 64, "h": 64 },
+        { "x": 0,   "y": 330, "w": 64, "h": 64 }
+      ]
+    },
+    "umbrella_pop": {
+      "frameCount": 6,
+      "frameDurationMs": 120,
+      "loop": true,
+      "frames": [
+        { "x": 66,  "y": 330, "w": 64, "h": 64 },
+        { "x": 132, "y": 330, "w": 64, "h": 64 },
+        { "x": 198, "y": 330, "w": 64, "h": 64 },
+        { "x": 264, "y": 330, "w": 64, "h": 64 },
+        { "x": 330, "y": 330, "w": 64, "h": 64 },
+        { "x": 396, "y": 330, "w": 64, "h": 64 }
+      ]
+    },
+    "click_emote": {
+      "frameCount": 3,
+      "frameDurationMs": 150,
+      "loop": false,
+      "frames": [
+        { "x": 462, "y": 330, "w": 64, "h": 64 },
+        { "x": 528, "y": 330, "w": 64, "h": 64 },
+        { "x": 594, "y": 330, "w": 64, "h": 64 }
+      ]
+    },
+    "peek_a_boo": {
+      "frameCount": 4,
+      "frameDurationMs": 180,
+      "loop": false,
+      "frames": [
+        { "x": 660, "y": 330, "w": 64, "h": 64 },
+        { "x": 726, "y": 330, "w": 64, "h": 64 },
+        { "x": 792, "y": 330, "w": 64, "h": 64 },
+        { "x": 858, "y": 330, "w": 64, "h": 64 }
+      ]
+    },
+    "perch_idle": {
+      "frameCount": 4,
+      "frameDurationMs": 250,
+      "loop": true,
+      "frames": [
+        { "x": 924, "y": 330, "w": 64, "h": 64 },
+        { "x": 0,   "y": 396, "w": 64, "h": 64 },
+        { "x": 66,  "y": 396, "w": 64, "h": 64 },
+        { "x": 132, "y": 396, "w": 64, "h": 64 }
+      ]
+    },
+    "puddle_hop": {
+      "frameCount": 4,
+      "frameDurationMs": 100,
+      "loop": true,
+      "frames": [
+        { "x": 198, "y": 396, "w": 64, "h": 64 },
+        { "x": 264, "y": 396, "w": 64, "h": 64 },
+        { "x": 330, "y": 396, "w": 64, "h": 64 },
+        { "x": 396, "y": 396, "w": 64, "h": 64 }
+      ]
+    },
+    "stage_performance": {
+      "frameCount": 8,
+      "frameDurationMs": 130,
+      "loop": true,
+      "frames": [
+        { "x": 462, "y": 396, "w": 64, "h": 64 },
+        { "x": 528, "y": 396, "w": 64, "h": 64 },
+        { "x": 594, "y": 396, "w": 64, "h": 64 },
+        { "x": 660, "y": 396, "w": 64, "h": 64 },
+        { "x": 726, "y": 396, "w": 64, "h": 64 },
+        { "x": 792, "y": 396, "w": 64, "h": 64 },
+        { "x": 858, "y": 396, "w": 64, "h": 64 },
+        { "x": 924, "y": 396, "w": 64, "h": 64 }
+      ]
+    },
+    "clone_parade": {
+      "frameCount": 6,
+      "frameDurationMs": 120,
+      "loop": true,
+      "frames": [
+        { "x": 0,   "y": 462, "w": 64, "h": 64 },
+        { "x": 66,  "y": 462, "w": 64, "h": 64 },
+        { "x": 132, "y": 462, "w": 64, "h": 64 },
+        { "x": 198, "y": 462, "w": 64, "h": 64 },
+        { "x": 264, "y": 462, "w": 64, "h": 64 },
+        { "x": 330, "y": 462, "w": 64, "h": 64 }
+      ]
+    },
+    "curiosity_cone": {
+      "frameCount": 4,
+      "frameDurationMs": 140,
+      "loop": true,
+      "frames": [
+        { "x": 396, "y": 462, "w": 64, "h": 64 },
+        { "x": 462, "y": 462, "w": 64, "h": 64 },
+        { "x": 528, "y": 462, "w": 64, "h": 64 },
+        { "x": 594, "y": 462, "w": 64, "h": 64 }
+      ]
+    },
+    "shoo_response": {
+      "frameCount": 4,
+      "frameDurationMs": 100,
+      "loop": false,
+      "frames": [
+        { "x": 660, "y": 462, "w": 64, "h": 64 },
+        { "x": 726, "y": 462, "w": 64, "h": 64 },
+        { "x": 792, "y": 462, "w": 64, "h": 64 },
+        { "x": 858, "y": 462, "w": 64, "h": 64 }
+      ]
+    },
+    "scroll_wave": {
+      "frameCount": 4,
+      "frameDurationMs": 160,
+      "loop": true,
+      "frames": [
+        { "x": 924, "y": 462, "w": 64, "h": 64 },
+        { "x": 0,   "y": 528, "w": 64, "h": 64 },
+        { "x": 66,  "y": 528, "w": 64, "h": 64 },
+        { "x": 132, "y": 528, "w": 64, "h": 64 }
+      ]
+    }
+  },
+  "propLayers": {
+    "bread":    { "description": "Slice of bread for bread_heist", "size": [24, 24] },
+    "flower":   { "description": "Flower for idle_preen variant", "size": [16, 20] },
+    "fishbowl": { "description": "Round fishbowl for fishbowl_moment", "size": [40, 44] },
+    "cloud":    { "description": "Rain cloud for shower_cloud", "size": [48, 28] },
+    "tub":      { "description": "Bathtub for bathtub_flop", "size": [56, 32] },
+    "ufo_beam": { "description": "UFO + tractor beam for ufo_abduct_drop", "size": [40, 80] },
+    "umbrella": { "description": "Open umbrella for umbrella_pop", "size": [36, 40] },
+    "camera":   { "description": "Camera flash for camera_shy", "size": [20, 16] },
+    "plane":    { "description": "Paper plane for paper_plane_chase", "size": [28, 16] },
+    "stage":    { "description": "Mini stage with curtains for stage_performance", "size": [64, 20] }
+  },
+  "particleStrips": {
+    "splash_drops": { "frames": 4, "frameSize": [8, 12], "description": "Water splash droplets" },
+    "confetti":     { "frames": 6, "frameSize": [8, 8],  "description": "Colorful confetti pieces" },
+    "zzz":          { "frames": 3, "frameSize": [12, 12], "description": "Sleep Z letters" },
+    "hearts":       { "frames": 3, "frameSize": [10, 10], "description": "Heart emotes" },
+    "stars":        { "frames": 4, "frameSize": [10, 10], "description": "Sparkle stars" }
+  },
+  "artSpec": {
+    "style": "Cute pixel-art vibe, warm palette, expressive eyes. 64-96px height per frame.",
+    "palette": {
+      "body":    "#FFCC00",
+      "beak":    "#FF8C00",
+      "eye":     "#1A1A1A",
+      "eyeShine":"#FFFFFF",
+      "feet":    "#FF8C00",
+      "blush":   "#FF8FB3",
+      "outline": "#CC9900"
+    },
+    "requirements": [
+      "Transparent PNG background",
+      "Even frame sizes (64×64)",
+      "2-4px gutters between frames",
+      "Atlas ≤ 1024×1024",
+      "Separate prop layers exported individually",
+      "Simple particle strips as separate rows"
+    ]
+  }
+}

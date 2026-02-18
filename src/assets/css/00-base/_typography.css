@@ -1,0 +1,45 @@
+/* Typography */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: var(--tdc-leading-tight);
+  color: var(--tdc-text-primary);
+}
+
+h1 {
+  font-size: var(--tdc-text-4xl);
+}
+
+h2 {
+  font-size: var(--tdc-text-3xl);
+}
+
+h3 {
+  font-size: var(--tdc-text-2xl);
+}
+
+h4 {
+  font-size: var(--tdc-text-xl);
+}
+
+p {
+  max-width: 65ch;
+}
+
+.lead {
+  font-size: var(--tdc-text-lg);
+  line-height: var(--tdc-leading-relaxed);
+  color: var(--tdc-text-secondary);
+}
+
+@media (min-width: 768px) {
+  h1 { font-size: var(--tdc-text-5xl); }
+  h2 { font-size: var(--tdc-text-4xl); }
+  h3 { font-size: var(--tdc-text-3xl); }
+}
+
+@media (min-width: 1024px) {
+  h1 { font-size: var(--tdc-text-6xl); }
+}

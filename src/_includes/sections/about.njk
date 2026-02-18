@@ -1,0 +1,27 @@
+{% from "components/stat.njk" import stat %}
+
+<tdc-section>
+<section class="section section--about" id="about" data-animate aria-labelledby="about-title">
+  <div class="container">
+    <div class="section__header text-center">
+      <h2 class="section__title" id="about-title">{{ t.about.title }}</h2>
+    </div>
+
+    <div class="switcher" style="--switcher-threshold: 40rem;">
+      <div class="stack">
+        <p class="lead">{{ t.about.intro }}</p>
+        <p>{{ t.about.body }}</p>
+        <p>{{ t.about.body2 }}</p>
+        <p>{{ t.about.body3 }}</p>
+      </div>
+
+      <div class="grid grid--2" style="--grid-gap: var(--tdc-space-xl);">
+        {{ stat(site.stats.tracks, t.about.stat_tracks) }}
+        {{ stat(site.stats.talks, t.about.stat_talks) }}
+        {{ stat(site.stats.attendees, t.about.stat_attendees) }}
+        {{ stat(site.stats.partners, t.about.stat_partners) }}
+      </div>
+    </div>
+  </div>
+</section>
+</tdc-section>

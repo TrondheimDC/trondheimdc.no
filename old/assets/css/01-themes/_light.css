@@ -1,0 +1,57 @@
+/**
+ * TDC Design System - Light Theme Override
+ * 
+ * This file overrides ONLY Tier 2 semantic tokens.
+ * The primitive colors stay the same - we just remap what they mean.
+ * 
+ * To use: Add class="tdc-light" to a container or <html>
+ */
+
+.tdc-light {
+  /* --- SURFACES --- */
+  --tdc-surface-page: var(--tdc-primitive-neutral-100);
+  --tdc-surface-elevated: var(--tdc-primitive-neutral-200);
+  --tdc-surface-sunken: var(--tdc-primitive-neutral-300);
+  --tdc-surface-overlay: rgba(255, 255, 255, 0.9);
+
+  /* --- TEXT --- */
+  --tdc-text-primary: var(--tdc-primitive-neutral-800);
+  --tdc-text-secondary: var(--tdc-primitive-neutral-600);
+  --tdc-text-tertiary: var(--tdc-primitive-neutral-500);
+  --tdc-text-disabled: var(--tdc-primitive-neutral-400);
+
+  /* Text on colored backgrounds (stays same) */
+  --tdc-text-on-primary: var(--tdc-primitive-neutral-1000);
+  --tdc-text-on-secondary: var(--tdc-primitive-neutral-100);
+
+  /* Inverse (for dark elements in light mode) */
+  --tdc-text-inverse-primary: var(--tdc-primitive-neutral-100);
+  --tdc-text-inverse-secondary: var(--tdc-primitive-neutral-300);
+
+  /* --- BORDERS --- */
+  --tdc-border-default: var(--tdc-primitive-neutral-300);
+  --tdc-border-subtle: var(--tdc-primitive-neutral-200);
+  --tdc-border-strong: var(--tdc-primitive-neutral-500);
+
+  /* --- ACTIONS --- */
+  --tdc-action-ghost-background-hover: var(--tdc-primitive-neutral-200);
+  --tdc-action-ghost-text: var(--tdc-primitive-neutral-800);
+  --tdc-action-ghost-border: var(--tdc-primitive-neutral-400);
+
+  /* --- INTERACTIVE STATES --- */
+  --tdc-state-hover-overlay: rgba(0, 0, 0, 0.04);
+  --tdc-state-active-overlay: rgba(0, 0, 0, 0.08);
+
+  /* --- SHADOWS (lighter for light mode) --- */
+  --tdc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --tdc-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --tdc-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --tdc-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+/* Auto light mode based on system preference */
+@media (prefers-color-scheme: light) {
+  :root:not(.tdc-dark) {
+    /* Copy all light theme overrides here if you want auto-switching */
+  }
+}

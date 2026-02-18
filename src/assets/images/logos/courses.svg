@@ -1,0 +1,12 @@
+<svg width="445" height="180" viewBox="0 0 445 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Standardized courses header: 9 green shapes, white branding removed -->
+  <path d="M305 60C305 26.8629 331.863 0 365 0H445V60H305Z" fill="#A9DDB1"/>
+  <path d="M305 60H383C416.137 60 443 86.8629 443 120H365C331.863 120 305 93.1371 305 60Z" fill="#94CC9D"/>
+  <path d="M305 120H443C443 153.137 416.137 180 383 180H305V120Z" fill="#80BE8A"/>
+  <path d="M152 0H230C263.137 0 290 26.8629 290 60H152V0Z" fill="#A9DDB1"/>
+  <path d="M152 60H290C290 93.1371 263.137 120 230 120H152V60Z" fill="#94CC9D"/>
+  <path d="M152 120H230C263.137 120 290 146.863 290 180H152V120Z" fill="#80BE8A"/>
+  <path d="M0 60C0 26.8629 26.8629 0 60 0H138V60H0Z" fill="#A9DDB1"/>
+  <path d="M0 60H69V120H0V60Z" fill="#94CC9D"/>
+  <path d="M0 120H138V180H60C26.8629 180 0 153.137 0 120Z" fill="#80BE8A"/>
+</svg>

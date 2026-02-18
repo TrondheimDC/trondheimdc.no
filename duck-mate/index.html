@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duck Mate — Demo</title>
+  <link rel="stylesheet" href="duck-mate.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --text: #e4e4e7;
+      --accent: #FFCC00;
+      --accent2: #5CB85C;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 300vh;
+    }
+
+    a { color: var(--accent); }
+
+    /* ─ Sticky header (auto-detected perch) ─ */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--accent);
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+    header nav a { margin-left: 16px; text-decoration: none; font-size: 0.9rem; }
+    header nav a:hover { text-decoration: underline; }
+
+    main { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+    section { margin-bottom: 64px; }
+
+    h2 { font-size: 1.6rem; margin-bottom: 16px; color: var(--accent); }
+    h3 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--accent2); }
+
+    p, li { margin-bottom: 12px; color: #b0b0b8; }
+    ul { padding-left: 20px; }
+
+    code {
+      background: rgba(255, 204, 0, 0.1);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid #2a2d3a;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin: 16px 0;
+    }
+    pre code { background: none; padding: 0; color: #d4d4d8; }
+
+    /* ─ Demo controls ─ */
+    .demo-panel {
+      background: var(--surface);
+      border: 1px solid #2a2d3a;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .demo-panel h3 { margin-top: 0; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: rgba(255,204,0,0.15); border-color: var(--accent); }
+    .btn:active { transform: scale(0.97); }
+    .btn--accent { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+    .btn--accent:hover { background: #ffe066; }
+    .btn--danger { border-color: #e74c3c; color: #e74c3c; }
+    .btn--danger:hover { background: rgba(231,76,60,0.15); }
+
+    label { display: block; margin: 12px 0 4px; font-size: 0.85rem; color: #888; }
+    input[type="range"] { width: 200px; accent-color: var(--accent); }
+    select {
+      padding: 6px 12px; border-radius: 6px; border: 1px solid #444;
+      background: var(--surface); color: var(--text); font-size: 0.85rem;
+    }
+
+    .log-area {
+      background: #000; color: #0f0;
+      font: 12px/1.4 'Consolas', monospace;
+      padding: 12px; border-radius: 8px;
+      height: 140px; overflow-y: auto; margin-top: 12px;
+    }
+
+    .test-input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid #444; border-radius: 8px;
+      background: var(--surface); color: var(--text); font-size: 1rem; margin-top: 8px;
+    }
+    .test-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    footer {
+      padding: 24px; text-align: center;
+      background: var(--surface);
+      border-top: 2px solid var(--accent);
+      font-size: 0.85rem; color: #666;
+    }
+
+    .dock {
+      position: fixed; left: 0; bottom: 50%;
+      width: 6px; height: 100px;
+      background: var(--accent);
+      border-radius: 0 4px 4px 0;
+      opacity: 0.3;
+    }
+
+    .filler {
+      height: 70vh;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0.2; font-size: 2.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🦆 Duck Mate Demo</h1>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#api">API</a>
+      <a href="#controls">Controls</a>
+      <a href="#atlas">Atlas</a>
+    </nav>
+  </header>
+
+  <div class="dock" data-perch></div>
+
+  <main>
+
+    <section>
+      <h2>Meet your Duck Mate</h2>
+      <p>
+        A non-intrusive web mascot inspired by <strong>eSheep</strong>. The duck walks
+        along viewport edges, perches on sticky headers, naps when you're idle, and
+        performs occasional gags — all rendered in <code>&lt;canvas&gt;</code> with zero
+        dependencies.
+      </p>
+      <p>
+        The duck should already be walking around the bottom of the page. Try
+        <strong>dragging</strong> it, <strong>clicking</strong> it, or
+        <strong>double-clicking</strong> to shoo it away.
+      </p>
+    </section>
+
+    <section id="controls">
+      <h2>Interactive Controls</h2>
+
+      <div class="demo-panel">
+        <h3>🎮 Core</h3>
+        <div class="btn-row">
+          <button class="btn btn--accent" onclick="duck && duck.pause()">⏸ Pause</button>
+          <button class="btn btn--accent" onclick="duck && duck.resume()">▶ Resume</button>
+          <button class="btn" onclick="duck && duck.toggleMute()">🔇 Toggle Mute</button>
+          <button class="btn btn--danger" id="btn-rm" onclick="removeDuck()">✕ Remove</button>
+          <button class="btn btn--accent" id="btn-spawn" onclick="spawnDuck()" style="display:none">🥚 Respawn</button>
+          <button class="btn btn--accent" onclick="spawnExtra()">🦆+ Spawn Extra</button>
+        </div>
+
+        <label for="spd">Speed: <span id="spd-v">1.0</span></label>
+        <input type="range" id="spd" min="0.3" max="2" step="0.1" value="1"
+               oninput="duck && duck.setSpeed(+this.value); document.getElementById('spd-v').textContent=this.value">
+
+        <label for="scl">Scale: <span id="scl-v">1.0</span></label>
+        <input type="range" id="scl" min="0.5" max="3" step="0.25" value="1"
+               oninput="duck && duck.setScale(+this.value); document.getElementById('scl-v').textContent=this.value">
+
+        <label for="vol">Volume: <span id="vol-v">0.4</span></label>
+        <input type="range" id="vol" min="0" max="1" step="0.05" value="0.4"
+               oninput="duck && duck.setVolume(+this.value); document.getElementById('vol-v').textContent=this.value">
+
+        <label for="thm">Theme</label>
+        <select id="thm" onchange="duck && duck.setTheme(this.value)">
+          <option value="default">Default</option>
+          <option value="winter">Winter ❄️</option>
+          <option value="spring">Spring 🌸</option>
+          <option value="summer">Summer ☀️</option>
+          <option value="halloween">Halloween 🎃</option>
+          <option value="festive">Festive 🎄</option>
+        </select>
+
+        <label for="mm">Motion Mode</label>
+        <select id="mm" onchange="duck && duck.setMode(this.value)">
+          <option value="normal">Normal</option>
+          <option value="reduced">Reduced Motion</option>
+        </select>
+      </div>
+
+      <div class="demo-panel">
+        <h3>🎬 Force Behavior</h3>
+        <p style="font-size:0.8rem;color:#888">Click any button to force a specific behavior state:</p>
+        <div class="btn-row" id="state-btns"></div>
+      </div>
+
+      <div class="demo-panel">
+        <h3>📝 Input Focus Test</h3>
+        <p>Gags should be suppressed while this input is focused:</p>
+        <input class="test-input" type="text" placeholder="Type here — no gags should fire…">
+      </div>
+
+      <div class="demo-panel">
+        <h3>📊 Event Log</h3>
+        <div class="log-area" id="log"></div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>Features</h2>
+      <ul>
+        <li><strong>Canvas 2D</strong> — OffscreenCanvas double-buffer, delta-time RAF loop</li>
+        <li><strong>Hierarchical FSM</strong> — ambient, medium gag, big gag, interaction, drag/drop, safety</li>
+        <li><strong>23 behaviors</strong> — walks, naps, bread heist, UFO abduction, bathtub flop…</li>
+        <li><strong>Weighted scheduler</strong> — recency penalty, group weights, time-of-day, activity</li>
+        <li><strong>Hard gag caps</strong> — medium ≥ 90 s, big ≥ 180 s, zero during input focus</li>
+        <li><strong>Drag &amp; drop</strong> — physics landing + recovery animation</li>
+        <li><strong>DOM awareness</strong> — auto-detect sticky headers, nav, <code>[data-perch]</code></li>
+        <li><strong>60-particle pool</strong> — splashes, confetti, Zzz, rain</li>
+        <li><strong>Web Audio</strong> — procedural quack &amp; splash, lazy init after gesture</li>
+        <li><strong>Accessibility</strong> — ARIA, <code>aria-live</code> announcements, keyboard, reduced-motion</li>
+        <li><strong>Performance</strong> — 0 % CPU when tab hidden, crisp HiDPI scaling</li>
+        <li><strong>Clean remove()</strong> — all listeners, RAF, audio, DOM freed</li>
+      </ul>
+    </section>
+
+    <section id="api">
+      <h2>API Reference</h2>
+<pre><code>const duck = initDuckMate({
+  scale: 1,
+  speed: 1,
+  theme: 'default',
+  gagWeights: { bread_heist: 2, ufo_abduct_drop: 0.5 },
+  perchSelectors: ['.my-toolbar'],
+  reducedMotion: 'auto',
+  sounds: { enabled: true },
+  debug: true,
+  onStateChange: ({ stateId, group }) =&gt; console.log(stateId),
+  onGagPlayed:   ({ stateId }) =&gt; console.log('Gag:', stateId),
+});
+
+duck.pause();
+duck.resume();
+duck.remove();
+duck.setSpeed(1.2);
+duck.setVolume(0.6);
+duck.setScale(1.5);
+duck.toggleMute();
+duck.setTheme('winter');
+duck.setMode('reduced');
+duck.debugForce('ufo_abduct_drop');</code></pre>
+    </section>
+
+    <section id="atlas">
+      <h2>Sprite Atlas Specification</h2>
+      <p>
+        1024 × 1024 PNG, 64 × 64 frames, 2 px gutter (66 px cell pitch, 15 columns).
+        The demo uses a <strong>generated placeholder</strong> with colored duck shapes.
+        Replace <code>atlas.png</code> with real art using the rects in <code>atlas.json</code>.
+      </p>
+      <h3>Required Art Layers</h3>
+      <ul>
+        <li><strong>Duck body</strong> — 23 animation sequences (see atlas.json)</li>
+        <li><strong>Props</strong> — bread, paper plane, fishbowl, cloud, tub, UFO beam, umbrella, camera, stage</li>
+        <li><strong>Particles</strong> — splash drops, confetti, Zzz, hearts, stars</li>
+      </ul>
+      <h3>Palette</h3>
+      <p>
+        Body <code>#FFCC00</code> · Beak <code>#FF8C00</code> · Eye <code>#1A1A1A</code> ·
+        Feet <code>#FF8C00</code> · Blush <code>#FF8FB3</code> · Outline <code>#CC9900</code>
+      </p>
+    </section>
+
+    <section>
+      <h2>Scroll Test Area</h2>
+      <p>Scroll down to test scroll-aware behaviors.</p>
+      <div class="filler">🦆 Keep scrolling…</div>
+    </section>
+
+    <section>
+      <h2>More Space</h2>
+      <div class="filler">📜 Bottom approaching</div>
+    </section>
+
+  </main>
+
+  <footer>
+    Duck Mate v1.0.0 — Framework-free, accessible, canvas-based web mascot.
+    <br>No external dependencies. No network calls. No PII.
+  </footer>
+
+  <script src="duck-mate.js"></script>
+  <script>
+    // State buttons
+    const STATES = [
+      'walk_edge_follow','perch_and_peer','idle_preen','idle_nap','puddle_hop',
+      'bread_heist','paper_plane_chase','camera_shy','fishbowl_moment','umbrella_pop',
+      'ufo_abduct_drop','shower_cloud','bathtub_flop','stage_performance','clone_parade',
+      'curiosity_cone','shoo_response','peek_a_boo','click_emote',
+      'scroll_aware_wave','section_perch',
+    ];
+    const btnBox = document.getElementById('state-btns');
+    STATES.forEach(id => {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.textContent = id.replace(/_/g, ' ');
+      b.onclick = () => duck && duck.debugForce(id);
+      btnBox.appendChild(b);
+    });
+
+    // Event log
+    const logEl = document.getElementById('log');
+    function log(msg) {
+      const d = document.createElement('div');
+      d.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      logEl.appendChild(d);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // Init
+    let duck = initDuckMate({
+      debug: true,
+      scale: 1,
+      speed: 1,
+      sounds: { enabled: true },
+      onStateChange: ({ stateId, group }) => log('State → ' + stateId + ' (' + group + ')'),
+      onGagPlayed:   ({ stateId }) => log('🎬 Gag: ' + stateId),
+    });
+    log('Duck Mate initialized');
+
+    function removeDuck() {
+      if (!duck) return;
+      duck.remove(); duck = null;
+      log('Duck removed — check DevTools Memory');
+      document.getElementById('btn-rm').style.display = 'none';
+      document.getElementById('btn-spawn').style.display = '';
+    }
+
+    function spawnDuck() {
+      duck = initDuckMate({
+        debug: true,
+        scale: +document.getElementById('scl').value,
+        speed: +document.getElementById('spd').value,
+        sounds: { enabled: true },
+        onStateChange: ({ stateId, group }) => log('State → ' + stateId + ' (' + group + ')'),
+        onGagPlayed:   ({ stateId }) => log('🎬 Gag: ' + stateId),
+      });
+      log('Duck respawned');
+      document.getElementById('btn-rm').style.display = '';
+      document.getElementById('btn-spawn').style.display = 'none';
+    }
+
+    // Spawn extra ducks for collision testing
+    function spawnExtra() {
+      const extra = initDuckMate({
+        debug: false,
+        multiInstance: true,
+        scale: 0.8 + Math.random() * 0.4,
+        speed: 0.8 + Math.random() * 0.6,
+        sounds: { enabled: true },
+      });
+      if (extra) log('🦆 Extra duck spawned!');
+      else log('⚠️ Could not spawn extra duck');
+    }
+    // Expose for console / button
+    window.spawnExtra = spawnExtra;
+  </script>
+
+</body>
+</html>

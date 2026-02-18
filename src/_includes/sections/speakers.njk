@@ -1,0 +1,16 @@
+<tdc-section>
+<section class="section section--speakers" id="speakers" data-animate aria-labelledby="speakers-title">
+  <div class="container text-center">
+    <div class="section__header">
+      <h2 class="section__title" id="speakers-title">{{ t.speakers.title }}</h2>
+    </div>
+
+    {% if site.sessionizeEventId %}
+      {# Sessionize speaker wall embed #}
+      <script type="text/javascript" src="https://sessionize.com/api/v2/{{ site.sessionizeEventId }}/view/SpeakerWall"></script>
+    {% else %}
+      <p class="lead" style="margin-inline: auto;">{{ t.speakers.placeholder }}</p>
+    {% endif %}
+  </div>
+</section>
+</tdc-section>

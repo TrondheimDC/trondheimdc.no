@@ -1,0 +1,34 @@
+{% set t = i18n[lang] %}
+
+<footer class="site-footer" id="contact">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <img src="{{ '/assets/images/logos/TDC_white.svg' | url }}" alt="TDC logo" class="site-footer__logo" width="80" height="40">
+      <p class="site-footer__info">TDC 2026</p>
+      <p class="site-footer__info">{{ t.hero.date_full }} — {{ t.hero.venue }}</p>
+    </div>
+
+    <div class="site-footer__contact">
+      <p class="site-footer__info">
+        <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+      </p>
+      <p class="site-footer__info">
+        <a href="mailto:{{ site.partnerEmail }}">{{ site.partnerEmail }}</a>
+      </p>
+    </div>
+
+    <div class="site-footer__social">
+      <p class="site-footer__social-title">{{ t.footer.find_us }}</p>
+      <div class="site-footer__social-links">
+        <a href="{{ site.social.facebook }}" class="site-footer__social-link" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a>
+        <a href="{{ site.social.linkedin }}" class="site-footer__social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LI</a>
+        <a href="{{ site.social.youtube }}" class="site-footer__social-link" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YT</a>
+        <a href="{{ site.social.flickr }}" class="site-footer__social-link" target="_blank" rel="noopener noreferrer" aria-label="Flickr">FL</a>
+        <a href="mailto:{{ site.email }}" class="site-footer__social-link" aria-label="Email">✉</a>
+      </div>
+    </div>
+  </div>
+  <div class="site-footer__bottom">
+    <p>© {{ site.stats.year }} Trondheim Developer Conference. {% if lang == "en" %}All rights reserved.{% else %}Alle rettigheter reservert.{% endif %}</p>
+  </div>
+</footer>

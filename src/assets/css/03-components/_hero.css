@@ -1,0 +1,125 @@
+/* Hero section */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--tdc-space-4xl) var(--tdc-space-lg);
+  background: var(--tdc-surface-hero);
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Two-column layout wrapper — text left, duck right */
+.hero__layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tdc-space-2xl);
+  width: 100%;
+  max-width: 72rem;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 48rem;
+  flex: 1 1 auto;
+}
+
+.hero__duck-area {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__logo {
+  width: min(20rem, 60vw);
+  margin-inline: auto;
+  margin-block-end: var(--tdc-space-md);
+}
+
+/* Duck mascot — in its own column */
+.hero tdc-duck {
+  z-index: 2;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  transition: transform 0.3s ease;
+}
+
+.hero tdc-duck:hover {
+  transform: scale(1.05);
+}
+
+/* Mobile: stack layout, duck below text at smaller size */
+@media (max-width: 767px) {
+  .hero__layout {
+    flex-direction: column;
+    gap: var(--tdc-space-lg);
+  }
+
+  .hero tdc-duck {
+    --duck-size: 5rem;
+  }
+}
+
+/* Desktop: bigger duck */
+@media (min-width: 768px) {
+  .hero tdc-duck {
+    --duck-size: clamp(120px, 18vw, 220px);
+  }
+}
+
+.hero__title {
+  font-size: var(--tdc-text-4xl);
+  font-weight: 800;
+  color: var(--tdc-text-primary);
+  margin-block-end: var(--tdc-space-md);
+}
+
+.hero__date {
+  font-size: var(--tdc-text-xl);
+  font-weight: 600;
+  margin-block-end: var(--tdc-space-xs);
+}
+
+.hero__venue {
+  font-size: var(--tdc-text-lg);
+  color: var(--tdc-text-secondary);
+  margin-block-end: var(--tdc-space-xl);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tdc-space-md);
+  justify-content: center;
+}
+
+/* Decorative background pattern */
+.hero__pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .hero__title {
+    font-size: var(--tdc-text-5xl);
+  }
+  .hero__date {
+    font-size: var(--tdc-text-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero__title {
+    font-size: var(--tdc-text-6xl);
+  }
+}

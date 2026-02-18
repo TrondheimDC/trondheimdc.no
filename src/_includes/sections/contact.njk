@@ -1,0 +1,19 @@
+<tdc-section>
+<section class="section section--dark" id="contact-section" data-animate aria-labelledby="contact-title">
+  <div class="container text-center">
+    <div class="section__header">
+      <h2 class="section__title" id="contact-title" style="color: var(--tdc-text-on-dark);">
+        {% if lang == "en" %}Get in touch{% else %}Ta kontakt{% endif %}
+      </h2>
+    </div>
+    <p style="color: var(--tdc-primitive-gray-300);">
+      {% if lang == "en" %}
+        Have questions? Reach out to us at
+      {% else %}
+        Har du spørsmål? Ta kontakt med oss på
+      {% endif %}
+      <a href="mailto:{{ site.email }}" style="color: var(--tdc-brand-primary); text-decoration: underline;">{{ site.email }}</a>
+    </p>
+  </div>
+</section>
+</tdc-section>

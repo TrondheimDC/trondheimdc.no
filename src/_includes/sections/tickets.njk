@@ -1,0 +1,26 @@
+{% from "components/button.njk" import button %}
+{% from "components/card.njk" import card %}
+
+<tdc-section>
+<section class="section section--tickets" id="tickets" data-animate aria-labelledby="tickets-title">
+  <div class="container">
+    <div class="section__header text-center">
+      <h2 class="section__title" id="tickets-title">{{ t.tickets.title }}</h2>
+      <p class="section__subtitle" style="margin-inline: auto;">{{ t.tickets.description }}</p>
+    </div>
+
+    <div class="grid grid--2" style="--grid-gap: var(--tdc-space-xl); max-width: 48rem; margin-inline: auto;">
+      <div class="card card--purple text-center stack">
+        <h3 class="card__title">🎟️ {{ t.tickets.attendee_title }}</h3>
+        <p class="card__body">{{ t.tickets.attendee_desc }}</p>
+        {{ button(t.tickets.cta, site.ticketUrl, "dark") }}
+      </div>
+      <div class="card card--purple text-center stack">
+        <h3 class="card__title">🤝 {{ t.tickets.partner_title }}</h3>
+        <p class="card__body">{{ t.tickets.partner_desc }}</p>
+        {{ button(t.tickets.partner_cta, "#partners", "dark") }}
+      </div>
+    </div>
+  </div>
+</section>
+</tdc-section>

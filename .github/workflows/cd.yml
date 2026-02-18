@@ -32,16 +32,17 @@ jobs:
       - name: Install dependencies
         run: |
           gem install jekyll bundler
-          if [ -f Gemfile ]; then bundle install; fi
+          if [ -f old/Gemfile ]; then cd old && bundle install; fi
 
       - name: Build Jekyll site
+        working-directory: old
         run: jekyll build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: _site/
+          path: old/_site/
           retention-days: 1
 
   lint:
@@ -55,7 +56,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: old/_site/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,7 +67,7 @@ jobs:
         run: npm install -g htmlhint
 
       - name: Lint HTML files
-        run: htmlhint "_site/**/*.html" --config .htmlhintrc || true
+        run: htmlhint "old/_site/**/*.html" --config .htmlhintrc || true
         continue-on-error: true
 
   test:
@@ -80,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: old/_site/
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -92,7 +93,7 @@ jobs:
 
       - name: Test HTML with html-proofer
         run: |
-          htmlproofer _site \
+          htmlproofer old/_site \
             --disable-external \
             --ignore-urls "/^http:\/\/localhost/,/^http:\/\/127.0.0.1/" \
             --allow-hash-href \
@@ -112,10 +113,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: old/_site/
 
       - name: Copy site to tests folder
-        run: cp -r _site tests/
+        run: cp -r old/_site tests/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -155,7 +156,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: _site/
+          path: old/_site/
 
       - name: Setup SSH
         run: |
@@ -167,8 +168,9 @@ jobs:
       - name: Deploy to server via rsync
         run: |
           rsync -rlvz --delete \
+            --exclude 'secret_new_duck_site/' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            _site/ \
+            old/_site/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Cleanup SSH key

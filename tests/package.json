@@ -1,7 +1,7 @@
 {
   "name": "tdc-website-tests",
   "version": "1.0.0",
-  "description": "Tests for TDC website",
+  "description": "E2E tests for TDC 2026 website",
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",

@@ -1,0 +1,30 @@
+/* Tag / Badge component */
+.tag {
+  --_tag-bg: var(--tdc-primitive-gray-100);
+  --_tag-color: var(--tdc-text-secondary);
+
+  display: inline-flex;
+  align-items: center;
+  padding: var(--tdc-space-2xs) var(--tdc-space-sm);
+  background: var(--_tag-bg);
+  color: var(--_tag-color);
+  border-radius: var(--tdc-radius-full);
+  font-size: var(--tdc-text-sm);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.tag--green {
+  --_tag-bg: var(--tdc-brand-primary);
+  --_tag-color: var(--tdc-primitive-black);
+}
+
+.tag--purple {
+  --_tag-bg: var(--tdc-brand-accent);
+  --_tag-color: var(--tdc-primitive-black);
+}
+
+.tag--coral {
+  --_tag-bg: var(--tdc-brand-secondary);
+  --_tag-color: var(--tdc-primitive-black);
+}

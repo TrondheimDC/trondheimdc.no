@@ -1,0 +1,142 @@
+/* ============================================
+   TDC 2026 Design Tokens — 3-Tier Architecture
+   ============================================ */
+
+:root {
+  /* ──────────────────────────────────────────
+     TIER 1 — Primitives (raw values, never use directly)
+     ────────────────────────────────────────── */
+
+  /* Green */
+  --tdc-primitive-green-100: #a9ddb1;
+  --tdc-primitive-green-200: #94cc9d;
+  --tdc-primitive-green-300: #80be8a;
+  --tdc-primitive-green-400: #4f8256;
+
+  /* Red / Coral */
+  --tdc-primitive-red-100: #ff8675;
+  --tdc-primitive-red-200: #ea7564;
+  --tdc-primitive-red-300: #ce5d4d;
+
+  /* Purple */
+  --tdc-primitive-purple-100: #ded4ee;
+  --tdc-primitive-purple-200: #bda9dd;
+  --tdc-primitive-purple-300: #9f89c7;
+  --tdc-primitive-purple-400: #6a63a0;
+
+  /* Pink */
+  --tdc-primitive-pink-100: #ff6696;
+  --tdc-primitive-pink-200: #ff3d79;
+  --tdc-primitive-pink-300: #e6366d;
+
+  /* Yellow (duck) */
+  --tdc-primitive-yellow-100: #ffe066;
+  --tdc-primitive-yellow-200: #ffcc00;
+  --tdc-primitive-yellow-300: #cc9900;
+
+  /* Neutrals */
+  --tdc-primitive-white: #ffffff;
+  --tdc-primitive-gray-50: #fafafa;
+  --tdc-primitive-gray-100: #f5f5f5;
+  --tdc-primitive-gray-200: #e5e5e5;
+  --tdc-primitive-gray-300: #d4d4d4;
+  --tdc-primitive-gray-800: #3d3d3d;
+  --tdc-primitive-gray-900: #292929;
+  --tdc-primitive-black: #171717;
+
+  /* ──────────────────────────────────────────
+     TIER 2 — Semantic tokens (use everywhere)
+     ────────────────────────────────────────── */
+
+  /* Brand */
+  --tdc-brand-primary: var(--tdc-primitive-green-100);
+  --tdc-brand-primary-mid: var(--tdc-primitive-green-200);
+  --tdc-brand-primary-dark: var(--tdc-primitive-green-400);
+  --tdc-brand-secondary: var(--tdc-primitive-red-100);
+  --tdc-brand-secondary-mid: var(--tdc-primitive-red-200);
+  --tdc-brand-secondary-dark: var(--tdc-primitive-red-300);
+  --tdc-brand-accent: var(--tdc-primitive-purple-200);
+  --tdc-brand-accent-dark: var(--tdc-primitive-purple-400);
+  --tdc-brand-pink: var(--tdc-primitive-pink-100);
+  --tdc-brand-yellow: var(--tdc-primitive-yellow-100);
+
+  /* Surfaces */
+  --tdc-surface-hero: var(--tdc-primitive-green-100);
+  --tdc-surface-about: var(--tdc-primitive-white);
+  --tdc-surface-speakers: var(--tdc-primitive-purple-100);
+  --tdc-surface-program: var(--tdc-primitive-gray-50);
+  --tdc-surface-tickets: #ffdbd6;
+  --tdc-surface-partners: var(--tdc-primitive-gray-900);
+  --tdc-surface-footer: var(--tdc-primitive-gray-900);
+
+  /* Text */
+  --tdc-text-primary: var(--tdc-primitive-black);
+  --tdc-text-secondary: var(--tdc-primitive-gray-800);
+  --tdc-text-muted: var(--tdc-primitive-gray-300);
+  --tdc-text-on-dark: var(--tdc-primitive-white);
+  --tdc-text-on-primary: var(--tdc-primitive-black);
+  --tdc-text-link: var(--tdc-primitive-green-400);
+
+  /* ──────────────────────────────────────────
+     Spacing scale (based on 8px grid)
+     ────────────────────────────────────────── */
+  --tdc-space-3xs: 0.125rem;  /* 2px */
+  --tdc-space-2xs: 0.25rem;   /* 4px */
+  --tdc-space-xs: 0.5rem;     /* 8px */
+  --tdc-space-sm: 0.75rem;    /* 12px */
+  --tdc-space-md: 1rem;       /* 16px */
+  --tdc-space-lg: 1.5rem;     /* 24px */
+  --tdc-space-xl: 2rem;       /* 32px */
+  --tdc-space-2xl: 3rem;      /* 48px */
+  --tdc-space-3xl: 4rem;      /* 64px */
+  --tdc-space-4xl: 6rem;      /* 96px */
+
+  /* ──────────────────────────────────────────
+     Typography scale
+     ────────────────────────────────────────── */
+  --tdc-font-family: "Inter", system-ui, -apple-system, sans-serif;
+  --tdc-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --tdc-text-xs: 0.75rem;     /* 12px */
+  --tdc-text-sm: 0.875rem;    /* 14px */
+  --tdc-text-base: 1rem;      /* 16px */
+  --tdc-text-lg: 1.125rem;    /* 18px */
+  --tdc-text-xl: 1.25rem;     /* 20px */
+  --tdc-text-2xl: 1.5rem;     /* 24px */
+  --tdc-text-3xl: 2rem;       /* 32px */
+  --tdc-text-4xl: 2.5rem;     /* 40px */
+  --tdc-text-5xl: 3.5rem;     /* 56px */
+  --tdc-text-6xl: 4.5rem;     /* 72px */
+
+  --tdc-leading-tight: 1.15;
+  --tdc-leading-normal: 1.5;
+  --tdc-leading-relaxed: 1.75;
+
+  /* ──────────────────────────────────────────
+     Border radius
+     ────────────────────────────────────────── */
+  --tdc-radius-sm: 0.25rem;
+  --tdc-radius-md: 0.5rem;
+  --tdc-radius-lg: 1rem;
+  --tdc-radius-full: 9999px;
+
+  /* ──────────────────────────────────────────
+     Shadows
+     ────────────────────────────────────────── */
+  --tdc-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --tdc-shadow-md: 0 4px 6px rgb(0 0 0 / 0.07);
+  --tdc-shadow-lg: 0 10px 25px rgb(0 0 0 / 0.1);
+
+  /* ──────────────────────────────────────────
+     Transitions
+     ────────────────────────────────────────── */
+  --tdc-transition-fast: 150ms ease;
+  --tdc-transition-normal: 250ms ease;
+  --tdc-transition-slow: 400ms ease;
+
+  /* ──────────────────────────────────────────
+     Layout
+     ────────────────────────────────────────── */
+  --tdc-content-width: 72rem;  /* 1152px */
+  --tdc-narrow-width: 48rem;   /* 768px */
+}

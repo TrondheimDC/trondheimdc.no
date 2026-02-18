@@ -1,0 +1,19 @@
+/* Spacing utilities */
+.mt-0 { margin-block-start: 0; }
+.mt-sm { margin-block-start: var(--tdc-space-sm); }
+.mt-md { margin-block-start: var(--tdc-space-md); }
+.mt-lg { margin-block-start: var(--tdc-space-lg); }
+.mt-xl { margin-block-start: var(--tdc-space-xl); }
+.mt-2xl { margin-block-start: var(--tdc-space-2xl); }
+
+.mb-0 { margin-block-end: 0; }
+.mb-sm { margin-block-end: var(--tdc-space-sm); }
+.mb-md { margin-block-end: var(--tdc-space-md); }
+.mb-lg { margin-block-end: var(--tdc-space-lg); }
+.mb-xl { margin-block-end: var(--tdc-space-xl); }
+.mb-2xl { margin-block-end: var(--tdc-space-2xl); }
+
+.gap-sm { gap: var(--tdc-space-sm); }
+.gap-md { gap: var(--tdc-space-md); }
+.gap-lg { gap: var(--tdc-space-lg); }
+.gap-xl { gap: var(--tdc-space-xl); }

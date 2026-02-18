@@ -1,0 +1,80 @@
+/* Section component */
+.section {
+  --_section-bg: var(--tdc-primitive-white);
+  --_section-color: var(--tdc-text-primary);
+
+  padding-block: var(--tdc-space-4xl);
+  background: var(--_section-bg);
+  color: var(--_section-color);
+}
+
+.section--hero { --_section-bg: var(--tdc-surface-hero); }
+.section--about { --_section-bg: var(--tdc-surface-about); }
+.section--speakers { --_section-bg: var(--tdc-surface-speakers); }
+.section--program { --_section-bg: var(--tdc-surface-program); }
+.section--tickets { --_section-bg: var(--tdc-surface-tickets); }
+.section--partners {
+  --_section-bg: var(--tdc-surface-partners);
+  --_section-color: var(--tdc-text-on-dark);
+}
+.section--cfp { --_section-bg: var(--tdc-brand-primary); }
+.section--coc { --_section-bg: var(--tdc-primitive-gray-50); }
+
+/* Force light text in dark sections */
+.section--partners h2,
+.section--partners h3,
+.section--partners h4,
+.section--partners p,
+.section--partners li,
+.section--partners .lead,
+.section--partners .section__title,
+.section--partners .section__subtitle,
+.section--partners a,
+.section--dark h2,
+.section--dark h3,
+.section--dark h4,
+.section--dark p,
+.section--dark li,
+.section--dark .lead,
+.section--dark a {
+  color: inherit;
+}
+
+.section--dark {
+  --_section-bg: var(--tdc-surface-footer);
+  --_section-color: var(--tdc-text-on-dark);
+}
+
+.section__header {
+  margin-block-end: var(--tdc-space-2xl);
+}
+
+.section__title {
+  font-size: var(--tdc-text-3xl);
+  font-weight: 700;
+}
+
+.section__subtitle {
+  font-size: var(--tdc-text-lg);
+  color: var(--tdc-text-secondary);
+  margin-block-start: var(--tdc-space-sm);
+  max-width: 50ch;
+}
+
+@media (min-width: 768px) {
+  .section__title {
+    font-size: var(--tdc-text-4xl);
+  }
+}
+
+/* Scroll animation */
+.section[data-animate] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section[data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

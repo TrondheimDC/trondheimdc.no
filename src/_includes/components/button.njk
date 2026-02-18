@@ -1,0 +1,9 @@
+{# Button macro — one macro, many variants #}
+{% macro button(text, href, variant="primary", size="md", icon=null, external=false) %}
+<a href="{{ href }}"
+   class="btn btn--{{ variant }} btn--{{ size }}"
+   {% if external %}target="_blank" rel="noopener noreferrer"{% endif %}>
+  {% if icon %}<span class="btn__icon" aria-hidden="true">{{ icon }}</span>{% endif %}
+  {{ text }}
+</a>
+{% endmacro %}

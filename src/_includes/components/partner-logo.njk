@@ -1,0 +1,6 @@
+{# Partner logo macro #}
+{% macro partnerLogo(name, href, src, width=160) %}
+<a href="{{ href }}" class="partner-logo" target="_blank" rel="noopener noreferrer" title="{{ name }}">
+  <img src="{{ src | url }}" alt="{{ name }}" width="{{ width }}" loading="lazy">
+</a>
+{% endmacro %}

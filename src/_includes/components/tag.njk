@@ -1,0 +1,4 @@
+{# Tag / Badge macro #}
+{% macro tag(text, variant="") %}
+<span class="tag{% if variant %} tag--{{ variant }}{% endif %}">{{ text }}</span>
+{% endmacro %}
