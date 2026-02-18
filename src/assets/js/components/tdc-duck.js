@@ -49,11 +49,15 @@ const QUACKS_EN = [
 
 const CONFETTI_COLORS = ['#5CB85C', '#BDA9DD', '#FF6B6B', '#FFCC00', '#FF8FB3', '#3D9EFF'];
 
+/** Resolve the site path prefix (set via <meta name="path-prefix">) */
+function getPathPrefix() {
+  const meta = document.querySelector('meta[name="path-prefix"]');
+  const prefix = meta ? meta.content.replace(/\/$/, '') : '';
+  return prefix;
+}
+
 /** Total clicks needed to trigger the TDuckC logo swap */
 const TDUCKC_THRESHOLD = 10;
-
-/** TDuckC logo image path */
-const TDUCKC_LOGO_SRC = '/assets/images/logos/TDuckC_yellow.svg';
 
 /** Lazy-load duck-mate engine (script + CSS) once, then return initDuckMate */
 let _duckMateReady = null;
@@ -61,16 +65,17 @@ function loadDuckMate() {
   if (_duckMateReady) return _duckMateReady;
   _duckMateReady = new Promise((resolve) => {
     // CSS
+    const prefix = getPathPrefix();
     if (!document.querySelector('link[href*="duck-mate.css"]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/assets/css/duck-mate.css';
+      link.href = `${prefix}/assets/css/duck-mate.css`;
       document.head.appendChild(link);
     }
     // JS
     if (window.initDuckMate) { resolve(window.initDuckMate); return; }
     const s = document.createElement('script');
-    s.src = '/assets/js/duck-mate.js';
+    s.src = `${prefix}/assets/js/duck-mate.js`;
     s.onload = () => resolve(window.initDuckMate);
     document.head.appendChild(s);
   });
@@ -126,7 +131,7 @@ export class TdcDuck extends HTMLElement {
 
     this.innerHTML = `
       <div class="duck" role="img" aria-label="${lang === 'en' ? 'TDC mascot rubber duck' : 'TDC maskot gummiand'}" tabindex="0">
-        <img class="duck__img" src="/assets/images/logos/duck.svg" alt="" draggable="false">
+        <img class="duck__img" src="${getPathPrefix()}/assets/images/logos/duck.svg" alt="" draggable="false">
         <span class="duck__quack" aria-live="polite"></span>
         <svg class="duck__splash" viewBox="0 0 120 30">
           <ellipse cx="60" cy="15" rx="50" ry="10" fill="#3D9EFF" opacity="0.4"/>
@@ -320,7 +325,7 @@ export class TdcDuck extends HTMLElement {
       // 4) Swap logo
       setTimeout(() => {
         const newLogo = document.createElement('img');
-        newLogo.src = TDUCKC_LOGO_SRC;
+        newLogo.src = `${getPathPrefix()}/assets/images/logos/TDuckC_yellow.svg`;
         newLogo.alt = 'TDuckC 2026 logo';
         newLogo.className = heroLogo.className;
         newLogo.classList.add('hero__logo--tduckc');
