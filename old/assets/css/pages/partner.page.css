@@ -82,6 +82,12 @@
     aspect-ratio: 16/9;
     object-fit: contain;
     padding-bottom: 0;
+    filter: grayscale(1) brightness(5);
+    transition: filter 0.2s ease;
+}
+
+#partners .partnerlogos li a:hover img {
+    filter: grayscale(0) brightness(1);
 }
 
 @media (max-width: 720px) {
