@@ -18,4 +18,13 @@ image_header: "/assets/images/headers/vol.svg"
 - Delta gratis på konferansen, inkludert TDC-merch, mat under arrangementet og underholdning på kvelden  
 
 #### Interessert i å bli med, eller har du spørsmål?
-Send oss en e-post på [frivillig@trondheimdc.no](mailto:frivillig@trondheimdc.no?subject=Frivillig%20eller%20sp%C3%B8rsm%C3%A5l%20%E2%80%93%20TDC%202026) med navn, e-postadresse og telefonnummer. Vi gleder oss til å høre fra deg!
+
+Fyll ut din kontaktinformasjon via skjemaet under for å registrere din interesse:
+
+[Registreringsskjema for frivillige](https://forms.gle/Eh1dA9AvEejJDAry8)
+
+Vi starter arbeidet med å sette sammen frivilliggruppen til høsten, og du vil høre nærmere fra oss da.
+
+Har du spørsmål rundt det å være frivillig på TDC? Du kan kontakte oss på [frivillig@trondheimdc.no](mailto:frivillig@trondheimdc.no).
+
+Vi gleder oss til å høre fra deg!
