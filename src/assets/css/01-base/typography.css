@@ -1,0 +1,149 @@
+/* =====================================================================
+   Base typography. Maps the semantic type styles from docs/design.md.
+   Styles that differ desktop/mobile use clamp() (mobile-first).
+   ===================================================================== */
+
+html {
+  font-family: var(--font-family-sans);
+  font-size: 100%; /* 16px base */
+}
+
+body {
+  font-size: var(--font-size-30);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-base);
+  background-color: var(--color-bg-base);
+  transition: background-color var(--duration-normal) var(--ease-default),
+    color var(--duration-normal) var(--ease-default);
+}
+
+/* ---- Headings (element defaults) ------------------------------- */
+h1,
+.text-h1 {
+  font-size: clamp(1.875rem, 1.5rem + 1.2vw, 2.5rem); /* 30 -> 40 */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+}
+
+h2,
+.text-h2 {
+  font-size: var(--font-size-70); /* 30 */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+}
+
+h3,
+.text-h3 {
+  font-size: var(--font-size-60); /* 24 */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+
+h4,
+.text-h4 {
+  font-size: var(--font-size-50); /* 21 */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-normal);
+}
+
+/* ---- Display (hero) -------------------------------------------- */
+.text-display {
+  font-size: clamp(3rem, 2.2rem + 2.5vw, 4rem); /* 48 -> 64 */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+}
+
+/* ---- Body variants --------------------------------------------- */
+.text-lead {
+  font-size: clamp(1.3125rem, 1.2rem + 0.4vw, 1.5rem); /* 21 -> 24 */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+}
+
+.text-body {
+  font-size: var(--font-size-30); /* 16 */
+  line-height: var(--line-height-relaxed);
+}
+
+.text-caption {
+  font-size: var(--font-size-20); /* 14 */
+  line-height: var(--line-height-normal);
+}
+
+.text-label {
+  font-size: var(--font-size-30); /* 16 */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+}
+
+.text-mono {
+  font-family: var(--font-family-mono);
+  font-size: clamp(0.875rem, 0.82rem + 0.2vw, 1rem); /* 14 -> 16 */
+  line-height: var(--line-height-normal);
+}
+
+/* ---- Inline & flow elements (markdown prose) ------------------- */
+strong,
+b {
+  font-weight: var(--font-weight-bold);
+}
+
+a {
+  color: var(--color-fg-brand);
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: 0.9em;
+}
+
+code {
+  background-color: var(--color-bg-surface);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+
+pre {
+  overflow-x: auto;
+  padding: var(--spacing-4);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+blockquote {
+  border-inline-start: 3px solid var(--color-fg-brand);
+  padding-inline-start: var(--spacing-4);
+  color: var(--color-fg-muted);
+  font-style: italic;
+}
+
+:where(ul, ol):not([role="list"]) {
+  padding-inline-start: var(--spacing-6);
+}
+
+:where(ul, ol):not([role="list"]) li + li {
+  margin-block-start: var(--spacing-2);
+}
+
+hr {
+  border: none;
+  border-block-start: 1px solid var(--color-border);
+}
+
+small {
+  font-size: var(--font-size-20);
+}

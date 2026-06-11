@@ -1,6 +1,16 @@
 export default {
   no: {
     lang: "no",
+    ui: {
+      skip: "Hopp til innhold",
+      menu: "Meny",
+      home: "Hjem",
+      logo_alt: "TDC 2026-logo",
+      theme_light: "Bytt til lyst tema",
+      theme_dark: "Bytt til mørkt tema",
+      to_top: "Til toppen",
+      external: "åpnes i ny fane",
+    },
     nav: {
       about: "Om TDC",
       info: "Info",
@@ -22,13 +32,6 @@ export default {
     },
     about: {
       title: "Velkommen til TDC 2026!",
-      intro:
-        "TDC 2026 er den 12. konferansen siden 2012 i regi av TDC-samfunnet. Ikke gå glipp av konferansen med inspirerende foredrag, god tid til mingling og en etterfest for å runde av kvelden!",
-      body: "TDC arrangeres av en gruppe frivillige, med ulik bakgrunn fra teknologimiljøet i Trondheimsregionen. Vårt mål er å organisere en ikke-kommersiell community-drevet konferanse med teknologientusiaster hvor vi kan lære av hverandre, dele kunnskap og møtes.",
-      body2:
-        "Fra begynnelsen i 2012 har vi sett «vår lille konferanse» vokse til mer enn 800 deltakere. Konferansen kjøres med inntil seks spor og mer enn 35 foredrag fordelt på de ulike sporene.",
-      body3:
-        "TDC er et ikke-kommersielt arrangement hvor all fortjeneste går til neste års konferanse og andre samfunnsarrangementer gjennom året i Trondheim.",
       stat_tracks: "spor",
       stat_talks: "foredrag",
       stat_attendees: "deltakere",
@@ -111,15 +114,12 @@ export default {
     },
     coc: {
       title: "Retningslinjer for god oppførsel",
-      body: "Alle deltakere, foredragsholdere, partnere, ansatte og frivillige på konferansen er pålagt å følge retningslinjene for god oppførsel. TDC streber etter å være en hyggelig og inkluderende konferanse for alle deltakere, uten unntak. Vi tolererer ikke fysisk eller elektronisk trakassering av våre deltakere eller ansatte i noen form.",
-      body2:
-        "Trakassering er støtende kommentarer relatert til kjønn, alder, seksuell legning, funksjonsevne, fysisk utseende, kroppsstørrelse, etnisitet, religion (eller mangel på sådan), bevisst trusler, forfølgelse, fotografering eller lyd-/videoopptak mot rimelig samtykke. Dette er inkludert vedvarende forstyrrelse av samtaler eller andre hendelser, uønsket fysisk kontakt og uønsket seksuell oppmerksomhet.",
-      body3:
-        "Partnere er også underlagt denne policyen. Partnere skal ikke bruke seksualiserte bilder, seksualiserte klær/uniformer/kostymer eller på annen måte skape et seksualisert miljø.",
-      body4:
-        "Deltakere, foredragsholdere eller partnere som blir bedt om å slutte med trakassering eller upassende oppførsel, forventes å etterkomme umiddelbart.",
-      report:
-        "Ser du eller opplever du brudd på disse retningslinjene? Si ifra. Alle arrangører er iført t-skjorte med CREW på ryggen.",
+    },
+    info: {
+      title: "Praktisk informasjon",
+    },
+    volunteer: {
+      title: "Bli frivillig",
     },
     footer: {
       find_us: "Du finner oss her:",
@@ -131,6 +131,16 @@ export default {
 
   en: {
     lang: "en",
+    ui: {
+      skip: "Skip to content",
+      menu: "Menu",
+      home: "Home",
+      logo_alt: "TDC 2026 logo",
+      theme_light: "Switch to light theme",
+      theme_dark: "Switch to dark theme",
+      to_top: "Back to top",
+      external: "opens in a new tab",
+    },
     nav: {
       about: "About TDC",
       info: "Info",
@@ -152,13 +162,6 @@ export default {
     },
     about: {
       title: "Welcome to TDC 2026!",
-      intro:
-        "TDC 2026 is the 12th conference since 2012 organized by the TDC community. Don't miss the conference with inspiring talks, plenty of time for mingling, and an after-party to wrap up the evening!",
-      body: "TDC is organized by a group of volunteers with diverse backgrounds from the technology community in the Trondheim region. Our goal is to organize a non-commercial, community-driven conference with technology enthusiasts where we can learn from each other, share knowledge, and meet.",
-      body2:
-        'Since the beginning in 2012, we\'ve seen "our little conference" grow to more than 800 attendees. The conference runs with up to six tracks and more than 35 talks distributed across the various tracks.',
-      body3:
-        "TDC is a non-commercial event where all profit goes towards next year's conference and other community events throughout the year in Trondheim.",
       stat_tracks: "tracks",
       stat_talks: "talks",
       stat_attendees: "attendees",
@@ -241,15 +244,12 @@ export default {
     },
     coc: {
       title: "Code of Conduct",
-      body: "All participants, presenters, partners, staff, and volunteers at the conference are required to follow the guidelines for good conduct. TDC strives to be a pleasant and inclusive conference for all participants, without exception. We do not tolerate physical or electronic harassment of our participants or staff in any form.",
-      body2:
-        "Harassment includes offensive comments related to gender, age, sexual orientation, disability, physical appearance, body size, ethnicity, religion (or lack thereof), intentional threats, stalking, photography or audio/video recording without reasonable consent. This includes persistent disruption of conversations or other events, unwanted physical contact, and unwanted sexual attention.",
-      body3:
-        "Partners are also subject to this policy. Partners should not use sexualized images, sexualized clothing/uniforms/costumes, or otherwise create a sexualized environment.",
-      body4:
-        "Participants, presenters, or partners who are asked to stop harassing or inappropriate behavior are expected to comply immediately.",
-      report:
-        "Do you see or experience violations of these guidelines? Speak up. All organizers are wearing a t-shirt with CREW on the back.",
+    },
+    info: {
+      title: "Practical information",
+    },
+    volunteer: {
+      title: "Volunteer",
     },
     footer: {
       find_us: "Find us here:",

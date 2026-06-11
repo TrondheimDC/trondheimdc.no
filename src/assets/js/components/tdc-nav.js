@@ -26,8 +26,19 @@ class TdcNav extends HTMLElement {
       if (e.key === "Escape") this.#closeMenu();
     });
 
+    // Add a "scrolled" state for the sticky background treatment.
+    this.#trackScroll();
+
     // Intersection Observer for active section
     this.#observeSections();
+  }
+
+  #trackScroll() {
+    const onScroll = () => {
+      this.nav?.toggleAttribute("data-scrolled", window.scrollY > 8);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
   }
 
   #toggleMenu() {
@@ -56,8 +67,10 @@ class TdcNav extends HTMLElement {
           if (entry.isIntersecting) {
             const id = entry.target.id;
             this.#setActive(id);
-            // Update URL hash without scrolling
-            history.replaceState(null, "", `#${id}`);
+            // Update URL hash without scrolling (only when it changes).
+            if (location.hash !== `#${id}`) {
+              history.replaceState(null, "", `#${id}`);
+            }
           }
         });
       },

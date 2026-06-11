@@ -1,0 +1,70 @@
+/* Button — link/button styled as a pill. Variants: primary, dark, ghost.
+   Sizes: sm, md (default), lg. Markup from components/button.njk. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  font-family: inherit;
+  font-size: var(--font-size-30);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+  text-align: center;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn--primary {
+  background-color: var(--color-fg-brand);
+  color: var(--color-fg-always-dark);
+}
+.btn--primary:hover {
+  background-color: var(--color-bg-success);
+}
+
+.btn--dark {
+  background-color: var(--color-fg-always-dark);
+  color: var(--color-white-1);
+}
+.btn--dark:hover {
+  background-color: var(--color-black-2);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-fg-base);
+  border-color: var(--color-border-strong);
+}
+.btn--ghost:hover {
+  background-color: var(--color-bg-surface);
+}
+
+.btn--sm {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-20);
+}
+
+.btn--lg {
+  padding: var(--spacing-4) var(--spacing-7);
+  font-size: var(--font-size-40);
+}
+
+.btn[aria-disabled="true"],
+.btn--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}

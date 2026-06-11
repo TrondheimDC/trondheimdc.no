@@ -1,0 +1,179 @@
+/* =====================================================================
+   Design tokens — mirrors docs/design.md (Figma is the source of truth).
+   Two tiers: primitive -> semantic. Components use SEMANTIC tokens only.
+   Dark is the default theme (see 00-settings/themes.css for the light mode).
+   ===================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------
+     PRIMITIVE — colour (theme-independent raw values)
+     --------------------------------------------------------------- */
+
+  /* Neutrals */
+  --color-white-1: #fefefe;
+  --color-white-2: #f4f4f4;
+  --color-black: #0f0f0f;
+  --color-black-2: #363636;
+  --color-black-3: #292929;
+
+  /* Green */
+  --color-green-1: #9bf7a9;
+  --color-green-2: #81ef92;
+  --color-green-3: #67e47b;
+  --color-green-4: #142e18;
+
+  /* Purple */
+  --color-purple-1: #bf9cf7;
+  --color-purple-2: #7163e9;
+  --color-purple-3: #5241d8;
+  --color-purple-4: #20166a;
+
+  /* Red */
+  --color-red: #ff7e6c;
+  --color-red-2: #fe6650;
+  --color-red-3: #f1422a;
+  --color-red-4: #901a09;
+
+  /* Yellow */
+  --color-yellow-1: #ffe7a7;
+  --color-yellow-2: #ffd12e;
+  --color-yellow-3: #faa31c;
+  --color-yellow-4: #eb7821;
+
+  /* Pink */
+  --color-pink: #f0889c;
+  --color-pink-2: #e9718a;
+  --color-pink-3: #db5c76;
+
+  /* Blue */
+  --color-blue-1: #70a7f9;
+  --color-blue-2: #5d8dd3;
+  --color-blue-3: #4d79bb;
+
+  /* ---------------------------------------------------------------
+     PRIMITIVE — typography
+     --------------------------------------------------------------- */
+  --font-family-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-mono: Consolas, "SFMono-Regular", "Liberation Mono", Menlo, monospace;
+
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-10: 0.75rem; /* 12px */
+  --font-size-20: 0.875rem; /* 14px */
+  --font-size-30: 1rem; /* 16px */
+  --font-size-40: 1.125rem; /* 18px */
+  --font-size-50: 1.3125rem; /* 21px */
+  --font-size-60: 1.5rem; /* 24px */
+  --font-size-70: 1.875rem; /* 30px */
+  --font-size-80: 2.5rem; /* 40px */
+  --font-size-90: 3rem; /* 48px */
+  --font-size-100: 4rem; /* 64px */
+
+  --line-height-none: 1;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  --letter-spacing-none: 0;
+  --letter-spacing-wide: 0.05em;
+  --letter-spacing-wider: 0.1em;
+
+  /* ---------------------------------------------------------------
+     PRIMITIVE — spacing
+     --------------------------------------------------------------- */
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px */
+  --spacing-8: 2rem; /* 32px */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+  --spacing-20: 5rem; /* 80px */
+  --spacing-24: 6rem; /* 96px */
+
+  /* ---------------------------------------------------------------
+     PRIMITIVE — radius
+     --------------------------------------------------------------- */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------------
+     PRIMITIVE — breakpoints
+     NOTE: CSS @media cannot read var(); these are for JS / reference.
+     In @media rules use the literal px (480/768/1024/1280/1440).
+     --------------------------------------------------------------- */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1440px;
+
+  /* ---------------------------------------------------------------
+     PRIMITIVE — grid & layout
+     --------------------------------------------------------------- */
+  --grid-columns-mobile: 4;
+  --grid-columns-tablet: 8;
+  --grid-columns-desktop: 12;
+  --grid-gutter-mobile: 16px;
+  --grid-gutter-desktop: 24px;
+  --grid-margin-mobile: 16px;
+  --grid-margin-desktop: 32px;
+  --grid-container-max-width: 1248px;
+
+  /* ===============================================================
+     SEMANTIC — Dark mode (default). Named by ROLE, not value.
+     =============================================================== */
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --color-bg-base: var(--color-black);
+  --color-bg-surface: var(--color-black-2);
+  --color-bg-success: var(--color-green-1);
+  --color-bg-warning: var(--color-yellow-3);
+  --color-bg-danger: var(--color-red-3);
+
+  /* Foreground (text / icons) */
+  --color-fg-base: var(--color-white-1);
+  --color-fg-brand: var(--color-green-1);
+  --color-fg-brand-2: var(--color-purple-1);
+  --color-fg-brand-3: var(--color-yellow-1);
+  --color-fg-brand-4: var(--color-yellow-3);
+  --color-fg-accent: var(--color-yellow-2);
+  --color-fg-accent-2: var(--color-pink);
+  --color-fg-accent-3: var(--color-blue-1);
+  --color-fg-always-dark: var(--color-black-3);
+
+  /* ---------------------------------------------------------------
+     SITE EXTENSIONS — not yet in Figma/design.md. Derived from the
+     tokens above so they track theme changes automatically. Promote
+     to real Figma semantic tokens when the design system catches up.
+     --------------------------------------------------------------- */
+  --color-fg-muted: color-mix(in srgb, var(--color-fg-base) 64%, var(--color-bg-base));
+  --color-border: color-mix(in srgb, var(--color-fg-base) 16%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--color-fg-base) 32%, transparent);
+  --color-overlay: color-mix(in srgb, var(--color-black) 72%, transparent);
+  --color-focus-ring: var(--color-fg-accent);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.45);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

@@ -1,0 +1,45 @@
+/* Theme toggle button (rendered by <tdc-theme-toggle>). The element swaps
+   the sun/moon icon based on the active theme it stores in its data-theme. */
+tdc-theme-toggle {
+  display: inline-flex;
+}
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  padding: 0;
+  color: var(--color-fg-base);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-border-strong);
+}
+
+/* Stack both icons in the same cell; visibility is theme-driven. */
+.theme-toggle svg {
+  grid-area: 1 / 1;
+}
+
+tdc-theme-toggle .theme-toggle__sun {
+  display: none;
+}
+tdc-theme-toggle .theme-toggle__moon {
+  display: block;
+}
+
+tdc-theme-toggle[data-theme="light"] .theme-toggle__sun {
+  display: block;
+}
+tdc-theme-toggle[data-theme="light"] .theme-toggle__moon {
+  display: none;
+}

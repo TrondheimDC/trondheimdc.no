@@ -1,0 +1,186 @@
+/* Sticky site navigation (<tdc-nav> wraps .site-nav). Mobile-first: a
+   hamburger reveals a dropdown panel; from the lg breakpoint (1024px) the
+   menu is a horizontal bar. State attributes are toggled by tdc-nav.js:
+   [data-open] (menu visible), [data-scrolled] (page scrolled). */
+:root {
+  --nav-height: 4.5rem;
+}
+
+.site-nav {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 100;
+  background-color: color-mix(in srgb, var(--color-bg-base) 82%, transparent);
+  backdrop-filter: blur(8px);
+  border-block-end: 1px solid transparent;
+  transition: background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default);
+}
+
+.site-nav[data-scrolled] {
+  background-color: color-mix(in srgb, var(--color-bg-base) 95%, transparent);
+  border-block-end-color: var(--color-border);
+}
+
+.site-nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  min-block-size: var(--nav-height);
+}
+
+.site-nav__brand {
+  display: inline-flex;
+  align-items: center;
+}
+
+.site-nav__logo {
+  display: block;
+  width: auto;
+  height: 34px;
+}
+
+/* Hamburger */
+.site-nav__toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding-inline: 0.65rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.site-nav__toggle-bar {
+  display: block;
+  block-size: 2px;
+  background-color: var(--color-fg-base);
+  border-radius: var(--radius-full);
+  transition: transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+/* Collapsible panel (mobile). Positioned against the sticky nav. */
+.site-nav__menu {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 100%;
+  display: grid;
+  gap: var(--spacing-5);
+  padding: var(--spacing-5);
+  background-color: var(--color-bg-base);
+  border-block-end: 1px solid var(--color-border);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    visibility var(--duration-fast) linear;
+}
+
+.site-nav[data-open] .site-nav__menu {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.site-nav__links {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav__link {
+  display: block;
+  padding-block: var(--spacing-2);
+  color: var(--color-fg-base);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+}
+
+.site-nav__link:hover,
+.site-nav__link--active {
+  color: var(--color-fg-brand);
+}
+
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.site-nav__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.site-nav__lang a {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+}
+
+.site-nav__lang a:hover {
+  color: var(--color-fg-base);
+}
+
+.site-nav__lang a[aria-current="true"] {
+  color: var(--color-fg-base);
+}
+
+.site-nav__lang-sep {
+  color: var(--color-border-strong);
+}
+
+/* Hamburger morphs into an X when open. */
+.site-nav[data-open] .site-nav__toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.site-nav[data-open] .site-nav__toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.site-nav[data-open] .site-nav__toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Desktop bar */
+@media (min-width: 1024px) {
+  .site-nav__toggle {
+    display: none;
+  }
+
+  .site-nav__menu {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6);
+    padding: 0;
+    background: none;
+    border: 0;
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-5);
+  }
+
+  .site-nav__link {
+    padding-block: 0;
+  }
+}

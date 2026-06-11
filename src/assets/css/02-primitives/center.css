@@ -1,0 +1,14 @@
+/* Center — horizontally centred, max-width constrained content box with
+   gutters. The site's main content wrapper. */
+.center {
+  box-sizing: content-box;
+  margin-inline: auto;
+  max-width: var(--center-max, var(--grid-container-max-width));
+  padding-inline: var(--center-gutter, var(--grid-margin-mobile));
+}
+
+@media (min-width: 1024px) {
+  .center {
+    padding-inline: var(--center-gutter, var(--grid-margin-desktop));
+  }
+}

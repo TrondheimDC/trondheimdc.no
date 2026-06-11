@@ -1,0 +1,19 @@
+/* Switcher — switches between a horizontal and vertical layout at a
+   container-width threshold (not a viewport breakpoint). Items below
+   --switcher-threshold stack; above, they sit side by side. */
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--switcher-gap, var(--spacing-6));
+}
+
+.switcher > * {
+  flex-grow: 1;
+  flex-basis: calc((var(--switcher-threshold, 30rem) - 100%) * 999);
+}
+
+/* Limit how many can share a row before forcing a stack */
+.switcher > :nth-last-child(n + 4),
+.switcher > :nth-last-child(n + 4) ~ * {
+  flex-basis: 100%;
+}

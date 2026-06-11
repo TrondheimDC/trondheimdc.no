@@ -1,0 +1,52 @@
+{% from "components/button.njk" import button %}
+
+<tdc-section>
+<section class="section section--surface" id="partner" data-animate aria-labelledby="partner-title">
+  <div class="container stack stack-lg">
+    <header class="section__header stack stack-sm">
+      <h2 class="section__title text-h1" id="partner-title">{{ t.partners.hero_title }}</h2>
+      <p class="section__lead text-lead">{{ t.partners.hero_subtitle }}</p>
+      <p class="text-muted">{{ t.partners.hero_stats }}</p>
+    </header>
+
+    <div class="prose measure">
+      <h3 class="text-h3">{{ t.partners.about_title }}</h3>
+      <p>{{ t.partners.about_text1 }}</p>
+      <p>{{ t.partners.about_text2 }}</p>
+    </div>
+
+    <div class="stack">
+      <h3 class="text-h3">{{ t.partners.why_title }}</h3>
+      <div class="auto-grid" style="--auto-grid-min: 14rem;">
+        {% for item in t.partners.why_items %}
+          <article class="card">
+            <h4 class="card__title text-h4">{{ item.title }}</h4>
+            <p class="card__body">{{ item.text }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="switcher" style="--switcher-threshold: 30rem;">
+      <div class="stack">
+        <h3 class="text-h3">{{ t.partners.includes_title }}</h3>
+        <ul class="stack stack-sm" role="list">
+          {% for inc in t.partners.includes %}
+            <li>{{ inc }}</li>
+          {% endfor %}
+        </ul>
+        <p class="text-label">{{ t.partners.price }}</p>
+      </div>
+
+      <aside class="card stack">
+        <h3 class="text-h3">{{ t.partners.cta_title }}</h3>
+        <p class="card__body">{{ t.partners.cta_subtitle }}</p>
+        {{ button(t.partners.cta_button, "mailto:" + site.partnerEmail, "primary") }}
+        <p class="text-caption text-muted">
+          {{ t.partners.contact_text }} <a href="mailto:{{ site.partnerEmail }}">{{ site.partnerEmail }}</a>
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+</tdc-section>

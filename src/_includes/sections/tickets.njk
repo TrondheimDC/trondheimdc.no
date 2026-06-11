@@ -1,25 +1,28 @@
 {% from "components/button.njk" import button %}
-{% from "components/card.njk" import card %}
 
 <tdc-section>
-<section class="section section--tickets" id="tickets" data-animate aria-labelledby="tickets-title">
-  <div class="container">
-    <div class="section__header text-center">
-      <h2 class="section__title" id="tickets-title">{{ t.tickets.title }}</h2>
-      <p class="section__subtitle" style="margin-inline: auto;">{{ t.tickets.description }}</p>
-    </div>
+<section class="section section--surface" id="tickets" data-animate aria-labelledby="tickets-title">
+  <div class="container stack">
+    <header class="section__header stack stack-sm">
+      <h2 class="section__title text-h1" id="tickets-title">{{ t.tickets.title }}</h2>
+      <p class="section__lead text-lead">{{ t.tickets.description }}</p>
+    </header>
 
-    <div class="grid grid--2" style="--grid-gap: var(--tdc-space-xl); max-width: 48rem; margin-inline: auto;">
-      <div class="card card--purple text-center stack">
-        <h3 class="card__title">🎟️ {{ t.tickets.attendee_title }}</h3>
+    <div class="switcher" style="--switcher-threshold: 28rem;">
+      <article class="card stack">
+        <h3 class="card__title text-h3">{{ t.tickets.attendee_title }}</h3>
         <p class="card__body">{{ t.tickets.attendee_desc }}</p>
-        {{ button(t.tickets.cta, site.ticketUrl, "dark") }}
-      </div>
-      <div class="card card--purple text-center stack">
-        <h3 class="card__title">🤝 {{ t.tickets.partner_title }}</h3>
+        {{ button(t.tickets.cta, site.ticketUrl, "primary", "md", null, true) }}
+      </article>
+      <article class="card stack">
+        <h3 class="card__title text-h3">{{ t.tickets.partner_title }}</h3>
         <p class="card__body">{{ t.tickets.partner_desc }}</p>
-        <span class="btn btn--dark btn--disabled" aria-disabled="true">{{ t.tickets.partner_cta }}</span>
-      </div>
+        {% if t.tickets.partner_sold_out %}
+          <span class="btn btn--ghost btn--disabled" aria-disabled="true">{{ t.tickets.partner_cta }}</span>
+        {% else %}
+          {{ button(t.tickets.partner_cta, site.partnerOrderUrl, "ghost") }}
+        {% endif %}
+      </article>
     </div>
   </div>
 </section>
