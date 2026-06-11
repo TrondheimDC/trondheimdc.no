@@ -102,7 +102,8 @@ jobs:
             || true
         continue-on-error: true
 
-  e2e-test:
+  e2e-old:
+    name: e2e (old site)
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -115,24 +116,21 @@ jobs:
           name: site
           path: old/_site/
 
-      - name: Copy site to tests folder
-        run: cp -r old/_site tests/
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        working-directory: tests
+        working-directory: old/tests
         run: npm ci
 
       - name: Install Playwright browsers
-        working-directory: tests
+        working-directory: old/tests
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        working-directory: tests
+        working-directory: old/tests
         run: npm run test:ci
         env:
           CI: true
@@ -141,13 +139,63 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: tests/playwright-report/
+          name: playwright-report-old
+          path: old/tests/playwright-report/
+          retention-days: 7
+
+  e2e-new:
+    name: e2e (new site)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install site dependencies
+        working-directory: src
+        run: bun install --frozen-lockfile
+
+      - name: Build Eleventy site
+        working-directory: src
+        run: bun run build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test dependencies
+        working-directory: src/tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: src/tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: src/tests
+        run: npm run test:ci
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-new
+          path: src/tests/playwright-report/
           retention-days: 7
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, lint, test, e2e-test]
+    # Deploy gates on the OLD-site checks only — this workflow deploys the old
+    # site to production, so a new-site test failure must not block it. The new
+    # site is deployed separately via deploy-preview.yml.
+    needs: [build, lint, test, e2e-old]
     environment:
       name: production
       url: https://trondheimdc.no
@@ -179,7 +227,7 @@ jobs:
 
   summary:
     runs-on: ubuntu-latest
-    needs: [build, lint, test, e2e-test, deploy]
+    needs: [build, lint, test, e2e-old, e2e-new, deploy]
     if: always()
     steps:
       - name: Create job summary
@@ -191,7 +239,8 @@ jobs:
           echo "| 🏗️ Build | ${{ needs.build.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔍 Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🧪 HTML Test | ${{ needs.test.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🎭 E2E Tests | ${{ needs.e2e-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🎭 E2E (old site) | ${{ needs.e2e-old.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🦆 E2E (new site) | ${{ needs.e2e-new.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🌐 Deploy | ${{ needs.deploy.result == 'success' && '✅ Deployed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Details" >> $GITHUB_STEP_SUMMARY

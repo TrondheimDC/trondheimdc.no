@@ -12,7 +12,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: isCI ? {
-    command: 'npx serve _site -l 4000',
+    command: 'npx serve ../_site -l 4000',
     url: 'http://localhost:4000',
     reuseExistingServer: false,
     timeout: 120000,

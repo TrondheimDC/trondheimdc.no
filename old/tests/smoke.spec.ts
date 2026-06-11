@@ -59,15 +59,14 @@ test.describe('Norwegian Pages - Content Check', () => {
     await expect(page.locator('text=Våre partnere')).toBeVisible();
   });
 
-  test('Home page has CFP button', async ({ page }) => {
+  test('Home page has ticket button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('text=Send inn ditt foredrag')).toBeVisible();
+    await expect(page.locator('text=Kjøp billetter').first()).toBeVisible();
   });
 
-  test('CFP page links to Sessionize', async ({ page }) => {
+  test('CFP page shows deadline passed', async ({ page }) => {
     await page.goto('/cfp/');
-    const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
-    await expect(sessionizeLink).toBeVisible();
+    await expect(page.locator('text=stengt')).toBeVisible();
   });
 
   test('Partner page has CTA button', async ({ page }) => {
@@ -92,15 +91,14 @@ test.describe('English Pages - Content Check', () => {
     await expect(page.locator('text=Our partners:')).toBeVisible();
   });
 
-  test('Home page has CFP button', async ({ page }) => {
+  test('Home page has ticket button', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('text=Submit your talk')).toBeVisible();
+    await expect(page.locator('text=Buy tickets').first()).toBeVisible();
   });
 
-  test('CFP page links to Sessionize', async ({ page }) => {
+  test('CFP page shows deadline passed', async ({ page }) => {
     await page.goto('/en/cfp/');
-    const sessionizeLink = page.locator('a[href*="sessionize.com/tdc-2026"]');
-    await expect(sessionizeLink).toBeVisible();
+    await expect(page.locator('text=closed')).toBeVisible();
   });
 
   test('Partner page has CTA button', async ({ page }) => {
@@ -127,13 +125,13 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/^(?!.*\/en\/)/);
   });
 
-  test('CFP menu item exists in Norwegian', async ({ page }) => {
+  test('Tickets menu item exists in Norwegian', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('nav a[href="/cfp/"]')).toBeVisible();
+    await expect(page.locator('nav a[href*="tickets"]').first()).toBeVisible();
   });
 
-  test('CFP menu item exists in English', async ({ page }) => {
+  test('Tickets menu item exists in English', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('nav a[href="/en/cfp/"]')).toBeVisible();
+    await expect(page.locator('nav a[href*="tickets"]').first()).toBeVisible();
   });
 });
