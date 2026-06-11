@@ -130,10 +130,10 @@ Definert i Figma-collection **TDC primaries**.
 
 ### Primitive: Fonter
 
-| Figma-navn | CSS-variabel | Verdi |
-|---|---|---|
-| Typography/Primitive/FontFamily/sans | --font-family-sans | IBM Plex Sans |
-| Typography/Primitive/FontFamily/mono | --font-family-mono | Consolas |
+| Figma-navn | CSS-variabel | Verdi | Bruk |
+|---|---|---|---|
+| Typography/Primitive/FontFamily/sans | --font-family-sans | IBM Plex Sans | Body, labels, UI |
+| Typography/Primitive/FontFamily/mono | --font-family-mono | Consolas, fallback IBM Plex Mono | Headings, display |
 
 ### Primitive: Font-vekter
 
@@ -182,6 +182,8 @@ Definert i Figma-collection **TDC primaries**.
 
 Hver stil består av 6 komponenter: font-family, font-weight, font-size-desktop, font-size-mobile, line-height, letter-spacing.
 
+**Font:** Consolas (primær), fallback IBM Plex Mono
+
 | Stil | Desktop | Mobil | Vekt | Linjeavstand |
 |---|---|---|---|---|
 | **Heading/Display** | 64px | 48px | Regular | 1.2 |
@@ -189,6 +191,13 @@ Hver stil består av 6 komponenter: font-family, font-weight, font-size-desktop,
 | **Heading/H2** | 30px | 30px | Regular | 1.35 |
 | **Heading/H3** | 24px | 24px | Bold | 1.35 |
 | **Heading/H4** | 21px | 21px | Bold | 1.5 |
+
+**CSS:**
+```css
+h1, h2, h3, h4, .heading-display {
+  font-family: Consolas, 'IBM Plex Mono', monospace;
+}
+```
 
 ### Semantiske: Body-tekst (Lead, Default, Caption, Label)
 
@@ -344,3 +353,4 @@ Container maks-bredde: **1248px**
 | 10. juni 2026 | 5.2 | Detaljert Grid & Layout + typografi |
 | 10. juni 2026 | 6.0 | **Figma som primær kilde til sannhet.** Alle navn er nå Figma-paths. Fjernet trondheimdc.no-referanser. Lagt til komplette typografi-variabler. |
 | 10. juni 2026 | 6.1 | **Grid-systemet aktivert.** Layout-variabler opprettet i Figma. 12-kolonners responsive grid med CSS custom properties. |
+| 11. juni 2026 | 6.2 | **Typografi spesifisert.** Consolas for headings (H1–H4), fallback IBM Plex Mono. Grid Demo og responsive variant-komponenter opprettet. |
