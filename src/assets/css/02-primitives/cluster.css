@@ -1,0 +1,9 @@
+/* Cluster — wrapping group of items with consistent gaps.
+   Good for tag lists, button groups, nav items, social links. */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-space, var(--spacing-4));
+  align-items: var(--cluster-align, center);
+  justify-content: var(--cluster-justify, flex-start);
+}

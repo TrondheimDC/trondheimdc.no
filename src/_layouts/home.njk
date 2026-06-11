@@ -2,14 +2,16 @@
 layout: default.njk
 ---
 
-{# Set lang-scoped translations #}
+{# Language-scoped UI strings (long-form prose lives in _includes/content/). #}
 {% set t = i18n[lang] %}
 
 {% include "sections/hero.njk" %}
 {% include "sections/about.njk" %}
-{% include "sections/speakers.njk" %}
-{% include "sections/program.njk" %}
 {% include "sections/tickets.njk" %}
-{% include "sections/partners.njk" %}
+{% include "sections/program.njk" %}
+{% include "sections/speakers.njk" %}
+{% include "sections/info.njk" %}
+{% include "sections/partner.njk" %}
+{% include "sections/volunteer.njk" %}
+{% include "sections/cfp.njk" %}
 {% include "sections/coc.njk" %}
-{% include "sections/contact.njk" %}

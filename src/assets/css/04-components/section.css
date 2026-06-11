@@ -1,0 +1,58 @@
+/* Section rhythm + headers. Sections own their vertical padding; the inner
+   .container owns horizontal gutters and max-width. */
+.section {
+  padding-block: var(--spacing-12);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-block: var(--spacing-16);
+  }
+}
+
+/* Offset anchored sections so they don't hide under the sticky nav. */
+section[id] {
+  scroll-margin-top: var(--nav-height, 4.5rem);
+}
+
+/* Alternating surface background for visual separation. */
+.section--surface {
+  background-color: var(--color-bg-surface);
+}
+
+.section__header {
+  margin-block-end: var(--spacing-8);
+}
+
+.section__title {
+  color: var(--color-fg-base);
+}
+
+.section__lead {
+  color: var(--color-fg-muted);
+  max-width: 60ch;
+}
+
+/* Rendered Markdown prose (from _includes/content/{no,en}/*.md). */
+.prose > * + * {
+  margin-block-start: var(--spacing-4);
+}
+
+.prose > :first-child {
+  margin-block-start: 0;
+}
+
+.prose h3,
+.prose h4,
+.prose h5 {
+  margin-block-start: var(--spacing-7);
+}
+
+.prose ul,
+.prose ol {
+  padding-inline-start: var(--spacing-6);
+}
+
+.prose li + li {
+  margin-block-start: var(--spacing-2);
+}

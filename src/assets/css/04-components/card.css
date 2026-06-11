@@ -1,0 +1,33 @@
+/* Card + stat blocks (components/card.njk, components/stat.njk). */
+.card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+}
+
+.card__title {
+  margin-block-end: var(--spacing-3);
+}
+
+.card__body {
+  color: var(--color-fg-muted);
+  margin-block-end: var(--spacing-4);
+}
+
+.card__body:last-child {
+  margin-block-end: 0;
+}
+
+/* Stat — big number + label. */
+.stat__value {
+  font-size: clamp(2.5rem, 2rem + 2.4vw, 4rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-none);
+  color: var(--color-fg-brand);
+}
+
+.stat__label {
+  margin-block-start: var(--spacing-1);
+  color: var(--color-fg-muted);
+}

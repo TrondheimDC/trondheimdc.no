@@ -1,0 +1,77 @@
+/* Partner wall — the logo grid shown near the footer (partials/partner-wall.njk).
+   Most logos are white/mono (made for a dark background), so each logo sits on
+   a consistent dark chip in BOTH themes. Per-theme logo variants are deferred. */
+.partner-wall {
+  padding-block: var(--spacing-12);
+  background-color: var(--color-bg-surface);
+}
+
+.partner-wall__title {
+  color: var(--color-fg-base);
+}
+
+.partner-wall__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 600px) {
+  .partner-wall__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .partner-wall__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-6);
+  }
+}
+
+@media (min-width: 1200px) {
+  .partner-wall__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.partner-wall__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  min-block-size: 88px;
+  background-color: var(--color-fg-always-dark);
+  border-radius: var(--radius-md);
+}
+
+.partner-wall__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.partner-wall__link:hover {
+  transform: scale(1.04);
+}
+
+.partner-wall__logo {
+  max-inline-size: 100%;
+  max-block-size: 52px;
+  inline-size: auto;
+  block-size: auto;
+  object-fit: contain;
+}
+
+.partner-wall__cta {
+  display: inline-block;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-brand);
+  text-underline-offset: 0.2em;
+}

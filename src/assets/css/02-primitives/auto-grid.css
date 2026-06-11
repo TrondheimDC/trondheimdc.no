@@ -1,0 +1,10 @@
+/* Auto-grid — responsive grid with no media queries. Items wrap to fit
+   based on a minimum item width. Tune with --auto-grid-min / --gap. */
+.auto-grid {
+  display: grid;
+  gap: var(--auto-grid-gap, var(--spacing-6));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--auto-grid-min, 16rem), 100%), 1fr)
+  );
+}

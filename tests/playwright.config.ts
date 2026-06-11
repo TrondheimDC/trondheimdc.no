@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 const isCI = !!process.env.CI;
 
+// The new Eleventy site builds to ../src/_site. Tests run against that output.
 export default defineConfig({
   testDir: '.',
   testIgnore: ['_site/**', 'node_modules/**'],
@@ -11,15 +12,10 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:4000',
     trace: 'on-first-retry',
   },
-  webServer: isCI ? {
-    command: 'npx serve _site -l 4000',
+  webServer: {
+    command: 'npx serve ../src/_site -l 4000',
     url: 'http://localhost:4000',
-    reuseExistingServer: false,
-    timeout: 120000,
-  } : {
-    command: 'npx serve ../old/_site -l 4000',
-    url: 'http://localhost:4000',
-    reuseExistingServer: true,
+    reuseExistingServer: !isCI,
     timeout: 120000,
   },
   reporter: [['list'], ['html', { open: 'never' }]],

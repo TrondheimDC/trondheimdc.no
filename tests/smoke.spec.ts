@@ -1,137 +1,149 @@
 import { test, expect } from '@playwright/test';
 
-// Norwegian pages
-const norwegianPages = [
-  { path: '/', name: 'Home' },
-  { path: '/about/', name: 'About' },
-  { path: '/cfp/', name: 'CFP' },
-  { path: '/coc/', name: 'Code of Conduct' },
-  { path: '/courses/', name: 'Courses' },
-  { path: '/info/', name: 'Info' },
-  { path: '/partner/', name: 'Partner' },
-  { path: '/program/', name: 'Program' },
-  { path: '/speakers/', name: 'Speakers' },
-  { path: '/tickets/', name: 'Tickets' },
-  { path: '/vol/', name: 'Volunteer' },
+/**
+ * Smoke tests for the rebuilt TDC 2026 site.
+ *
+ * The site is now a single page per language — Norwegian at "/" and English
+ * at "/en/" — where the old standalone pages (about, info, partner, CoC, …)
+ * live as in-page sections. These tests verify the migrated structure, the
+ * language switch, dark/light theming, the partner wall near the footer, and
+ * that the parked easter eggs never load.
+ */
+
+const SECTION_IDS = [
+  'about',
+  'tickets',
+  'program',
+  'speakers',
+  'info',
+  'partner',
+  'volunteer',
+  'cfp',
+  'coc',
 ];
 
-// English pages
-const englishPages = [
-  { path: '/en/', name: 'Home' },
-  { path: '/en/about/', name: 'About' },
-  { path: '/en/cfp/', name: 'CFP' },
-  { path: '/en/coc/', name: 'Code of Conduct' },
-  { path: '/en/courses/', name: 'Courses' },
-  { path: '/en/info/', name: 'Info' },
-  { path: '/en/partner/', name: 'Partner' },
-  { path: '/en/program/', name: 'Program' },
-  { path: '/en/speakers/', name: 'Speakers' },
-  { path: '/en/tickets/', name: 'Tickets' },
-  { path: '/en/vol/', name: 'Volunteer' },
-];
+const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'info', 'partner', 'coc'];
 
-test.describe('Norwegian Pages - Status 200', () => {
-  for (const page of norwegianPages) {
-    test(`${page.name} (${page.path}) should return 200`, async ({ request }) => {
-      const response = await request.get(page.path);
-      expect(response.status()).toBe(200);
+test.describe('Pages load', () => {
+  for (const path of ['/', '/en/']) {
+    test(`${path} returns 200`, async ({ request }) => {
+      const res = await request.get(path);
+      expect(res.status()).toBe(200);
+    });
+
+    test(`${path} has a TDC title`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveTitle(/TDC/);
     });
   }
 });
 
-test.describe('English Pages - Status 200', () => {
-  for (const page of englishPages) {
-    test(`${page.name} (${page.path}) should return 200`, async ({ request }) => {
-      const response = await request.get(page.path);
-      expect(response.status()).toBe(200);
+test.describe('Single-page sections', () => {
+  for (const path of ['/', '/en/']) {
+    test(`${path} contains every migrated section`, async ({ page }) => {
+      await page.goto(path);
+      for (const id of SECTION_IDS) {
+        await expect(page.locator(`section#${id}`)).toBeAttached();
+      }
+    });
+
+    test(`${path} nav links point to in-page sections`, async ({ page }) => {
+      await page.goto(path);
+      for (const id of NAV_SECTIONS) {
+        await expect(page.locator(`.site-nav a[href="#${id}"]`)).toHaveCount(1);
+      }
     });
   }
 });
 
-test.describe('Norwegian Pages - Content Check', () => {
-  test('Home page has correct title', async ({ page }) => {
+test.describe('Hero', () => {
+  test('Norwegian hero shows venue and ticket CTA', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/TDC/);
+    await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
+    await expect(page.locator('#hero a', { hasText: 'Kjøp billetter' })).toBeVisible();
   });
 
-  test('Home page has partner section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('text=Våre partnere')).toBeVisible();
-  });
-
-  test('Home page has ticket button', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('text=Kjøp billetter').first()).toBeVisible();
-  });
-
-  test('CFP page shows deadline passed', async ({ page }) => {
-    await page.goto('/cfp/');
-    await expect(page.locator('text=stengt')).toBeVisible();
-  });
-
-  test('Partner page has CTA button', async ({ page }) => {
-    await page.goto('/partner/');
-    await expect(page.locator('text=Bli partner').first()).toBeVisible();
-  });
-
-  test('Partner page has contact email', async ({ page }) => {
-    await page.goto('/partner/');
-    await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
+  test('English hero shows ticket CTA', async ({ page }) => {
+    await page.goto('/en/');
+    await expect(page.locator('#hero a', { hasText: 'Buy tickets' })).toBeVisible();
   });
 });
 
-test.describe('English Pages - Content Check', () => {
-  test('Home page has correct title', async ({ page }) => {
+test.describe('Language switching', () => {
+  test('Norwegian -> English', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.site-nav__lang a', { hasText: 'EN' }).click();
+    await expect(page).toHaveURL(/\/en\/$/);
+  });
+
+  test('English -> Norwegian', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page).toHaveTitle(/TDC/);
-  });
-
-  test('Home page has partner section', async ({ page }) => {
-    await page.goto('/en/');
-    await expect(page.locator('text=Our partners:')).toBeVisible();
-  });
-
-  test('Home page has ticket button', async ({ page }) => {
-    await page.goto('/en/');
-    await expect(page.locator('text=Buy tickets').first()).toBeVisible();
-  });
-
-  test('CFP page shows deadline passed', async ({ page }) => {
-    await page.goto('/en/cfp/');
-    await expect(page.locator('text=closed')).toBeVisible();
-  });
-
-  test('Partner page has CTA button', async ({ page }) => {
-    await page.goto('/en/partner/');
-    await expect(page.locator('text=Become a partner').first()).toBeVisible();
-  });
-
-  test('Partner page has contact email', async ({ page }) => {
-    await page.goto('/en/partner/');
-    await expect(page.locator('a[href="mailto:partner@trondheimdc.no"]').first()).toBeVisible();
+    await page.locator('.site-nav__lang a', { hasText: 'NO' }).click();
+    await expect(page).toHaveURL(/localhost:4000\/$/);
   });
 });
 
-test.describe('Navigation', () => {
-  test('Can switch from Norwegian to English', async ({ page }) => {
+test.describe('Theme toggle', () => {
+  test('flips the theme and persists the choice', async ({ page }) => {
     await page.goto('/');
-    await page.click('a:has-text("EN")');
-    await expect(page).toHaveURL(/\/en\//);
+    const html = page.locator('html');
+    const toggle = page.locator('tdc-theme-toggle button');
+
+    await toggle.click();
+    const first = await html.getAttribute('data-theme');
+    expect(['light', 'dark']).toContain(first);
+
+    const stored = await page.evaluate(() => localStorage.getItem('tdc-theme'));
+    expect(stored).toBe(first);
+
+    await toggle.click();
+    const second = await html.getAttribute('data-theme');
+    expect(second).not.toBe(first);
   });
 
-  test('Can switch from English to Norwegian', async ({ page }) => {
-    await page.goto('/en/');
-    await page.click('a:has-text("NO")');
-    await expect(page).toHaveURL(/^(?!.*\/en\/)/);
-  });
-
-  test('Tickets menu item exists in Norwegian', async ({ page }) => {
+  test('remembers the chosen theme across reloads', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('nav a[href*="tickets"]').first()).toBeVisible();
-  });
+    await page.locator('tdc-theme-toggle button').click();
+    const chosen = await page.locator('html').getAttribute('data-theme');
 
-  test('Tickets menu item exists in English', async ({ page }) => {
-    await page.goto('/en/');
-    await expect(page.locator('nav a[href*="tickets"]').first()).toBeVisible();
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', chosen!);
+  });
+});
+
+test.describe('Partners', () => {
+  test('partner wall renders between the main content and the footer', async ({ page }) => {
+    await page.goto('/');
+
+    const wall = page.locator('.partner-wall');
+    await expect(wall).toBeVisible();
+    await expect(wall.locator('.partner-wall__item').first()).toBeVisible();
+
+    const positions = await page.evaluate(() => {
+      const main = document.querySelector('main');
+      const wallEl = document.querySelector('.partner-wall');
+      const footer = document.querySelector('.site-footer');
+      if (!main || !wallEl || !footer) return null;
+      return {
+        afterMain: !!(main.compareDocumentPosition(wallEl) & Node.DOCUMENT_POSITION_FOLLOWING),
+        beforeFooter: !!(wallEl.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING),
+      };
+    });
+
+    expect(positions).not.toBeNull();
+    expect(positions!.afterMain).toBe(true);
+    expect(positions!.beforeFooter).toBe(true);
+  });
+});
+
+test.describe('Easter eggs stay parked', () => {
+  test('no duck / duck-mate scripts are requested', async ({ page }) => {
+    const duckRequests: string[] = [];
+    page.on('request', (req) => {
+      if (/duck-mate|tdc-duck/i.test(req.url())) duckRequests.push(req.url());
+    });
+
+    await page.goto('/', { waitUntil: 'load' });
+    expect(duckRequests).toEqual([]);
   });
 });

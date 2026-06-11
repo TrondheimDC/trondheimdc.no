@@ -1,0 +1,30 @@
+/* Visually hide content while keeping it available to screen readers. */
+.visually-hidden:not(:focus):not(:active) {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-content link — visible only on keyboard focus. */
+.skip-link {
+  position: absolute;
+  inset-block-start: var(--spacing-2);
+  inset-inline-start: var(--spacing-2);
+  z-index: 1000;
+  padding: var(--spacing-2) var(--spacing-4);
+  background-color: var(--color-bg-surface);
+  color: var(--color-fg-base);
+  border-radius: var(--radius-md);
+  transform: translateY(-150%);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

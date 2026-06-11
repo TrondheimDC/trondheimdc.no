@@ -1,0 +1,26 @@
+/* Scroll-reveal for sections. <tdc-section> adds .is-visible to its
+   [data-animate] child when it scrolls into view. Without JS (no .js on
+   <html>) or with reduced motion, content is shown immediately. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-animate] {
+    opacity: 0;
+    transform: translateY(var(--spacing-6));
+    transition: opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+  }
+
+  .js [data-animate].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

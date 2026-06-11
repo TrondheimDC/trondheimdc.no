@@ -1,0 +1,28 @@
+{% set t = i18n[lang] %}
+
+<aside class="partner-wall" aria-labelledby="partner-wall-title">
+  <div class="container stack">
+    <h2 class="partner-wall__title text-h3 text-center" id="partner-wall-title">{{ t.partners.heading }}</h2>
+
+    <ul class="partner-wall__grid" role="list" data-shuffle>
+      {% for partner in partners %}
+        <li class="partner-wall__item">
+          {% if partner.url %}
+            <a class="partner-wall__link" href="{{ partner.url }}" target="_blank" rel="noopener noreferrer"
+               title="{{ partner.name }} ({{ t.ui.external }})">
+              <img class="partner-wall__logo" src="{{ ('/assets/images/partners/2025/' + partner.logo) | url }}"
+                   alt="{{ partner.name }}" loading="lazy" decoding="async" width="200" height="80">
+            </a>
+          {% else %}
+            <img class="partner-wall__logo" src="{{ ('/assets/images/partners/2025/' + partner.logo) | url }}"
+                 alt="{{ partner.name }}" loading="lazy" decoding="async" width="200" height="80">
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    <p class="text-center">
+      <a class="partner-wall__cta" href="#partner">{{ t.partners.cta }}</a>
+    </p>
+  </div>
+</aside>

@@ -1,0 +1,22 @@
+/* Stack — vertical rhythm. Owns the space between flow children.
+   Tune with --stack-space (defaults to spacing-6). */
+.stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.stack > * {
+  margin-block: 0;
+}
+
+.stack > * + * {
+  margin-block-start: var(--stack-space, var(--spacing-6));
+}
+
+.stack-sm {
+  --stack-space: var(--spacing-3);
+}
+.stack-lg {
+  --stack-space: var(--spacing-10);
+}

@@ -1,0 +1,25 @@
+/* Tag / badge (components/tag.njk). */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-surface);
+  color: var(--color-fg-base);
+}
+
+.tag--brand {
+  background-color: var(--color-fg-brand);
+  color: var(--color-fg-always-dark);
+  border-color: transparent;
+}
+
+.tag--accent {
+  background-color: var(--color-fg-accent);
+  color: var(--color-fg-always-dark);
+  border-color: transparent;
+}

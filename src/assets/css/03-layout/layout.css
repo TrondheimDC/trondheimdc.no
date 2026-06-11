@@ -1,0 +1,62 @@
+/* =====================================================================
+   12-column responsive grid — per docs/design.md "Grid & Layout".
+   Mobile 4 cols / Tablet 8 / Desktop 12. Container max 1248px.
+   Reminder: @media cannot use var(); literal px mirror the --bp-* tokens.
+   ===================================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--grid-container-max-width);
+  margin-inline: auto;
+  padding-inline: var(--grid-margin-mobile);
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-inline: var(--grid-margin-desktop);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns-mobile), 1fr);
+  gap: var(--grid-gutter-mobile);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(var(--grid-columns-tablet), 1fr);
+    gap: var(--grid-gutter-desktop);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
+  }
+}
+
+/* Column-span utilities (1–12). Mobile-first (min-width only): on the
+   4-col mobile grid every column is full-width; spans apply from tablet up. */
+[class*="col-"] {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .col-1 { grid-column: span 1; }
+  .col-2 { grid-column: span 2; }
+  .col-3 { grid-column: span 3; }
+  .col-4 { grid-column: span 4; }
+  .col-5 { grid-column: span 5; }
+  .col-6 { grid-column: span 6; }
+  .col-7 { grid-column: span 7; }
+  .col-8 { grid-column: span 8; }
+  .col-9 { grid-column: span 9; }
+  .col-10 { grid-column: span 10; }
+  .col-11 { grid-column: span 11; }
+  .col-12 { grid-column: span 12; }
+}
+
+.col-full {
+  grid-column: 1 / -1;
+}

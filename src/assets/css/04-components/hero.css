@@ -1,0 +1,43 @@
+/* Hero — full-viewport showpiece with a soft brand glow built from tokens. */
+.section--hero {
+  display: grid;
+  place-items: center;
+  min-block-size: calc(100svh - var(--nav-height));
+  padding-block: var(--spacing-12);
+  text-align: center;
+  background: radial-gradient(
+      ellipse at 22% 18%,
+      color-mix(in srgb, var(--color-fg-brand) 18%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 80% 26%,
+      color-mix(in srgb, var(--color-fg-brand-2) 16%, transparent),
+      transparent 55%
+    ),
+    var(--color-bg-base);
+}
+
+.hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.hero__logo {
+  inline-size: min(80vw, 360px);
+  block-size: auto;
+}
+
+.hero__date {
+  color: var(--color-fg-base);
+}
+
+.hero__venue {
+  color: var(--color-fg-muted);
+}
+
+.hero__actions {
+  margin-block-start: var(--spacing-4);
+}

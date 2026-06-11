@@ -1,15 +1,17 @@
 {% from "components/button.njk" import button %}
 
 <tdc-section>
-<section class="section section--cfp" id="cfp" data-animate aria-labelledby="cfp-title">
-  <div class="container text-center">
-    <div class="section__header">
-      <h2 class="section__title" id="cfp-title">{{ t.cfp.title }}</h2>
-    </div>
-    <p class="lead" style="margin-inline: auto;">{{ t.cfp.body }}</p>
-    <div class="mt-xl">
-      {{ button(t.cfp.cta, site.cfpUrl, "dark", "lg", null, true) }}
-    </div>
+<section class="section section--surface" id="cfp" data-animate aria-labelledby="cfp-title">
+  <div class="container stack">
+    <header class="section__header">
+      <h2 class="section__title text-h1" id="cfp-title">{{ t.cfp.title }}</h2>
+    </header>
+    <p class="section__lead text-lead">{{ t.cfp.body }}</p>
+    {% if t.cfp.cta and site.cfpUrl %}
+      <div class="cluster">
+        {{ button(t.cfp.cta, site.cfpUrl, "primary", "lg", null, true) }}
+      </div>
+    {% endif %}
   </div>
 </section>
 </tdc-section>

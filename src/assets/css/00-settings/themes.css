@@ -1,0 +1,63 @@
+/* =====================================================================
+   Light theme overrides.
+   Dark is the default (defined on :root in tokens.css). Light applies:
+     1. when the user explicitly chooses it  -> [data-theme="light"]
+     2. when the OS prefers light AND the user has not chosen a theme
+        -> @media (prefers-color-scheme: light) on :root without an
+           explicit data-theme.
+   An explicit [data-theme="dark"] always wins over the OS preference.
+   Only SEMANTIC tokens are remapped here — primitives never change.
+   ===================================================================== */
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg-base: var(--color-white-1);
+  --color-bg-surface: var(--color-white-2);
+  --color-bg-success: var(--color-green-3);
+  --color-bg-warning: var(--color-yellow-1);
+  --color-bg-danger: var(--color-red);
+
+  --color-fg-base: var(--color-black-3);
+  --color-fg-brand: var(--color-green-3);
+  --color-fg-brand-2: var(--color-purple-3);
+  --color-fg-brand-3: var(--color-yellow-3);
+  --color-fg-brand-4: var(--color-yellow-2);
+  --color-fg-accent: var(--color-yellow-3);
+  --color-fg-accent-2: var(--color-pink-2);
+  --color-fg-accent-3: var(--color-blue-2);
+  --color-fg-always-dark: var(--color-black-3);
+
+  /* Extensions need lighter shadows on a light surface */
+  --color-overlay: color-mix(in srgb, var(--color-black) 55%, transparent);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.14);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    color-scheme: light;
+
+    --color-bg-base: var(--color-white-1);
+    --color-bg-surface: var(--color-white-2);
+    --color-bg-success: var(--color-green-3);
+    --color-bg-warning: var(--color-yellow-1);
+    --color-bg-danger: var(--color-red);
+
+    --color-fg-base: var(--color-black-3);
+    --color-fg-brand: var(--color-green-3);
+    --color-fg-brand-2: var(--color-purple-3);
+    --color-fg-brand-3: var(--color-yellow-3);
+    --color-fg-brand-4: var(--color-yellow-2);
+    --color-fg-accent: var(--color-yellow-3);
+    --color-fg-accent-2: var(--color-pink-2);
+    --color-fg-accent-3: var(--color-blue-2);
+    --color-fg-always-dark: var(--color-black-3);
+
+    --color-overlay: color-mix(in srgb, var(--color-black) 55%, transparent);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.14);
+  }
+}

@@ -1,15 +1,50 @@
+{% set t = i18n[lang] %}
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang }}" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ title | default("TDC 2026") }}</title>
+
+  {# Apply stored theme + enable JS hooks before first paint (no FOUC). #}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("tdc-theme");
+        if (t === "light" || t === "dark") {
+          document.documentElement.setAttribute("data-theme", t);
+        }
+      } catch (e) {}
+      var de = document.documentElement;
+      de.classList.remove("no-js");
+      de.classList.add("js");
+    })();
+  </script>
+
+  <title>{{ title | default(site.title) }}</title>
   <meta name="description" content="{{ description | default(site.description) }}">
-  <meta name="path-prefix" content="{{ '/' | url }}">
+  <link rel="canonical" href="{{ site.url }}{{ ('/en/' if lang == 'en' else '/') }}">
+
+  {# Theme colour matches the design tokens (dark default / light override). #}
+  <meta name="theme-color" content="#0F0F0F" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FEFEFE" media="(prefers-color-scheme: light)">
+
+  {# Open Graph / social #}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ title | default(site.title) }}">
+  <meta property="og:description" content="{{ description | default(site.description) }}">
+  <meta property="og:locale" content="{{ 'en_GB' if lang == 'en' else 'nb_NO' }}">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}">
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/logos/TDC_white.svg' | url }}">
+
+  {# Preload the two most-used font weights (latin) to cut layout shift. #}
+  <link rel="preload" href="{{ '/assets/fonts/ibm-plex-sans-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/ibm-plex-sans-latin-600-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
 
-  <!-- Matomo Analytics -->
+  {# Matomo analytics (privacy-friendly, self-hosted — no Google). #}
   <script>
     var _paq = window._paq = window._paq || [];
     _paq.push(['trackPageView']);
@@ -25,9 +60,7 @@
   </script>
 </head>
 <body>
-  <a href="#main" class="skip-link">
-    {% if lang == "en" %}Skip to content{% else %}Hopp til innhold{% endif %}
-  </a>
+  <a href="#main" class="skip-link">{{ t.ui.skip }}</a>
 
   {% include "partials/nav.njk" %}
 
@@ -35,6 +68,7 @@
     {{ content | safe }}
   </main>
 
+  {% include "partials/partner-wall.njk" %}
   {% include "partials/footer.njk" %}
 
   <script type="module" src="{{ '/assets/js/main.js' | url }}"></script>

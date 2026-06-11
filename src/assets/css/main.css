@@ -1,28 +1,43 @@
-/* TDC 2026 Design System — Main CSS Entry Point */
-/* Using CSS Cascade Layers for specificity control */
+/* =====================================================================
+   TDC website — design-system entry point.
+   Cascade layers control specificity; later layers win.
+   Tokens mirror docs/design.md (Figma = source of truth).
+   ===================================================================== */
 
-@layer base, primitives, layout, components, utilities;
+@layer settings, base, primitives, layout, components, utilities;
 
-@import "00-base/_tokens.css" layer(base);
-@import "00-base/_reset.css" layer(base);
-@import "00-base/_typography.css" layer(base);
+/* settings — design tokens + theming */
+@import "00-settings/tokens.css" layer(settings);
+@import "00-settings/themes.css" layer(settings);
 
-@import "01-primitives/_stack.css" layer(primitives);
-@import "01-primitives/_cluster.css" layer(primitives);
-@import "01-primitives/_grid.css" layer(primitives);
-@import "01-primitives/_switcher.css" layer(primitives);
+/* base — fonts, reset, element typography */
+@import "01-base/fonts.css" layer(base);
+@import "01-base/reset.css" layer(base);
+@import "01-base/typography.css" layer(base);
 
-@import "02-layout/_layout.css" layer(layout);
+/* primitives — composable layout building blocks */
+@import "02-primitives/stack.css" layer(primitives);
+@import "02-primitives/cluster.css" layer(primitives);
+@import "02-primitives/auto-grid.css" layer(primitives);
+@import "02-primitives/switcher.css" layer(primitives);
+@import "02-primitives/center.css" layer(primitives);
 
-@import "03-components/_button.css" layer(components);
-@import "03-components/_card.css" layer(components);
-@import "03-components/_hero.css" layer(components);
-@import "03-components/_nav.css" layer(components);
-@import "03-components/_section.css" layer(components);
-@import "03-components/_tag.css" layer(components);
-@import "03-components/_partner-logo.css" layer(components);
-@import "03-components/_duck.css" layer(components);
-@import "03-components/_footer.css" layer(components);
+/* layout — 12-column grid + container */
+@import "03-layout/layout.css" layer(layout);
 
-@import "04-utilities/_animations.css" layer(utilities);
-@import "04-utilities/_spacing.css" layer(utilities);
+/* components — UI components (added alongside their templates) */
+@import "04-components/button.css" layer(components);
+@import "04-components/section.css" layer(components);
+@import "04-components/nav.css" layer(components);
+@import "04-components/hero.css" layer(components);
+@import "04-components/card.css" layer(components);
+@import "04-components/tag.css" layer(components);
+@import "04-components/partner-wall.css" layer(components);
+@import "04-components/theme-toggle.css" layer(components);
+@import "04-components/footer.css" layer(components);
+
+/* utilities — single-purpose overrides */
+@import "05-utilities/visually-hidden.css" layer(utilities);
+@import "05-utilities/spacing.css" layer(utilities);
+@import "05-utilities/animations.css" layer(utilities);
+

@@ -1,0 +1,33 @@
+/* Small, sharp utility set. Prefer layout primitives (stack/cluster/
+   center) over one-off utilities; these cover the common exceptions. */
+
+.text-center {
+  text-align: center;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.measure {
+  max-width: 65ch;
+}
+
+.measure-narrow {
+  max-width: 45ch;
+}
+
+/* Brand-coloured text helpers (semantic tokens only) */
+.text-brand {
+  color: var(--color-fg-brand);
+}
+.text-accent {
+  color: var(--color-fg-accent);
+}
+.text-muted {
+  color: var(--color-fg-muted);
+}
+
+.hidden {
+  display: none !important;
+}
