@@ -1,6 +1,9 @@
 /* Partner wall — the logo grid shown near the footer (partials/partner-wall.njk).
-   Most logos are white/mono (made for a dark background), so each logo sits on
-   a consistent dark chip in BOTH themes. Per-theme logo variants are deferred. */
+   Logos are normalised to a single foreground colour via a CSS filter, so the
+   original artwork colour (white/dark, SVG or PNG) does not matter: they render
+   white on the dark chip in dark mode and dark on the light chip in light mode.
+   The recolour + chip tokens live in 00-settings (--partner-logo-filter,
+   --partner-chip-bg) so they track the active theme. */
 .partner-wall {
   padding-block: var(--spacing-12);
   background-color: var(--color-bg-surface);
@@ -44,7 +47,7 @@
   justify-content: center;
   padding: var(--spacing-4);
   min-block-size: 88px;
-  background-color: var(--color-fg-always-dark);
+  background-color: var(--partner-chip-bg);
   border-radius: var(--radius-md);
 }
 
@@ -67,6 +70,10 @@
   inline-size: auto;
   block-size: auto;
   object-fit: contain;
+  /* Recolour every logo to the theme's foreground (see --partner-logo-filter).
+     Works on <img> SVG and PNG alike, so per-partner colour variants aren't
+     needed; the trade-off is each logo renders as a single solid colour. */
+  filter: var(--partner-logo-filter);
 }
 
 .partner-wall__cta {

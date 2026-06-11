@@ -28,6 +28,10 @@
   --color-fg-accent-3: var(--color-blue-2);
   --color-fg-always-dark: var(--color-black-3);
 
+  /* Partner logos flip to dark to match fg-base; the chip turns light. */
+  --partner-chip-bg: var(--color-white-1);
+  --partner-logo-filter: brightness(0) invert(0.16); /* → black-3 (#292929) */
+
   /* Extensions need lighter shadows on a light surface */
   --color-overlay: color-mix(in srgb, var(--color-black) 55%, transparent);
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
@@ -54,6 +58,10 @@
     --color-fg-accent-2: var(--color-pink-2);
     --color-fg-accent-3: var(--color-blue-2);
     --color-fg-always-dark: var(--color-black-3);
+
+    /* Partner logos flip to dark to match fg-base; the chip turns light. */
+    --partner-chip-bg: var(--color-white-1);
+    --partner-logo-filter: brightness(0) invert(0.16); /* → black-3 (#292929) */
 
     --color-overlay: color-mix(in srgb, var(--color-black) 55%, transparent);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
