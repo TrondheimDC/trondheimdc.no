@@ -3,7 +3,13 @@
 name: Deploy Preview Site
 
 on:
-  workflow_dispatch:  # Manual trigger only for safety
+  # Auto-deploy the preview whenever the new site (or this workflow) changes on main
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/workflows/deploy-preview.yml'
+  workflow_dispatch:  # Manual trigger with a custom subfolder
     inputs:
       path_prefix:
         description: 'Subfolder path (e.g. secret_new_duck_site)'
@@ -37,7 +43,7 @@ jobs:
         working-directory: src
         run: bun run build
         env:
-          ELEVENTY_PATH_PREFIX: /${{ inputs.path_prefix }}/
+          ELEVENTY_PATH_PREFIX: /${{ github.event.inputs.path_prefix || 'secret_new_duck_site' }}/
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -51,7 +57,7 @@ jobs:
     needs: build
     environment:
       name: preview
-      url: https://trondheimdc.no/${{ inputs.path_prefix }}/
+      url: https://trondheimdc.no/${{ github.event.inputs.path_prefix || 'secret_new_duck_site' }}/
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -72,7 +78,7 @@ jobs:
           rsync -rlvz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             src/_site/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/${{ inputs.path_prefix }}/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/${{ github.event.inputs.path_prefix || 'secret_new_duck_site' }}/
 
       - name: Cleanup SSH key
         if: always()
@@ -92,8 +98,8 @@ jobs:
           echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Deploy | ${{ needs.deploy.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Path prefix:** \`/${{ inputs.path_prefix }}/\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Preview URL:** https://trondheimdc.no/${{ inputs.path_prefix }}/" >> $GITHUB_STEP_SUMMARY
+          echo "- **Path prefix:** \`/${{ github.event.inputs.path_prefix || 'secret_new_duck_site' }}/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Preview URL:** https://trondheimdc.no/${{ github.event.inputs.path_prefix || 'secret_new_duck_site' }}/" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
