@@ -165,6 +165,13 @@
   --color-overlay: color-mix(in srgb, var(--color-black) 72%, transparent);
   --color-focus-ring: var(--color-fg-accent);
 
+  /* Partner wall — normalise logos to fg-base so they flip with the theme
+     (white on dark here; themes.css flips them dark on light). The filter
+     recolours <img> SVG + PNG alike, so the source logo colour is irrelevant.
+     The chip background flips too. See 04-components/partner-wall.css. */
+  --partner-chip-bg: var(--color-black-3);
+  --partner-logo-filter: brightness(0) invert(1); /* → ~white-1 */
+
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 12px rgb(0 0 0 / 0.35);
   --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.45);
