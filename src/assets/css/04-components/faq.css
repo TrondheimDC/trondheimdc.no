@@ -1,0 +1,78 @@
+/* FAQ accordion ("Kjekt å vite"). Native <details>/<summary> rows with a
+   monospace question and a +/− toggle that morphs to − when open, matching
+   the retro design. The section sits on a base background; rows use the
+   surface token for contrast. */
+.faq {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.faq__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  overflow: hidden;
+}
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-5);
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg-base);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Hide the default disclosure triangle (WebKit + the rest). */
+.faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.faq__q:hover {
+  color: var(--color-fg-brand);
+}
+
+.faq__item:focus-within {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* +/− toggle built from two bars; the vertical bar collapses when open. */
+.faq__icon {
+  position: relative;
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+.faq__icon::before,
+.faq__icon::after {
+  content: "";
+  position: absolute;
+  background-color: currentColor;
+}
+.faq__icon::before {
+  inset-inline: 0;
+  inset-block-start: calc(50% - 1px);
+  block-size: 2px;
+}
+.faq__icon::after {
+  inset-block: 0;
+  inset-inline-start: calc(50% - 1px);
+  inline-size: 2px;
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+.faq__item[open] .faq__icon::after {
+  transform: scaleY(0);
+}
+
+.faq__a {
+  padding: 0 var(--spacing-5) var(--spacing-4);
+  color: var(--color-fg-muted);
+}
+.faq__a a {
+  color: var(--color-fg-brand);
+}

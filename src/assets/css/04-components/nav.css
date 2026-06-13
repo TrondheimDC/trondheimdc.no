@@ -104,7 +104,11 @@
   padding-block: var(--spacing-2);
   color: var(--color-fg-base);
   text-decoration: none;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-20); /* 14 */
   font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .site-nav__link:hover,
@@ -128,6 +132,7 @@
 .site-nav__lang a {
   color: var(--color-fg-muted);
   text-decoration: none;
+  font-family: var(--font-family-display);
   font-weight: var(--font-weight-semibold);
 }
 

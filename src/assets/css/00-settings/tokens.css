@@ -55,6 +55,9 @@
      --------------------------------------------------------------- */
   --font-family-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-family-mono: Consolas, "SFMono-Regular", "Liberation Mono", Menlo, monospace;
+  /* Display = monospace per Figma design system (headings render in Consolas).
+     Drives the retro/terminal look across headings, hero and nav. */
+  --font-family-display: var(--font-family-mono);
 
   --font-weight-regular: 400;
   --font-weight-semibold: 600;

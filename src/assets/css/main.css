@@ -33,6 +33,7 @@
 @import "04-components/card.css" layer(components);
 @import "04-components/tag.css" layer(components);
 @import "04-components/partner-wall.css" layer(components);
+@import "04-components/faq.css" layer(components);
 @import "04-components/theme-toggle.css" layer(components);
 @import "04-components/footer.css" layer(components);
 

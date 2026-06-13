@@ -19,6 +19,7 @@ export default {
       speakers: "Foredragsholdere",
       tickets: "Billetter",
       partners: "Partnere",
+      faq: "Kjekt å vite",
       coc: "Retningslinjer",
       vol: "Frivillig",
       courses: "Kurs",
@@ -121,6 +122,35 @@ export default {
     volunteer: {
       title: "Bli frivillig",
     },
+    faq: {
+      title: "Kjekt å vite",
+      items: [
+        {
+          q: "Når og hvor er TDC 2026?",
+          a: "TDC 2026 arrangeres 19. oktober 2026 på Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
+        },
+        {
+          q: "Hvordan kommer jeg meg dit?",
+          a: "Reiser du kollektivt, stopper buss 21, 23 og 28 ved Pirbadet, og det er ca. 5 minutters gange fra togstasjonen. Fra Værnes går både tog og flybussen Værnesekspressen inn til sentrum.",
+        },
+        {
+          q: "Hva er inkludert i billetten?",
+          a: "Billetten gir tilgang til hele konferansen, inkludert mat og drikke, samt konferansefesten på kvelden.",
+        },
+        {
+          q: "Er det garderobe?",
+          a: "Ja. Du kan legge fra deg jakke i garderoben til venstre for hovedinngangen. Vi anbefaler at du tar med deg verdisaker gjennom hele konferansen.",
+        },
+        {
+          q: "Kan jeg bli partner?",
+          a: 'Alle partnerplasser for 2026 er utsolgt. Vil du stå på venteliste? Se <a href="#partner">partner-seksjonen</a>.',
+        },
+        {
+          q: "Kan jeg bli frivillig?",
+          a: 'Ja! Vi setter stor pris på frivillige. Har du spørsmål, kontakt oss på <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
+        },
+      ],
+    },
     footer: {
       find_us: "Du finner oss her:",
       copyright: "TDC 2026",
@@ -149,6 +179,7 @@ export default {
       speakers: "Speakers",
       tickets: "Tickets",
       partners: "Partners",
+      faq: "Good to know",
       coc: "Code of conduct",
       vol: "Volunteer",
       courses: "Courses",
@@ -250,6 +281,35 @@ export default {
     },
     volunteer: {
       title: "Volunteer",
+    },
+    faq: {
+      title: "Good to know",
+      items: [
+        {
+          q: "When and where is TDC 2026?",
+          a: "TDC 2026 takes place on 19 October 2026 at Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
+        },
+        {
+          q: "How do I get there?",
+          a: "By public transport, bus 21, 23 and 28 stop at Pirbadet, and it is about a 5-minute walk from the train station. From Trondheim Airport Værnes, both the train and the Værnesekspressen airport bus run into the city centre.",
+        },
+        {
+          q: "What is included in the ticket?",
+          a: "The ticket gives access to the full conference, including food and drinks, as well as the conference party in the evening.",
+        },
+        {
+          q: "Is there a cloakroom?",
+          a: "Yes. You can leave your coat in the cloakroom to the left of the main entrance. We recommend keeping your valuables with you throughout the conference.",
+        },
+        {
+          q: "Can I become a partner?",
+          a: 'All partner spots for 2026 are sold out. Want to join the waiting list? See the <a href="#partner">partner section</a>.',
+        },
+        {
+          q: "Can I volunteer?",
+          a: 'Yes! We greatly appreciate our volunteers. If you have questions, contact us at <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
+        },
+      ],
     },
     footer: {
       find_us: "Find us here:",

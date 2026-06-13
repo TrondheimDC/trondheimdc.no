@@ -25,16 +25,18 @@
   gap: var(--spacing-6);
 }
 
-.hero__logo {
-  inline-size: min(80vw, 360px);
+.hero__duck {
+  inline-size: min(55vw, 220px);
   block-size: auto;
+  /* When swapped for a pixel-art duck PNG, add: image-rendering: pixelated; */
 }
 
 .hero__date {
-  color: var(--color-fg-base);
+  color: var(--color-fg-accent);
 }
 
 .hero__venue {
+  font-family: var(--font-family-display);
   color: var(--color-fg-muted);
 }
 
