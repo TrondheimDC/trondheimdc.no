@@ -5,7 +5,11 @@
   <nav class="site-nav" aria-label="{{ 'Main navigation' if lang == 'en' else 'Hovednavigasjon' }}">
     <div class="site-nav__inner container">
       <a href="{{ home | url }}" class="site-nav__brand" aria-label="TDC 2026 — {{ t.ui.home }}">
-        <img src="{{ '/assets/images/logos/TDC_white.svg' | url }}" alt="{{ t.ui.logo_alt }}" class="site-nav__logo" width="80" height="40">
+        <span class="tdc-wordmark" aria-hidden="true">
+          <span class="tdc-wordmark__letter tdc-wordmark__letter--t"></span>
+          <span class="tdc-wordmark__letter tdc-wordmark__letter--d"></span>
+          <span class="tdc-wordmark__letter tdc-wordmark__letter--c"></span>
+        </span>
       </a>
 
       <button class="site-nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="{{ t.ui.menu }}">

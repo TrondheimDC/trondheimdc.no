@@ -35,12 +35,6 @@
   align-items: center;
 }
 
-.site-nav__logo {
-  display: block;
-  width: auto;
-  height: 34px;
-}
-
 /* Hamburger */
 .site-nav__toggle {
   display: inline-flex;

@@ -28,7 +28,6 @@
 .hero__duck {
   inline-size: min(55vw, 220px);
   block-size: auto;
-  /* When swapped for a pixel-art duck PNG, add: image-rendering: pixelated; */
 }
 
 .hero__date {
