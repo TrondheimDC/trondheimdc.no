@@ -1,4 +1,3 @@
-{% from "components/stat.njk" import stat %}
 {% set aboutContent = "./_includes/content/" + lang + "/about.md" %}
 
 <tdc-section>
@@ -8,17 +7,8 @@
       <h2 class="section__title text-h1" id="about-title">{{ t.about.title }}</h2>
     </header>
 
-    <div class="switcher" style="--switcher-threshold: 48rem;">
-      <div class="prose">
-        {% renderFile aboutContent %}
-      </div>
-
-      <div class="auto-grid" style="--auto-grid-min: 8rem; --auto-grid-gap: var(--spacing-6);">
-        {{ stat(site.stats.tracks, t.about.stat_tracks) }}
-        {{ stat(site.stats.talks, t.about.stat_talks) }}
-        {{ stat(site.stats.attendees, t.about.stat_attendees) }}
-        {{ stat(site.stats.partners, t.about.stat_partners) }}
-      </div>
+    <div class="prose measure">
+      {% renderFile aboutContent %}
     </div>
   </div>
 </section>

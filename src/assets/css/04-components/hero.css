@@ -1,21 +1,11 @@
-/* Hero — full-viewport showpiece with a soft brand glow built from tokens. */
+/* Hero — full-viewport showpiece on a single flat background colour. */
 .section--hero {
   display: grid;
   place-items: center;
   min-block-size: calc(100svh - var(--nav-height));
   padding-block: var(--spacing-12);
   text-align: center;
-  background: radial-gradient(
-      ellipse at 22% 18%,
-      color-mix(in srgb, var(--color-fg-brand) 18%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse at 80% 26%,
-      color-mix(in srgb, var(--color-fg-brand-2) 16%, transparent),
-      transparent 55%
-    ),
-    var(--color-bg-base);
+  background-color: var(--color-bg-base);
 }
 
 .hero__inner {

@@ -8,8 +8,8 @@
       {% for item in t.faq.items %}
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">{{ item.q }}</span>
             <span class="faq__icon" aria-hidden="true"></span>
+            <span class="faq__q-text">{{ item.q }}</span>
           </summary>
           <div class="faq__a">
             <p>{{ item.a | safe }}</p>
