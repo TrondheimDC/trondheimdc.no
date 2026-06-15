@@ -4,8 +4,9 @@
   <div class="container hero__inner">
     <p class="hero__date text-display">{{ t.hero.date_full }}</p>
 
-    {# Decorative 8-bit duck mascot from the Figma design system. #}
-    <img src="{{ '/assets/images/8bit-duck.svg' | url }}" alt="" aria-hidden="true" class="hero__duck" width="240" height="240">
+    {# Clickable 8-bit duck mascot — click to quack, double-click to spin,
+       drag to move, five quick clicks for party mode. (easter eggs) #}
+    <tdc-duck class="hero__duck" image="{{ '/assets/images/8bit-duck.svg' | url }}"></tdc-duck>
 
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
 

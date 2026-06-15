@@ -15,9 +15,15 @@
   gap: var(--spacing-6);
 }
 
+/* The hero mascot is the interactive <tdc-duck> custom element; size its
+   inner .duck to the hero scale and let the flex column centre it. */
 .hero__duck {
-  inline-size: min(55vw, 220px);
-  block-size: auto;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.hero__duck .duck {
+  --duck-size: min(55vw, 220px);
 }
 
 .hero__date {

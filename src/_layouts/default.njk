@@ -5,6 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  {# Path-prefix hint read by <tdc-duck> to build lazy-loaded asset URLs. #}
+  <meta name="path-prefix" content="{{ '/' | url }}">
+
   {# Apply stored theme + enable JS hooks before first paint (no FOUC). #}
   <script>
     (function () {

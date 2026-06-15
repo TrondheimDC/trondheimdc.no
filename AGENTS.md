@@ -139,18 +139,22 @@ Display / H1 / Body-Lead have different desktop vs. mobile sizes (see `docs/desi
 
 ---
 
-## 7. Easter eggs (parked)
+## 7. Easter eggs (active)
 
-The interactive duck mascot and the `duck-mate` canvas engine are **disabled by default** and live in `src/easter-eggs/` (not imported by `main.js`/`main.css`, not referenced by any template).
+The interactive duck mascot **is enabled**. The clickable 8-bit duck lives in the
+hero as `<tdc-duck>` (`assets/js/components/tdc-duck.js`, imported by `main.js`;
+styles in `assets/css/04-components/duck.css`).
 
-To re-enable later:
+Interactions: click → quack + confetti, double-click → spin, drag → move,
+five quick clicks → party mode, ten quacks → TDuckC logo combo.
 
-1. Move/keep the component at `assets/js/components/tdc-duck.js` and import it in `assets/js/main.js`.
-2. Add `<tdc-duck></tdc-duck>` to the hero section.
-3. Ensure `duck-mate.js` / `duck-mate.css` (and `atlas.json`, `config.json`) are served (passthrough) so the component can lazy-load them.
-4. Flip `featureFlags.easterEggs` in `_data/site.js` if/when wired to a flag.
+The heavy eSheep-style **`duck-mate` canvas engine** (`assets/js/duck-mate.js` +
+`assets/css/duck-mate.css`) is **lazy-loaded** — it is only fetched the first
+time party mode spawns a companion, never on initial page load. Keep it that way
+so the engine stays out of the critical render/JS path.
 
-Keep easter-egg code out of the critical render/JS path while parked.
+The smoke test `Duck mascot` guards this contract: the mascot must be visible on
+load, and `duck-mate.*` must not be requested until party mode runs.
 
 ---
 

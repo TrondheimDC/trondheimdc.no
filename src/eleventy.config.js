@@ -9,16 +9,12 @@ export default function (eleventyConfig) {
   // Markdown files (_includes/content/{no,en}/*.md) and be rendered into sections.
   eleventyConfig.addPlugin(RenderPlugin);
 
-  // Pass through static assets (note: easter-eggs/ is intentionally NOT copied
-  // while the duck easter eggs are parked — see AGENTS.md §7).
+  // Pass through static assets. The duck mascot ships as part of the normal
+  // JS/CSS bundle; the duck-mate engine is lazy-loaded from assets/js at runtime.
   eleventyConfig.addPassthroughCopy("assets/images");
   eleventyConfig.addPassthroughCopy("assets/fonts");
   eleventyConfig.addPassthroughCopy("assets/css");
   eleventyConfig.addPassthroughCopy("assets/js");
-
-  // Keep parked easter eggs out of the build entirely — don't process the
-  // README.md as a page or copy any of the source files.
-  eleventyConfig.ignores.add("easter-eggs/**");
 
   // i18n translation filter — UI strings/labels only. Supports dot notation
   // ("nav.about"). Long-form content uses Markdown + renderFile instead.
