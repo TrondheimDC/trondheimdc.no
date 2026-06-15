@@ -153,8 +153,9 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Desktop bar */
-@media (min-width: 1024px) {
+/* Desktop bar — only from 1200px, where the eight uppercase mono links fit
+   on one row without wrapping. Below this the hamburger panel is used. */
+@media (min-width: 1200px) {
   .site-nav__toggle {
     display: none;
   }
@@ -163,7 +164,7 @@
     position: static;
     display: flex;
     align-items: center;
-    gap: var(--spacing-6);
+    gap: var(--spacing-5);
     padding: 0;
     background: none;
     border: 0;
@@ -176,10 +177,12 @@
   .site-nav__links {
     display: flex;
     align-items: center;
-    gap: var(--spacing-5);
+    gap: var(--spacing-4);
   }
 
   .site-nav__link {
     padding-block: 0;
+    letter-spacing: var(--letter-spacing-none);
+    white-space: nowrap;
   }
 }

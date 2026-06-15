@@ -11,10 +11,12 @@
 
 .measure {
   max-width: 65ch;
+  margin-inline: auto;
 }
 
 .measure-narrow {
   max-width: 45ch;
+  margin-inline: auto;
 }
 
 /* Brand-coloured text helpers (semantic tokens only) */

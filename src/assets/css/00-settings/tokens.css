@@ -133,6 +133,9 @@
   --grid-margin-mobile: 16px;
   --grid-margin-desktop: 32px;
   --grid-container-max-width: 1248px;
+  /* Centred reading column for section content (per Figma: ~768px on a
+     1440px screen). The wide grid/footer keep --grid-container-max-width. */
+  --content-max-width: 768px;
 
   /* ===============================================================
      SEMANTIC — Dark mode (default). Named by ROLE, not value.
