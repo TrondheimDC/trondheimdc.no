@@ -22,7 +22,6 @@ section[id] {
 
 .section__header {
   margin-block-end: var(--spacing-8);
-  text-align: center;
 }
 
 .section__title {
@@ -32,7 +31,6 @@ section[id] {
 .section__lead {
   color: var(--color-fg-muted);
   max-width: 60ch;
-  margin-inline: auto;
 }
 
 /* Rendered Markdown prose (from _includes/content/{no,en}/*.md). */
