@@ -129,9 +129,13 @@ export class TdcDuck extends HTMLElement {
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
 
+    // The hero passes the 8-bit duck via the `image` attribute (already
+    // path-prefix resolved by the template); fall back to the 8-bit mascot.
+    const imgSrc = this.getAttribute('image') || `${getPathPrefix()}/assets/images/8bit-duck.svg`;
+
     this.innerHTML = `
-      <div class="duck" role="img" aria-label="${lang === 'en' ? 'TDC mascot rubber duck' : 'TDC maskot gummiand'}" tabindex="0">
-        <img class="duck__img" src="${getPathPrefix()}/assets/images/logos/duck.svg" alt="" draggable="false">
+      <div class="duck" role="img" aria-label="${lang === 'en' ? 'TDC mascot duck' : 'TDC maskot-and'}" tabindex="0">
+        <img class="duck__img" src="${imgSrc}" alt="" draggable="false">
         <span class="duck__quack" aria-live="polite"></span>
         <svg class="duck__splash" viewBox="0 0 120 30">
           <ellipse cx="60" cy="15" rx="50" ry="10" fill="#3D9EFF" opacity="0.4"/>

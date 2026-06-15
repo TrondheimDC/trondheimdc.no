@@ -1,0 +1,56 @@
+/* TDC brand wordmark — three pixel letterforms (T · long-D · C) composed in
+   a row. Decorative wherever it is used: the surrounding link or container
+   carries the accessible name, so the letters are rendered as background
+   images. Green is the dark-theme brand colour; the light theme swaps to red
+   because the pale green washes out on a light background. Asset paths are
+   relative to this file so they survive path-prefixed preview builds. */
+.tdc-wordmark {
+  --wordmark-size: 1.625rem; /* 26px — override per placement */
+  --wordmark-t: url("../../images/logos/letters/T-green.svg");
+  --wordmark-d: url("../../images/logos/letters/D-green-long.svg");
+  --wordmark-c: url("../../images/logos/letters/C-green.svg");
+
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--wordmark-size) * 0.14);
+  block-size: var(--wordmark-size);
+}
+
+.tdc-wordmark__letter {
+  display: block;
+  block-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.tdc-wordmark__letter--t {
+  aspect-ratio: 40 / 52;
+  background-image: var(--wordmark-t);
+}
+
+.tdc-wordmark__letter--d {
+  aspect-ratio: 154 / 52;
+  background-image: var(--wordmark-d);
+}
+
+.tdc-wordmark__letter--c {
+  aspect-ratio: 40 / 52;
+  background-image: var(--wordmark-c);
+}
+
+/* Light theme → red letters. Mirrors the two-pronged theme strategy in
+   00-settings/themes.css (explicit choice + OS preference). */
+[data-theme="light"] .tdc-wordmark {
+  --wordmark-t: url("../../images/logos/letters/T-red.svg");
+  --wordmark-d: url("../../images/logos/letters/D-red-long.svg");
+  --wordmark-c: url("../../images/logos/letters/C-red.svg");
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .tdc-wordmark {
+    --wordmark-t: url("../../images/logos/letters/T-red.svg");
+    --wordmark-d: url("../../images/logos/letters/D-red-long.svg");
+    --wordmark-c: url("../../images/logos/letters/C-red.svg");
+  }
+}

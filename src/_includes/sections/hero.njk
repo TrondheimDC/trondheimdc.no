@@ -2,9 +2,12 @@
 
 <section class="section section--hero" id="hero" aria-label="TDC 2026">
   <div class="container hero__inner">
-    <img src="{{ '/assets/images/logos/TDC_white.svg' | url }}" alt="{{ t.ui.logo_alt }}" class="hero__logo" width="360" height="180">
-
     <p class="hero__date text-display">{{ t.hero.date_full }}</p>
+
+    {# Clickable 8-bit duck mascot — click to quack, double-click to spin,
+       drag to move, five quick clicks for party mode. (easter eggs) #}
+    <tdc-duck class="hero__duck" image="{{ '/assets/images/8bit-duck.svg' | url }}"></tdc-duck>
+
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
 
     <div class="hero__actions cluster" style="--cluster-justify: center;">

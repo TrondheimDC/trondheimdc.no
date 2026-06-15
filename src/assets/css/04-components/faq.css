@@ -1,0 +1,70 @@
+/* FAQ accordion ("Kjekt å vite"). Native <details>/<summary> rows styled to
+   match the Figma design: no boxes — each question is a monospace row with a
+   caret on the left and a single accent underline. The accent is the brand
+   green on the dark theme and swaps to red on the light theme, mirroring the
+   wordmark's green→red strategy (see wordmark.css / themes.css). */
+.faq {
+  --faq-accent: var(--color-fg-brand); /* green on dark */
+  display: grid;
+  gap: 0;
+}
+
+[data-theme="light"] .faq {
+  --faq-accent: var(--color-bg-danger); /* red on light */
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .faq {
+    --faq-accent: var(--color-bg-danger);
+  }
+}
+
+.faq__item {
+  border-block-end: 1px solid var(--faq-accent);
+}
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding-block: var(--spacing-4);
+  font-family: var(--font-family-display);
+  color: var(--color-fg-base);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Hide the default disclosure triangle (WebKit + the rest). */
+.faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.faq__q:hover {
+  color: var(--faq-accent);
+}
+
+.faq__item:focus-within {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Caret on the left: a small triangle pointing right when closed, rotating
+   down when the row is open. Built from borders so it inherits the accent. */
+.faq__icon {
+  flex: none;
+  inline-size: 0;
+  block-size: 0;
+  border-block: 0.3rem solid transparent;
+  border-inline-start: 0.45rem solid var(--faq-accent);
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+.faq__item[open] .faq__icon {
+  transform: rotate(90deg);
+}
+
+.faq__a {
+  padding-block-end: var(--spacing-4);
+  color: var(--color-fg-muted);
+}
+.faq__a a {
+  color: var(--faq-accent);
+}

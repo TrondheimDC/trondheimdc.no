@@ -9,6 +9,8 @@
   text-wrap: balance;
 }
 
+/* Cap line length for readability. Left-aligned (no auto centring) so prose
+   lines up with the left-aligned section headers in the narrow content column. */
 .measure {
   max-width: 65ch;
 }

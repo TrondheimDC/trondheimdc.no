@@ -17,9 +17,8 @@
   }
 }
 
-.site-footer__logo {
-  inline-size: 96px;
-  block-size: auto;
+.site-footer__wordmark {
+  --wordmark-size: 2rem; /* 32px */
 }
 
 .site-footer__info {

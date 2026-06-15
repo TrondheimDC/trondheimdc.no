@@ -1,0 +1,22 @@
+<tdc-section>
+<section class="section" id="faq" data-animate aria-labelledby="faq-title">
+  <div class="container stack">
+    <header class="section__header">
+      <h2 class="section__title text-h1" id="faq-title">{{ t.faq.title }}</h2>
+    </header>
+    <div class="faq">
+      {% for item in t.faq.items %}
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__icon" aria-hidden="true"></span>
+            <span class="faq__q-text">{{ item.q }}</span>
+          </summary>
+          <div class="faq__a">
+            <p>{{ item.a | safe }}</p>
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+</tdc-section>

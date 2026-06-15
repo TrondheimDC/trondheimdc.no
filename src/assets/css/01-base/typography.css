@@ -19,8 +19,10 @@ body {
 }
 
 /* ---- Headings (element defaults) ------------------------------- */
+/* Headings render in the display (monospace) family for the retro look. */
 h1,
 .text-h1 {
+  font-family: var(--font-family-display);
   font-size: clamp(1.875rem, 1.5rem + 1.2vw, 2.5rem); /* 30 -> 40 */
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
@@ -28,6 +30,7 @@ h1,
 
 h2,
 .text-h2 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-70); /* 30 */
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
@@ -35,6 +38,7 @@ h2,
 
 h3,
 .text-h3 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-60); /* 24 */
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-snug);
@@ -42,6 +46,7 @@ h3,
 
 h4,
 .text-h4 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-50); /* 21 */
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-normal);
@@ -49,9 +54,13 @@ h4,
 
 /* ---- Display (hero) -------------------------------------------- */
 .text-display {
+  font-family: var(--font-family-display);
   font-size: clamp(3rem, 2.2rem + 2.5vw, 4rem); /* 48 -> 64 */
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  overflow-wrap: break-word;
 }
 
 /* ---- Body variants --------------------------------------------- */

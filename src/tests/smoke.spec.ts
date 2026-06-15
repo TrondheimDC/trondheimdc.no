@@ -17,12 +17,13 @@ const SECTION_IDS = [
   'speakers',
   'info',
   'partner',
+  'faq',
   'volunteer',
   'cfp',
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'info', 'partner', 'coc'];
+const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'info', 'partner', 'faq', 'coc'];
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
@@ -136,14 +137,21 @@ test.describe('Partners', () => {
   });
 });
 
-test.describe('Easter eggs stay parked', () => {
-  test('no duck / duck-mate scripts are requested', async ({ page }) => {
-    const duckRequests: string[] = [];
+test.describe('Duck mascot', () => {
+  test('hero shows the interactive duck without eagerly loading the engine', async ({ page }) => {
+    const duckMateRequests: string[] = [];
     page.on('request', (req) => {
-      if (/duck-mate|tdc-duck/i.test(req.url())) duckRequests.push(req.url());
+      if (/duck-mate/i.test(req.url())) duckMateRequests.push(req.url());
     });
 
     await page.goto('/', { waitUntil: 'load' });
-    expect(duckRequests).toEqual([]);
+
+    // The clickable mascot is mounted in the hero and upgraded by its component.
+    const duck = page.locator('#hero tdc-duck .duck');
+    await expect(duck).toBeVisible();
+
+    // The heavy eSheep-style "duck-mate" engine must stay lazy — it should only
+    // load after the user triggers party mode, never on initial page load.
+    expect(duckMateRequests).toEqual([]);
   });
 });

@@ -55,6 +55,9 @@
      --------------------------------------------------------------- */
   --font-family-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-family-mono: Consolas, "SFMono-Regular", "Liberation Mono", Menlo, monospace;
+  /* Display = monospace per Figma design system (headings render in Consolas).
+     Drives the retro/terminal look across headings, hero and nav. */
+  --font-family-display: var(--font-family-mono);
 
   --font-weight-regular: 400;
   --font-weight-semibold: 600;
@@ -130,6 +133,9 @@
   --grid-margin-mobile: 16px;
   --grid-margin-desktop: 32px;
   --grid-container-max-width: 1248px;
+  /* Centred reading column for section content (per Figma: ~768px on a
+     1440px screen). The wide grid/footer keep --grid-container-max-width. */
+  --content-max-width: 768px;
 
   /* ===============================================================
      SEMANTIC — Dark mode (default). Named by ROLE, not value.

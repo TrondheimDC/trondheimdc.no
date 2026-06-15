@@ -28,13 +28,16 @@
 /* components — UI components (added alongside their templates) */
 @import "04-components/button.css" layer(components);
 @import "04-components/section.css" layer(components);
+@import "04-components/wordmark.css" layer(components);
 @import "04-components/nav.css" layer(components);
 @import "04-components/hero.css" layer(components);
 @import "04-components/card.css" layer(components);
 @import "04-components/tag.css" layer(components);
 @import "04-components/partner-wall.css" layer(components);
+@import "04-components/faq.css" layer(components);
 @import "04-components/theme-toggle.css" layer(components);
 @import "04-components/footer.css" layer(components);
+@import "04-components/duck.css" layer(components);
 
 /* utilities — single-purpose overrides */
 @import "05-utilities/visually-hidden.css" layer(utilities);

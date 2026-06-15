@@ -1,21 +1,11 @@
-/* Hero — full-viewport showpiece with a soft brand glow built from tokens. */
+/* Hero — full-viewport showpiece on a single flat background colour. */
 .section--hero {
   display: grid;
   place-items: center;
   min-block-size: calc(100svh - var(--nav-height));
   padding-block: var(--spacing-12);
   text-align: center;
-  background: radial-gradient(
-      ellipse at 22% 18%,
-      color-mix(in srgb, var(--color-fg-brand) 18%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse at 80% 26%,
-      color-mix(in srgb, var(--color-fg-brand-2) 16%, transparent),
-      transparent 55%
-    ),
-    var(--color-bg-base);
+  background-color: var(--color-bg-base);
 }
 
 .hero__inner {
@@ -25,16 +15,23 @@
   gap: var(--spacing-6);
 }
 
-.hero__logo {
-  inline-size: min(80vw, 360px);
-  block-size: auto;
+/* The hero mascot is the interactive <tdc-duck> custom element; size its
+   inner .duck to the hero scale and let the flex column centre it. */
+.hero__duck {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.hero__duck .duck {
+  --duck-size: min(55vw, 220px);
 }
 
 .hero__date {
-  color: var(--color-fg-base);
+  color: var(--color-fg-accent);
 }
 
 .hero__venue {
+  font-family: var(--font-family-display);
   color: var(--color-fg-muted);
 }
 

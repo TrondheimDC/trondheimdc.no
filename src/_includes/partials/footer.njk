@@ -3,7 +3,11 @@
 <footer class="site-footer" id="contact">
   <div class="site-footer__inner container">
     <div class="site-footer__brand stack stack-sm">
-      <img src="{{ '/assets/images/logos/TDC_white.svg' | url }}" alt="{{ t.ui.logo_alt }}" class="site-footer__logo" width="96" height="48">
+      <span class="tdc-wordmark site-footer__wordmark" role="img" aria-label="{{ t.ui.logo_alt }}">
+        <span class="tdc-wordmark__letter tdc-wordmark__letter--t" aria-hidden="true"></span>
+        <span class="tdc-wordmark__letter tdc-wordmark__letter--d" aria-hidden="true"></span>
+        <span class="tdc-wordmark__letter tdc-wordmark__letter--c" aria-hidden="true"></span>
+      </span>
       <p class="site-footer__info text-label">{{ t.footer.copyright }}</p>
       <p class="site-footer__info">{{ t.hero.date_full }} · {{ t.hero.venue }}</p>
     </div>
