@@ -39,6 +39,23 @@ export default function (eleventyConfig) {
     });
   });
 
+  // Extract time (HH:MM) from ISO 8601 datetime string
+  eleventyConfig.addFilter("isoTime", function (value) {
+    if (!value) return "";
+    return value.substring(11, 16); // "2026-10-19T09:00:00" → "09:00"
+  });
+
+  // Resolve Sessionize objects by ID in templates.
+  eleventyConfig.addFilter("speakerById", function (speakers, id) {
+    if (!Array.isArray(speakers) || !id) return null;
+    return speakers.find((speaker) => speaker.id === id) ?? null;
+  });
+
+  eleventyConfig.addFilter("roomById", function (rooms, id) {
+    if (!Array.isArray(rooms) || !id) return null;
+    return rooms.find((room) => room.id === id) ?? null;
+  });
+
   // Watch targets
   eleventyConfig.addWatchTarget("assets/css/");
   eleventyConfig.addWatchTarget("assets/js/");

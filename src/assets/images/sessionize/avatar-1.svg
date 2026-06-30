@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Alice Johnson avatar">
+  <rect width="256" height="256" rx="128" fill="#1f2937"/>
+  <circle cx="128" cy="104" r="44" fill="#f8d66d"/>
+  <path d="M64 214c8-42 36-62 64-62s56 20 64 62" fill="#f59e0b"/>
+  <text x="128" y="145" text-anchor="middle" font-family="IBM Plex Sans, Arial, sans-serif" font-size="26" font-weight="700" fill="#111827">AJ</text>
+</svg>

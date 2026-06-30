@@ -1,17 +1,82 @@
 <tdc-section>
-<section class="section" id="program" data-animate aria-labelledby="program-title">
+<section class="section" id="program" aria-labelledby="program-title">
   <div class="container stack">
     <header class="section__header">
       <h2 class="section__title text-h1" id="program-title">{{ t.program.title }}</h2>
     </header>
 
-    {% if site.sessionizeEventId %}
-      {# Sessionize schedule grid embed #}
-      <div class="sessionize" id="sz-program"></div>
-      <script type="text/javascript" src="https://sessionize.com/api/v2/{{ site.sessionizeEventId }}/view/GridSmart"></script>
-    {% else %}
-      <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
-    {% endif %}
+    {# Custom program schedule using Sessionize API data #}
+    <div class="program-schedule">
+      {% if sessionize.sessions and sessionize.sessions.length > 0 %}
+        <div class="sessions-grid">
+          {% for session in sessionize.sessions %}
+            <article class="session-card" data-session-id="{{ session.id }}">
+              <div class="session-card__header">
+                <h3 class="session-card__title">{{ session.title }}</h3>
+                {% if session.startsAt %}
+                  <time class="session-card__time" datetime="{{ session.startsAt }}">
+                    {{ session.startsAt | isoTime }}
+                  </time>
+                {% endif %}
+              </div>
+
+              {% if session.description %}
+                <button
+                  type="button"
+                  class="session-card__details-button"
+                  data-session-open
+                  data-session-title="{{ session.title | escape }}"
+                  data-session-description="{{ session.description | escape }}"
+                >
+                  {% if lang == "en" %}
+                    Show description
+                  {% else %}
+                    Vis beskrivelse
+                  {% endif %}
+                </button>
+              {% endif %}
+
+              {% if session.speakers and session.speakers.length > 0 %}
+                <div class="session-card__speakers">
+                  {% for speakerId in session.speakers %}
+                    {% set speaker = sessionize.speakers | speakerById(speakerId) %}
+                    {% if speaker %}
+                      <a href="#speaker-{{ speaker.id }}" class="speaker-link">
+                        <img 
+                          src="{{ speaker.profilePicture }}" 
+                          alt="{{ speaker.firstName }} {{ speaker.lastName }}"
+                          class="speaker-link__avatar"
+                        />
+                        <span class="speaker-link__name">{{ speaker.firstName }} {{ speaker.lastName }}</span>
+                      </a>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if session.roomId %}
+                {% set room = sessionize.rooms | roomById(session.roomId) %}
+                {% if room %}
+                  <div class="session-card__room">
+                    📍 {{ room.name }}
+                  </div>
+                {% endif %}
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+
+        <dialog class="program-modal" id="program-description-modal" aria-labelledby="program-modal-title">
+          <div class="program-modal__header">
+            <h3 class="program-modal__title" id="program-modal-title"></h3>
+            <button type="button" class="program-modal__close" data-session-close aria-label="Close">✕</button>
+          </div>
+          <div class="program-modal__body" id="program-modal-body"></div>
+        </dialog>
+      {% else %}
+        <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
+      {% endif %}
+    </div>
   </div>
 </section>
 </tdc-section>

@@ -1,0 +1,90 @@
+{# 
+  Example: Custom program schedule using Sessionize API data.
+  This replaces the embedded GridSmart widget with a custom-styled schedule.
+  To use: replace the content of program.njk with this template, or import it.
+#}
+
+<div class="program-schedule">
+  {% if sessionize.sessions and sessionize.sessions.length > 0 %}
+    <div class="sessions-grid">
+      {% for session in sessionize.sessions %}
+        <article class="session-card" data-session-id="{{ session.id }}">
+          <div class="session-card__header">
+            <h3 class="session-card__title">{{ session.title }}</h3>
+            {% if session.startsAt %}
+              <time class="session-card__time" datetime="{{ session.startsAt }}">
+                {{ session.startsAt | slice(11, 16) }}
+              </time>
+            {% endif %}
+          </div>
+
+          {% if session.description %}
+            <p class="session-card__description">{{ session.description }}</p>
+          {% endif %}
+
+          {% if session.speakers and session.speakers.length > 0 %}
+            <div class="session-card__speakers">
+              {% for speakerId in session.speakers %}
+                {% set speaker = sessionize.speakers | selectattr("id", "equalto", speakerId) | first %}
+                {% if speaker %}
+                  <a href="#speaker-{{ speaker.id }}" class="speaker-link">
+                    <img 
+                      src="{{ speaker.profilePicture }}" 
+                      alt="{{ speaker.firstName }} {{ speaker.lastName }}"
+                      class="speaker-link__avatar"
+                    />
+                    <span class="speaker-link__name">{{ speaker.firstName }} {{ speaker.lastName }}</span>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if session.roomId %}
+            {% set room = sessionize.rooms | selectattr("id", "equalto", session.roomId) | first %}
+            {% if room %}
+              <div class="session-card__room">
+                📍 {{ room.name }}
+              </div>
+            {% endif %}
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-lead">Programmet publiseres snart.</p>
+  {% endif %}
+</div>
+
+<style>
+/* 
+  Add your custom styles here. Example:
+  
+  .program-schedule {
+    display: grid;
+    gap: var(--spacing-4);
+  }
+  
+  .session-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-4);
+    transition: background-color 0.2s;
+  }
+  
+  .session-card:hover {
+    background-color: var(--color-bg-hover);
+  }
+  
+  .session-card__title {
+    font-size: var(--font-size-20);
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .session-card__time {
+    color: var(--color-fg-muted);
+    font-size: var(--font-size-14);
+  }
+*/
+</style>
