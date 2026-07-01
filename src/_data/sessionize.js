@@ -5,13 +5,9 @@
  * embed endpoints. We fetch those fragments at build time, parse out the pieces
  * we need, and expose structured data to the templates.
  *
- * For local layout work, set USE_MOCK_SESSIONIZE=true.
  */
 
-import mockData from "./sessionize-mock.js";
-
 const eventId = "xx320rm2";
-const useMock = process.env.USE_MOCK_SESSIONIZE === "true";
 
 const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?under=True`;
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
@@ -152,11 +148,6 @@ function buildRooms(sessions) {
 }
 
 export default async function () {
-  if (useMock) {
-    console.log("🎭 Using MOCK Sessionize data (set USE_MOCK_SESSIONIZE=false to fetch real data)");
-    return mockData;
-  }
-
   console.log("🎤 Fetching Sessionize data from HTML fragments...");
 
   const [sessionsHtml, speakersHtml] = await Promise.all([

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Bob Smith avatar">
-  <rect width="256" height="256" rx="128" fill="#0f172a"/>
-  <circle cx="128" cy="100" r="42" fill="#93c5fd"/>
-  <path d="M70 214c10-40 34-60 58-60s48 20 58 60" fill="#38bdf8"/>
-  <text x="128" y="145" text-anchor="middle" font-family="IBM Plex Sans, Arial, sans-serif" font-size="26" font-weight="700" fill="#0f172a">BS</text>
-</svg>
