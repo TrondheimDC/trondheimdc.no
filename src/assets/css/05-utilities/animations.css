@@ -11,9 +11,15 @@
   }
 
   .js [data-animate].is-visible {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
   }
+}
+
+/* Hard fallback: if JS marks a section as visible, never keep it hidden. */
+.js [data-animate].is-visible {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 @keyframes fade-in {
