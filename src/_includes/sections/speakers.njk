@@ -11,44 +11,46 @@
         <ul class="speakers-grid" role="list">
           {% for speaker in sessionize.speakers %}
             <li class="speaker-item" id="speaker-{{ speaker.id }}">
-              <article class="speaker-card">
+              <button
+                type="button"
+                class="speaker-card"
+                data-speaker-open
+                data-speaker-name="{{ (speaker.firstName + ' ' + speaker.lastName) | escape }}"
+                data-speaker-image="{{ speaker.profilePicture | escape }}"
+                data-speaker-tagline="{{ speaker.tagLine | escape }}"
+                data-speaker-bio="{{ speaker.bio | escape }}"
+                data-speaker-twitter="{{ speaker.twitter | escape }}"
+                data-speaker-linkedin="{{ speaker.linkedIn | escape }}"
+                data-speaker-blog="{{ speaker.blog | escape }}"
+              >
                 {% if speaker.profilePicture %}
-                  <img 
-                    src="{{ speaker.profilePicture }}" 
-                    alt="{{ speaker.firstName }} {{ speaker.lastName }}"
+                  <img
+                    src="{{ speaker.profilePicture }}"
+                    alt=""
                     class="speaker-card__avatar"
                   />
                 {% endif %}
 
-                <h3 class="speaker-card__name">
+                <span class="speaker-card__name">
                   {{ speaker.firstName }} {{ speaker.lastName }}
-                </h3>
-
-                {% if speaker.tagLine %}
-                  <p class="speaker-card__title">{{ speaker.tagLine }}</p>
-                {% endif %}
-
-                {% if speaker.bio %}
-                  <p class="speaker-card__bio">{{ speaker.bio }}</p>
-                {% endif %}
-
-                {% if speaker.twitter or speaker.linkedIn or speaker.blog %}
-                  <div class="speaker-card__socials">
-                    {% if speaker.twitter %}
-                      <a href="https://twitter.com/{{ speaker.twitter }}" class="social-link">𝕏</a>
-                    {% endif %}
-                    {% if speaker.linkedIn %}
-                      <a href="{{ speaker.linkedIn }}" class="social-link">in</a>
-                    {% endif %}
-                    {% if speaker.blog %}
-                      <a href="{{ speaker.blog }}" class="social-link">🔗</a>
-                    {% endif %}
-                  </div>
-                {% endif %}
-              </article>
+                </span>
+              </button>
             </li>
           {% endfor %}
         </ul>
+
+        <dialog class="speaker-modal" id="speaker-description-modal" aria-labelledby="speaker-modal-name">
+          <div class="speaker-modal__header">
+            <button type="button" class="speaker-modal__close" data-speaker-close aria-label="Close">✕</button>
+          </div>
+          <div class="speaker-modal__content">
+            <img class="speaker-modal__avatar" id="speaker-modal-avatar" src="" alt="" />
+            <h3 class="speaker-modal__name" id="speaker-modal-name"></h3>
+            <p class="speaker-modal__tagline" id="speaker-modal-tagline"></p>
+            <p class="speaker-modal__bio" id="speaker-modal-bio"></p>
+            <div class="speaker-modal__socials" id="speaker-modal-socials"></div>
+          </div>
+        </dialog>
       {% else %}
         <p class="section__lead text-lead">{{ t.speakers.placeholder }}</p>
       {% endif %}
