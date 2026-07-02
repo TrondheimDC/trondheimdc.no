@@ -8,3 +8,11 @@
 .sz-day__title {
     display: none !important;
 }
+
+.sz-speaker__name {
+    color:white;
+}
+
+.sz-speaker__tagline {
+    color:white;
+}
