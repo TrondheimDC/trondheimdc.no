@@ -10,9 +10,9 @@
 }
 
 div#sessionize.sessionize-wrapper .sz-speaker__name {
-    color:white;
+    color:white !important;
 }
 
 div#sessionize.sessionize-wrapper .sz-speaker__tagline {
-    color:white;
+    color:white !important;
 }
