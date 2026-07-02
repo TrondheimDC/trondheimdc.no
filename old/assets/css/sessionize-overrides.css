@@ -9,10 +9,10 @@
     display: none !important;
 }
 
-.sz-speaker__name {
+div#sessionize.sessionize-wrapper .sz-speaker__name {
     color:white;
 }
 
-.sz-speaker__tagline {
+div#sessionize.sessionize-wrapper .sz-speaker__tagline {
     color:white;
 }
