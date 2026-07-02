@@ -16,14 +16,16 @@
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/cfp/" class="nav-link {% if page.nav_active == 'cfp' %}active{% endif %}">{% include i18n.html ns='nav' k='cfp' fallback='CFP' %}</a>
                 </li>
+                <!-- program button disabled
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/program/" class="nav-link {% if page.nav_active == 'program' %}active{% endif %}">{% include i18n.html ns='nav' k='program' fallback='Program' %}</a>
                 </li>
-                <!-- Speakers menu temporarily disabled
+                -->
+                
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/speakers/" class="nav-link {% if page.nav_active == 'speakers' %}active{% endif %}">{% include i18n.html ns='nav' k='speakers' fallback='Speakers' %}</a>
                 </li>
-                -->
+                
                 <!-- Courses menu temporarily disabled
                 <li class="nav-item">
                     <a href="{% if page.lang == 'en' %}/en{% endif %}/courses/" class="nav-link {% if page.nav_active == 'courses' %}active{% endif %}">{% include i18n.html ns='nav' k='courses' fallback='Courses' %}</a>
