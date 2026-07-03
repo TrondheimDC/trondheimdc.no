@@ -10,20 +10,20 @@ import { test, expect } from '@playwright/test';
  * that the parked easter eggs never load.
  */
 
+// Sections rendered on the single-page layout (home.njk). "program" and "cfp"
+// are intentionally not listed: the agenda isn't published yet and the CFP is
+// closed, so both includes are commented out in home.njk.
 const SECTION_IDS = [
   'about',
   'tickets',
-  'program',
   'speakers',
-  'info',
   'partner',
   'faq',
   'volunteer',
-  'cfp',
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'info', 'partner', 'faq', 'coc'];
+const NAV_SECTIONS = ['about', 'tickets', 'speakers', 'partner', 'faq', 'coc'];
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
@@ -134,6 +134,24 @@ test.describe('Partners', () => {
     expect(positions).not.toBeNull();
     expect(positions!.afterMain).toBe(true);
     expect(positions!.beforeFooter).toBe(true);
+  });
+});
+
+test.describe('FAQ accordion', () => {
+  test('keeps only one item open at a time', async ({ page }) => {
+    await page.goto('/');
+
+    const items = page.locator('.faq__item');
+    const first = items.nth(0);
+    const second = items.nth(1);
+
+    await first.locator('.faq__q').click();
+    await expect(first).toHaveJSProperty('open', true);
+
+    // Opening another question collapses the first (accordion behaviour).
+    await second.locator('.faq__q').click();
+    await expect(second).toHaveJSProperty('open', true);
+    await expect(first).toHaveJSProperty('open', false);
   });
 });
 

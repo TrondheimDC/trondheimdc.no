@@ -1,6 +1,6 @@
 <tdc-section>
 <section class="section section--surface" id="speakers" aria-labelledby="speakers-title">
-  <div class="container stack">
+  <div class="container container--wide stack">
     <header class="section__header">
       <h2 class="section__title text-h1" id="speakers-title">{{ t.speakers.title }}</h2>
     </header>
@@ -22,6 +22,9 @@
                 data-speaker-twitter="{{ speaker.twitter | escape }}"
                 data-speaker-linkedin="{{ speaker.linkedIn | escape }}"
                 data-speaker-blog="{{ speaker.blog | escape }}"
+                {% set talk = sessionize.sessions | sessionById(speaker.sessions[0]) %}
+                data-speaker-talk-title="{{ talk.title | escape }}"
+                data-speaker-talk-description="{{ talk.description | escape }}"
               >
                 {% if speaker.profilePicture %}
                   <img
@@ -34,6 +37,12 @@
                 <span class="speaker-card__name">
                   {{ speaker.firstName }} {{ speaker.lastName }}
                 </span>
+
+                {% if talk %}
+                  <span class="speaker-card__talk">{{ talk.title }}</span>
+                {% endif %}
+
+                <span class="speaker-card__more">{{ t.speakers.details_cta }}</span>
               </button>
             </li>
           {% endfor %}
@@ -44,10 +53,21 @@
             <button type="button" class="speaker-modal__close" data-speaker-close aria-label="Close">✕</button>
           </div>
           <div class="speaker-modal__content">
-            <img class="speaker-modal__avatar" id="speaker-modal-avatar" src="" alt="" />
-            <h3 class="speaker-modal__name" id="speaker-modal-name"></h3>
-            <p class="speaker-modal__tagline" id="speaker-modal-tagline"></p>
+            <div class="speaker-modal__header-info">
+              <img class="speaker-modal__avatar" id="speaker-modal-avatar" src="" alt="" />
+              <div class="speaker-modal__heading">
+                <h3 class="speaker-modal__name" id="speaker-modal-name"></h3>
+                <p class="speaker-modal__tagline" id="speaker-modal-tagline"></p>
+              </div>
+            </div>
+
             <p class="speaker-modal__bio" id="speaker-modal-bio"></p>
+
+            <div class="speaker-modal__talk" id="speaker-modal-talk">
+              <h4 class="speaker-modal__talk-title" id="speaker-modal-talk-title"></h4>
+              <p class="speaker-modal__talk-description" id="speaker-modal-talk-description"></p>
+            </div>
+
             <div class="speaker-modal__socials" id="speaker-modal-socials"></div>
           </div>
         </dialog>

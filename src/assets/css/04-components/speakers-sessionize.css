@@ -5,23 +5,31 @@
 
 .speakers-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-4);
+  /* Mobile-first: 1 column by default, 2 from md, 3 from lg — mirrors
+     .sessions-grid in program-sessionize.css (design.md breakpoint rule:
+     always min-width). */
+  gap: var(--spacing-6);
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin-inline: auto;
 }
 
 @media (min-width: 768px) {
   .speakers-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
   .speakers-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.speaker-item {
+  /* Grid rows stretch items to equal height by default; the card below
+     fills that height so every card in a row matches. */
+  display: flex;
 }
 
 .speaker-card {
@@ -30,6 +38,7 @@
   align-items: center;
   gap: var(--spacing-3);
   width: 100%;
+  height: 100%;
   padding: var(--spacing-4);
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
@@ -39,11 +48,31 @@
   color: inherit;
   cursor: pointer;
   text-align: center;
+  /* Accent colour for the hover border + "Les mer" label: green on dark,
+     red on light — mirrors the "Kjøp billetter" primary CTA (see
+     .btn--primary in button.css) so both use the same brand flip. */
+  --speaker-card-accent: var(--color-fg-brand);
+  /* Lift + grow on hover; global reduced-motion reset (reset.css) neutralises
+     the animation for users who opt out. */
+  transition: transform var(--duration-fast) var(--ease-spring),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+[data-theme="light"] .speaker-card {
+  --speaker-card-accent: var(--color-bg-danger);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .speaker-card {
+    --speaker-card-accent: var(--color-bg-danger);
+  }
 }
 
 .speaker-card:hover,
 .speaker-card:focus-visible {
-  border-color: var(--color-fg-brand);
+  border-color: var(--speaker-card-accent);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: var(--shadow-lg);
 }
 
 .speaker-card__avatar {
@@ -57,9 +86,30 @@
 
 .speaker-card__name {
   margin: 0;
-  font-size: var(--font-size-16);
+  font-size: var(--font-size-30); /* 16px */
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-fg-base);
+}
+
+.speaker-card__talk {
+  margin: 0;
+  font-size: var(--font-size-20); /* 14px */
+  line-height: var(--line-height-snug);
+  color: var(--color-fg-muted);
+}
+
+.speaker-card__more {
+  /* Pinned to the card's bottom edge — the gap above absorbs any leftover
+     row height so "Les mer" lines up across every card in the row, with the
+     card's own padding giving it breathing room from the bottom border. */
+  margin-top: auto;
+  padding-top: var(--spacing-2);
+  font-size: var(--font-size-10); /* 12px */
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--speaker-card-accent);
 }
 
 /* Speaker detail modal */
@@ -74,6 +124,18 @@
   padding: var(--spacing-5);
   background: var(--color-bg-surface);
   color: var(--color-fg-base);
+  /* Accent colour: green on dark, red on light — mirrors .btn--primary
+     (button.css) and .faq (faq.css) so all three share the same brand flip. */
+  --speaker-modal-accent: var(--color-fg-brand);
+}
+
+[data-theme="light"] .speaker-modal {
+  --speaker-modal-accent: var(--color-bg-danger);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .speaker-modal {
+    --speaker-modal-accent: var(--color-bg-danger);
+  }
 }
 
 .speaker-modal::backdrop {
@@ -99,16 +161,24 @@
 .speaker-modal__content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-3);
-  text-align: center;
+  align-items: stretch;
+  gap: var(--spacing-4);
+  text-align: left;
   overflow: auto;
   max-height: calc(100dvh - 6.5rem);
 }
 
+/* Header — avatar + name/tagline, always visible above the bio. */
+.speaker-modal__header-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
 .speaker-modal__avatar {
-  width: 8rem;
-  height: 8rem;
+  flex: none;
+  width: 4.5rem;
+  height: 4.5rem;
   border-radius: 999px;
   object-fit: cover;
   border: 1px solid var(--color-border);
@@ -119,15 +189,26 @@
   display: none;
 }
 
+.speaker-modal__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .speaker-modal__name {
   margin: 0;
-  font-size: var(--font-size-20);
+  font-size: var(--font-size-60); /* 24px — bigger, the modal's focal point */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--speaker-modal-accent);
 }
 
 .speaker-modal__tagline {
   margin: 0;
-  color: var(--color-fg-brand);
-  font-size: var(--font-size-14);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-20); /* 14px */
   font-weight: var(--font-weight-medium);
 }
 
@@ -141,7 +222,24 @@
   white-space: pre-line;
   color: var(--color-fg-muted);
   line-height: var(--line-height-relaxed);
-  text-align: left;
+}
+
+.speaker-modal__talk[hidden] {
+  display: none;
+}
+
+.speaker-modal__talk-title {
+  margin: 0 0 var(--spacing-2);
+  font-size: var(--font-size-40); /* 18px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  color: var(--speaker-modal-accent);
+}
+
+.speaker-modal__talk-description {
+  margin: 0;
+  color: var(--color-fg-muted);
+  line-height: var(--line-height-relaxed);
 }
 
 .speaker-modal__socials {

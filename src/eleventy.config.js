@@ -56,6 +56,11 @@ export default function (eleventyConfig) {
     return rooms.find((room) => room.id === id) ?? null;
   });
 
+  eleventyConfig.addFilter("sessionById", function (sessions, id) {
+    if (!Array.isArray(sessions) || !id) return null;
+    return sessions.find((session) => session.id === id) ?? null;
+  });
+
   // Watch targets
   eleventyConfig.addWatchTarget("assets/css/");
   eleventyConfig.addWatchTarget("assets/js/");

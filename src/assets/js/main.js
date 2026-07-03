@@ -4,6 +4,7 @@ import "./components/tdc-section.js";
 import "./components/tdc-theme-toggle.js";
 import "./components/tdc-program-modal.js";
 import "./components/tdc-speaker-modal.js";
+import "./components/tdc-faq.js";
 // Clickable 8-bit duck mascot + easter eggs (lazy-loads the duck-mate engine).
 import "./components/tdc-duck.js";
 

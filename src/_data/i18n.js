@@ -13,7 +13,6 @@ export default {
     },
     nav: {
       about: "Om TDC",
-      info: "Info",
       cfp: "CFP",
       program: "Program",
       speakers: "Foredragsholdere",
@@ -46,6 +45,7 @@ export default {
     speakers: {
       title: "Foredragsholdere",
       placeholder: "Foredragsholdere annonseres snart!",
+      details_cta: "Les mer",
     },
     program: {
       title: "Program",
@@ -116,9 +116,6 @@ export default {
     coc: {
       title: "Retningslinjer for god oppførsel",
     },
-    info: {
-      title: "Praktisk informasjon",
-    },
     volunteer: {
       title: "Bli frivillig",
     },
@@ -131,7 +128,7 @@ export default {
         },
         {
           q: "Hvordan kommer jeg meg dit?",
-          a: "Reiser du kollektivt, stopper buss 21, 23 og 28 ved Pirbadet, og det er ca. 5 minutters gange fra togstasjonen. Fra Værnes går både tog og flybussen Værnesekspressen inn til sentrum.",
+          a: 'Reiser du kollektivt i Trondheim, stopper buss 21, 23 og 28 ved Pirbadet, og det er ca. 5 minutters gange fra togstasjonen. Reiser du langveisfra til Trondheim lufthavn Værnes, går lokaltoget til Trondheim stasjon omtrent én gang i timen (se <a href="https://www.sj.no">sj.no</a>), eller du kan ta flybussen Værnesekspressen, som stopper i Olav Tryggvasons gate ca. 10 minutters gange fra hotellet (se <a href="https://www.vaernesekspressen.no/">vaernesekspressen.no</a>). Vi oppfordrer alle til å reise miljøvennlig.',
         },
         {
           q: "Hva er inkludert i billetten?",
@@ -173,7 +170,6 @@ export default {
     },
     nav: {
       about: "About TDC",
-      info: "Info",
       cfp: "CFP",
       program: "Agenda",
       speakers: "Speakers",
@@ -206,6 +202,7 @@ export default {
     speakers: {
       title: "Speakers",
       placeholder: "Speakers will be announced soon!",
+      details_cta: "Read more",
     },
     program: {
       title: "Agenda",
@@ -276,9 +273,6 @@ export default {
     coc: {
       title: "Code of Conduct",
     },
-    info: {
-      title: "Practical information",
-    },
     volunteer: {
       title: "Volunteer",
     },
@@ -291,7 +285,7 @@ export default {
         },
         {
           q: "How do I get there?",
-          a: "By public transport, bus 21, 23 and 28 stop at Pirbadet, and it is about a 5-minute walk from the train station. From Trondheim Airport Værnes, both the train and the Værnesekspressen airport bus run into the city centre.",
+          a: 'By public transport in Trondheim, bus 21, 23 and 28 stop at Pirbadet, and it is about a 5-minute walk from the train station. Travelling from Trondheim Airport Værnes, the local train runs to Trondheim station roughly once an hour (see <a href="https://www.sj.no">sj.no</a>), or you can take the Værnesekspressen airport bus, which stops at Olav Tryggvasons gate about a 10-minute walk from the hotel (see <a href="https://www.vaernesekspressen.no/">vaernesekspressen.no</a>). We encourage everyone to travel green.',
         },
         {
           q: "What is included in the ticket?",

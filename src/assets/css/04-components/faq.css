@@ -42,9 +42,12 @@
   color: var(--faq-accent);
 }
 
-.faq__item:focus-within {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+/* Keyboard focus sits on the question row and uses the brand accent (green on
+   dark, red on light) instead of the distracting yellow focus ring. */
+.faq__q:focus-visible {
+  outline: 2px solid var(--faq-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 /* Caret on the left: a small triangle pointing right when closed, rotating
@@ -64,6 +67,8 @@
 .faq__a {
   padding-block-end: var(--spacing-4);
   color: var(--color-fg-muted);
+  /* Clip content while tdc-faq.js animates the row height open/closed. */
+  overflow: hidden;
 }
 .faq__a a {
   color: var(--faq-accent);

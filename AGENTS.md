@@ -107,7 +107,7 @@ The design system is documented in [`docs/design.md`](docs/design.md) (mirrors t
 - **CSS cascade layers**, entry point `assets/css/main.css`:
   `@layer settings, base, primitives, layout, components, utilities;`
 - **Mobile-first**, `min-width` media queries only — never `max-width`.
-- **Font:** IBM Plex Sans (self-hosted woff2 in `assets/fonts/`), mono = Consolas (system). Do **not** load Google Fonts (privacy/GDPR — the site uses Matomo, not Google Analytics).
+- **Fonts** (self-hosted woff2 in `assets/fonts/`, sourced from `@fontsource`): body = **IBM Plex Sans**, headings/display = **Space Grotesk**, mono/UI = **Space Mono** (per `docs/design.md` v7.0, which replaced the earlier Consolas/IBM Plex Mono pairing). Do **not** load Google Fonts (privacy/GDPR — the site uses Matomo, not Google Analytics).
 
 ### ⚠️ Breakpoint caveat
 

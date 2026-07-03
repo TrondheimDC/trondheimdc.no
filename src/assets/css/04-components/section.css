@@ -42,10 +42,16 @@ section[id] {
   margin-block-start: 0;
 }
 
+/* Headings sit closer to the paragraph they introduce than to the text above,
+   so the eye groups each heading with its following content. */
 .prose h3,
 .prose h4,
 .prose h5 {
-  margin-block-start: var(--spacing-7);
+  margin-block-start: var(--spacing-8);
+}
+
+.prose :is(h3, h4, h5) + * {
+  margin-block-start: var(--spacing-2);
 }
 
 .prose ul,
