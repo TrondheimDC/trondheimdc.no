@@ -1,7 +1,7 @@
 # TDC Designsystem – DESIGN.md
 
-> **Versjon:** 6.0 · **Sist oppdatert:** 10. juni 2026
-> **Figma-fil (kilde til sannhet):** https://www.figma.com/design/t28R8eZgLhRhgBWx4ZKRg0/TDC-Designsystem
+> **Versjon:** 7.0 · **Sist oppdatert:** 1. juli 2026
+> **Figma-fil (kilde til sannhet):** https://www.figma.com/design/15Kz3y1TPjCFF3pILffsTN/TDC-Designsystem
 >
 > Dokumentasjonen speiler eksakt det som finnes i Figma-filen.
 > **Alle tokens er definert i Figma først** – DESIGN.md er dokumentasjonen.
@@ -130,10 +130,11 @@ Definert i Figma-collection **TDC primaries**.
 
 ### Primitive: Fonter
 
-| Figma-navn | CSS-variabel | Verdi |
-|---|---|---|
-| Typography/Primitive/FontFamily/sans | --font-family-sans | IBM Plex Sans |
-| Typography/Primitive/FontFamily/mono | --font-family-mono | Consolas |
+| Figma-navn | CSS-variabel | Verdi | Bruk |
+|---|---|---|---|
+| Typography/Primitive/FontFamily/sans | --font-family-sans | IBM Plex Sans | Body, labels, UI |
+| Typography/Primitive/FontFamily/display | --font-family-display | Space Grotesk | Headings, display |
+| Typography/Primitive/FontFamily/mono | --font-family-mono | Space Mono | Mono/UI, code |
 
 ### Primitive: Font-vekter
 
@@ -182,6 +183,8 @@ Definert i Figma-collection **TDC primaries**.
 
 Hver stil består av 6 komponenter: font-family, font-weight, font-size-desktop, font-size-mobile, line-height, letter-spacing.
 
+**Font:** Space Grotesk
+
 | Stil | Desktop | Mobil | Vekt | Linjeavstand |
 |---|---|---|---|---|
 | **Heading/Display** | 64px | 48px | Regular | 1.2 |
@@ -189,6 +192,13 @@ Hver stil består av 6 komponenter: font-family, font-weight, font-size-desktop,
 | **Heading/H2** | 30px | 30px | Regular | 1.35 |
 | **Heading/H3** | 24px | 24px | Bold | 1.35 |
 | **Heading/H4** | 21px | 21px | Bold | 1.5 |
+
+**CSS:**
+```css
+h1, h2, h3, h4, .heading-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+```
 
 ### Semantiske: Body-tekst (Lead, Default, Caption, Label)
 
@@ -204,6 +214,15 @@ Hver stil består av 6 komponenter: font-family, font-weight, font-size-desktop,
 | Stil | Desktop | Mobil | Vekt | Linjeavstand |
 |---|---|---|---|---|
 | **Mono/UI** | 16px | 14px | Regular | 1.5 |
+
+**Font:** Space Mono
+
+**CSS:**
+```css
+.mono, code, pre, .ui-mono {
+  font-family: 'Space Mono', monospace;
+}
+```
 
 ---
 
@@ -344,3 +363,5 @@ Container maks-bredde: **1248px**
 | 10. juni 2026 | 5.2 | Detaljert Grid & Layout + typografi |
 | 10. juni 2026 | 6.0 | **Figma som primær kilde til sannhet.** Alle navn er nå Figma-paths. Fjernet trondheimdc.no-referanser. Lagt til komplette typografi-variabler. |
 | 10. juni 2026 | 6.1 | **Grid-systemet aktivert.** Layout-variabler opprettet i Figma. 12-kolonners responsive grid med CSS custom properties. |
+| 11. juni 2026 | 6.2 | **Typografi spesifisert.** Consolas for headings (H1–H4), fallback IBM Plex Mono. Grid Demo og responsive variant-komponenter opprettet. |
+| 1. juli 2026 | 7.0 | **Typografi redesign.** Headings endret fra Consolas til Space Grotesk. Mono/UI endret til Space Mono. Figma-fil flyttet til TDC-konto. |
