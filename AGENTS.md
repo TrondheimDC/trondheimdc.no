@@ -11,13 +11,12 @@ This repo hosts **two** sites side by side:
 
 | Path  | Stack          | Role                                | Deploys to                          |
 | ----- | -------------- | ----------------------------------- | ----------------------------------- |
-| `old/`| Jekyll (Ruby)  | **Current production**              | site root, via `.github/workflows/cd.yml` (push to `main`) |
-| `src/`| Eleventy 3 + Bun | **New site (active development)** | preview path `/secret_new_duck_site/`, via `.github/workflows/deploy-preview.yml` (manual) |
+| `src/`| Eleventy 3 + Bun | **Current production**            | site root, via `.github/workflows/cd.yml` (push to `main`) |
+| `old/`| Jekyll (Ruby)  | **Retired** (kept for reference)    | no longer built or deployed |
 
-We are **rebuilding `src/` from scratch** as a single-page site and will eventually cut production over from `old/` to `src/`. Until then:
+Production is now the Eleventy site in `src/`, served from the site root. Notes:
 
-- `old/` is the **content source of truth** for migration. Treat it as **read-only**.
-- Do **not** touch the CI workflows' production behaviour without explicit instruction (the old site must keep serving).
+- `old/` is the **legacy Jekyll site**, kept as a content/reference archive. Treat it as **read-only**; it is no longer built or deployed.
 - The default git branch is **`main`** (not `master`) for this repo.
 
 ---
@@ -33,8 +32,8 @@ bun run dev            # eleventy --serve --watch (local dev server)
 bun run build          # eleventy -> outputs to src/_site/
 bun run clean          # rm -rf _site
 
-# preview/staging build with a path prefix (mirrors deploy-preview.yml)
-ELEVENTY_PATH_PREFIX=/secret_new_duck_site/ bun run build
+# optional: build under a subpath for staging (defaults to "/")
+ELEVENTY_PATH_PREFIX=/staging/ bun run build
 ```
 
 E2E tests run from `tests/` using Playwright:

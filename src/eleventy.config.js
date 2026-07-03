@@ -1,8 +1,8 @@
 import { RenderPlugin } from "@11ty/eleventy";
 
 export default function (eleventyConfig) {
-  // Path prefix for preview/staging deploys (e.g. /secret_new_duck_site/)
-  // Set via ELEVENTY_PATH_PREFIX env var, defaults to "/" for normal deploys
+  // Optional path prefix for staging deploys under a subpath.
+  // Set via ELEVENTY_PATH_PREFIX env var; defaults to "/" (production root).
   const pathPrefix = process.env.ELEVENTY_PATH_PREFIX || "/";
 
   // RenderPlugin enables {% renderFile %} so long-form prose can live in

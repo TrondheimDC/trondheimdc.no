@@ -96,10 +96,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    # Gates on the new-site build + e2e — this workflow now deploys the new
-    # Eleventy site to the production root, replacing the old Jekyll site.
-    # The /secret_new_duck_site/ preview subfolder is preserved (see rsync
-    # --exclude below and deploy-preview.yml).
+    # Gates on the new-site build + e2e, then deploys the Eleventy site to the
+    # production root. The --delete below also clears the now-retired
+    # /secret_new_duck_site/ preview folder from the server on the next deploy.
     needs: [build, e2e-new]
     environment:
       name: production
@@ -121,7 +120,6 @@ jobs:
       - name: Deploy to server via rsync
         run: |
           rsync -rlvz --delete \
-            --exclude 'secret_new_duck_site/' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             src/_site/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
