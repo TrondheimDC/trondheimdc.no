@@ -19,7 +19,7 @@ body {
 }
 
 /* ---- Headings (element defaults) ------------------------------- */
-/* Headings render in the display (monospace) family for the retro look. */
+/* Headings render in the display family (Space Grotesk — see design.md). */
 h1,
 .text-h1 {
   font-family: var(--font-family-display);

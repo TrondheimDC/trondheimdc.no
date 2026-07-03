@@ -1,8 +1,8 @@
 import { RenderPlugin } from "@11ty/eleventy";
 
 export default function (eleventyConfig) {
-  // Path prefix for preview/staging deploys (e.g. /secret_new_duck_site/)
-  // Set via ELEVENTY_PATH_PREFIX env var, defaults to "/" for normal deploys
+  // Optional path prefix for staging deploys under a subpath.
+  // Set via ELEVENTY_PATH_PREFIX env var; defaults to "/" (production root).
   const pathPrefix = process.env.ELEVENTY_PATH_PREFIX || "/";
 
   // RenderPlugin enables {% renderFile %} so long-form prose can live in
@@ -54,6 +54,11 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("roomById", function (rooms, id) {
     if (!Array.isArray(rooms) || !id) return null;
     return rooms.find((room) => room.id === id) ?? null;
+  });
+
+  eleventyConfig.addFilter("sessionById", function (sessions, id) {
+    if (!Array.isArray(sessions) || !id) return null;
+    return sessions.find((session) => session.id === id) ?? null;
   });
 
   // Watch targets

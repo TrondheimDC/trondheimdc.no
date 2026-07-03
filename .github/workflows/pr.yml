@@ -1,5 +1,6 @@
-# CI Pipeline - Runs on Pull Requests
-name: CI - Build, Lint, Test
+# CI Pipeline - Runs on Pull Requests.
+# Builds and Playwright-tests the new Eleventy site (src/).
+name: CI - Build, Test
 
 on:
   pull_request:
@@ -12,125 +13,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
+          bun-version: latest
 
       - name: Install dependencies
-        run: |
-          gem install jekyll bundler
-          if [ -f old/Gemfile ]; then cd old && bundle install; fi
+        working-directory: src
+        run: bun install --frozen-lockfile
 
-      - name: Build Jekyll site
-        working-directory: old
-        run: jekyll build
+      - name: Build Eleventy site
+        working-directory: src
+        run: bun run build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: old/_site/
+          path: src/_site/
           retention-days: 1
-
-  lint:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install HTMLHint
-        run: npm install -g htmlhint
-
-      - name: Lint HTML files
-        run: htmlhint "old/_site/**/*.html" --config .htmlhintrc || true
-        continue-on-error: true
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-
-      - name: Install html-proofer
-        run: gem install html-proofer
-
-      - name: Test HTML with html-proofer
-        run: |
-          htmlproofer old/_site \
-            --disable-external \
-            --ignore-urls "/^http:\/\/localhost/,/^http:\/\/127.0.0.1/" \
-            --allow-hash-href \
-            --ignore-empty-alt \
-            --ignore-missing-alt \
-            || true
-        continue-on-error: true
-
-  e2e-old:
-    name: e2e (old site)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        working-directory: old/tests
-        run: npm ci
-
-      - name: Install Playwright browsers
-        working-directory: old/tests
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright tests
-        working-directory: old/tests
-        run: npm run test:ci
-        env:
-          CI: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-old
-          path: old/tests/playwright-report/
-          retention-days: 7
 
   e2e-new:
     name: e2e (new site)
@@ -181,7 +82,7 @@ jobs:
 
   summary:
     runs-on: ubuntu-latest
-    needs: [build, lint, test, e2e-old, e2e-new]
+    needs: [build, e2e-new]
     if: always()
     steps:
       - name: Create job summary
@@ -191,9 +92,6 @@ jobs:
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| 🏗️ Build | ${{ needs.build.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🧪 HTML Test | ${{ needs.test.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🎭 E2E (old site) | ${{ needs.e2e-old.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🦆 E2E (new site) | ${{ needs.e2e-new.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Details" >> $GITHUB_STEP_SUMMARY
@@ -202,7 +100,7 @@ jobs:
           echo "- **Branch:** \`${{ github.head_ref }}\` → \`${{ github.base_ref }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Author:** ${{ github.event.pull_request.user.login }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ needs.e2e-old.result }}" == "success" ] && [ "${{ needs.e2e-new.result }}" == "success" ]; then
+          if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.e2e-new.result }}" == "success" ]; then
             echo "✅ **All checks passed! Ready for review.**" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Some checks failed. Please review the logs.**" >> $GITHUB_STEP_SUMMARY

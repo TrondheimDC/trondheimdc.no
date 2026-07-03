@@ -1,5 +1,7 @@
-# CD Pipeline - Runs on push to main
-name: CD - Build, Lint, Test, Deploy
+# CD Pipeline - Runs on push to main.
+# Builds the new Eleventy site (src/) and deploys it to the production root,
+# replacing the old Jekyll site. Gated on the new-site Playwright e2e tests.
+name: CD - Build, Test, Deploy
 
 on:
   push:
@@ -23,125 +25,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
+          bun-version: latest
 
       - name: Install dependencies
-        run: |
-          gem install jekyll bundler
-          if [ -f old/Gemfile ]; then cd old && bundle install; fi
+        working-directory: src
+        run: bun install --frozen-lockfile
 
-      - name: Build Jekyll site
-        working-directory: old
-        run: jekyll build
+      - name: Build Eleventy site
+        working-directory: src
+        run: bun run build
+        # No ELEVENTY_PATH_PREFIX → pathPrefix defaults to "/", so the site is
+        # served from the production root, replacing the old Jekyll site.
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: old/_site/
+          path: src/_site/
           retention-days: 1
-
-  lint:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install HTMLHint
-        run: npm install -g htmlhint
-
-      - name: Lint HTML files
-        run: htmlhint "old/_site/**/*.html" --config .htmlhintrc || true
-        continue-on-error: true
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-
-      - name: Install html-proofer
-        run: gem install html-proofer
-
-      - name: Test HTML with html-proofer
-        run: |
-          htmlproofer old/_site \
-            --disable-external \
-            --ignore-urls "/^http:\/\/localhost/,/^http:\/\/127.0.0.1/" \
-            --allow-hash-href \
-            --ignore-empty-alt \
-            --ignore-missing-alt \
-            || true
-        continue-on-error: true
-
-  e2e-old:
-    name: e2e (old site)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: old/_site/
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        working-directory: old/tests
-        run: npm ci
-
-      - name: Install Playwright browsers
-        working-directory: old/tests
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright tests
-        working-directory: old/tests
-        run: npm run test:ci
-        env:
-          CI: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-old
-          path: old/tests/playwright-report/
-          retention-days: 7
 
   e2e-new:
     name: e2e (new site)
@@ -192,10 +96,10 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    # Deploy gates on the OLD-site checks only — this workflow deploys the old
-    # site to production, so a new-site test failure must not block it. The new
-    # site is deployed separately via deploy-preview.yml.
-    needs: [build, lint, test, e2e-old]
+    # Gates on the new-site build + e2e, then deploys the Eleventy site to the
+    # production root. The --delete below also clears the now-retired
+    # /secret_new_duck_site/ preview folder from the server on the next deploy.
+    needs: [build, e2e-new]
     environment:
       name: production
       url: https://trondheimdc.no
@@ -204,7 +108,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: old/_site/
+          path: src/_site/
 
       - name: Setup SSH
         run: |
@@ -216,9 +120,8 @@ jobs:
       - name: Deploy to server via rsync
         run: |
           rsync -rlvz --delete \
-            --exclude 'secret_new_duck_site/' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            old/_site/ \
+            src/_site/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Cleanup SSH key
@@ -227,7 +130,7 @@ jobs:
 
   summary:
     runs-on: ubuntu-latest
-    needs: [build, lint, test, e2e-old, e2e-new, deploy]
+    needs: [build, e2e-new, deploy]
     if: always()
     steps:
       - name: Create job summary
@@ -237,9 +140,6 @@ jobs:
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| 🏗️ Build | ${{ needs.build.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🧪 HTML Test | ${{ needs.test.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🎭 E2E (old site) | ${{ needs.e2e-old.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🦆 E2E (new site) | ${{ needs.e2e-new.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🌐 Deploy | ${{ needs.deploy.result == 'success' && '✅ Deployed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

@@ -1,3 +1,6 @@
+// Speaker detail modal — populates the dialog with the clicked speaker's
+// bio and talk info (both always visible), plus their social links.
+
 class TdcSpeakerModal {
   constructor() {
     this.dialog = document.getElementById("speaker-description-modal");
@@ -5,6 +8,9 @@ class TdcSpeakerModal {
     this.nameEl = document.getElementById("speaker-modal-name");
     this.taglineEl = document.getElementById("speaker-modal-tagline");
     this.bioEl = document.getElementById("speaker-modal-bio");
+    this.talkEl = document.getElementById("speaker-modal-talk");
+    this.talkTitleEl = document.getElementById("speaker-modal-talk-title");
+    this.talkDescriptionEl = document.getElementById("speaker-modal-talk-description");
     this.socialsEl = document.getElementById("speaker-modal-socials");
 
     if (
@@ -13,6 +19,9 @@ class TdcSpeakerModal {
       !this.nameEl ||
       !this.taglineEl ||
       !this.bioEl ||
+      !this.talkEl ||
+      !this.talkTitleEl ||
+      !this.talkDescriptionEl ||
       !this.socialsEl
     )
       return;
@@ -52,12 +61,17 @@ class TdcSpeakerModal {
     const twitter = button.getAttribute("data-speaker-twitter") || "";
     const linkedIn = button.getAttribute("data-speaker-linkedin") || "";
     const blog = button.getAttribute("data-speaker-blog") || "";
+    const talkTitle = button.getAttribute("data-speaker-talk-title") || "";
+    const talkDescription = button.getAttribute("data-speaker-talk-description") || "";
 
     this.nameEl.textContent = name;
     this.avatarEl.src = image;
     this.avatarEl.alt = name;
     this.taglineEl.textContent = tagline;
     this.bioEl.textContent = bio;
+    this.talkTitleEl.textContent = talkTitle;
+    this.talkDescriptionEl.textContent = talkDescription;
+    this.talkEl.hidden = !talkTitle && !talkDescription;
     this.socialsEl.replaceChildren(...this.buildSocialLinks(twitter, linkedIn, blog));
 
     if (typeof this.dialog.showModal === "function") {

@@ -11,6 +11,8 @@
 
 .partner-wall__title {
   color: var(--color-fg-base);
+  /* Extra breathing room between the heading and the logo grid. */
+  margin-block-end: var(--spacing-6);
 }
 
 .partner-wall__grid {
@@ -41,14 +43,14 @@
   }
 }
 
+/* No box/chip around logos — they sit directly on the section surface and are
+   recoloured to the theme foreground via --partner-logo-filter (see below). */
 .partner-wall__item {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-4);
   min-block-size: 88px;
-  background-color: var(--partner-chip-bg);
-  border-radius: var(--radius-md);
 }
 
 .partner-wall__link {

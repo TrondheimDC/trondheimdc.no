@@ -31,11 +31,27 @@
 }
 
 .btn--primary {
-  background-color: var(--color-fg-brand);
+  /* Brand-coloured CTA: green on dark, red on light — mirrors the wordmark's
+     green→red theme strategy (see wordmark.css / themes.css). */
+  --btn-primary-bg: var(--color-fg-brand);
+  --btn-primary-bg-hover: var(--color-bg-success);
+  background-color: var(--btn-primary-bg);
   color: var(--color-fg-always-dark);
 }
 .btn--primary:hover {
-  background-color: var(--color-bg-success);
+  background-color: var(--btn-primary-bg-hover);
+}
+
+/* Light theme → red CTA (explicit choice + OS preference, matching themes.css). */
+[data-theme="light"] .btn--primary {
+  --btn-primary-bg: var(--color-bg-danger);
+  --btn-primary-bg-hover: color-mix(in srgb, var(--color-bg-danger) 85%, var(--color-black));
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .btn--primary {
+    --btn-primary-bg: var(--color-bg-danger);
+    --btn-primary-bg-hover: color-mix(in srgb, var(--color-bg-danger) 85%, var(--color-black));
+  }
 }
 
 .btn--dark {
@@ -61,7 +77,7 @@
 }
 
 .btn--lg {
-  padding: var(--spacing-4) var(--spacing-7);
+  padding: var(--spacing-4) var(--spacing-8);
   font-size: var(--font-size-40);
 }
 
