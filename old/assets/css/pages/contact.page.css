@@ -1,7 +1,0 @@
-:root {
-    --contact-page-background-color: var(--color-red0);
-}
-
-.contact-page {
-    background-color: var(--contact-page-background-color);
-}
