@@ -425,7 +425,11 @@ export class TdcDuck extends HTMLElement {
     if (this.isDragging) {
       this.isDragging = false;
       this.duck.classList.remove('is-dragging');
-      // Keep position where dropped
+      // Return duck to its in-flow position so it doesn't follow scrolling.
+      this.style.position = '';
+      this.style.left = '';
+      this.style.top = '';
+      this.style.zIndex = '';
       this.style.pointerEvents = '';
     }
     this._potentialDrag = false;
