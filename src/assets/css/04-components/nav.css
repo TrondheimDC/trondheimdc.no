@@ -186,3 +186,14 @@
     white-space: nowrap;
   }
 }
+
+/* Light theme: toggle bars match the red wordmark colour. */
+[data-theme="light"] .site-nav__toggle-bar {
+  background-color: var(--color-red-2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .site-nav__toggle-bar {
+    background-color: var(--color-red-2);
+  }
+}
