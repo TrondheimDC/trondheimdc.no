@@ -6,7 +6,7 @@
     </header>
 
     {# Custom speaker wall using Sessionize API data #}
-    <div class="speakers-wall">
+    <div class="speakers-wall" data-sessionize-event-id="{{ site.sessionizeEventId }}">
       {% if sessionize.speakers and sessionize.speakers.length > 0 %}
         <ul class="speakers-grid" role="list">
           {% for speaker in sessionize.speakers %}

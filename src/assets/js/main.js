@@ -7,6 +7,8 @@ import "./components/tdc-speaker-modal.js";
 import "./components/tdc-faq.js";
 // Clickable 8-bit duck mascot + easter eggs (lazy-loads the duck-mate engine).
 import "./components/tdc-duck.js";
+// Re-fetches Sessionize client-side so newly added speakers show up without a rebuild.
+import "./components/tdc-speakers-refresh.js";
 
 // Shuffle partner logos on load so no single partner is always first.
 document.addEventListener("DOMContentLoaded", () => {
