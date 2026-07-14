@@ -12,7 +12,7 @@
 // Shares its HTML-parsing logic with _data/sessionize.js (the build-time
 // fetch) via sessionize-client.js so both stay in sync.
 
-import { fetchHtml, parseSessions, parseSpeakers } from "../sessionize-client.js";
+import { fetchHtml, parseSessions, parseSpeakers, sortSpeakers } from "../sessionize-client.js";
 
 function buildSpeakerCard(speaker, sessions, detailsLabel) {
   const li = document.createElement("li");
@@ -66,6 +66,14 @@ function buildSpeakerCard(speaker, sessions, detailsLabel) {
   return li;
 }
 
+function readTopSpeakerIds(wall) {
+  try {
+    return JSON.parse(wall.getAttribute("data-top-speaker-ids") || "[]");
+  } catch {
+    return [];
+  }
+}
+
 async function refreshSpeakers() {
   const wall = document.querySelector(".speakers-wall[data-sessionize-event-id]");
   const grid = wall?.querySelector(".speakers-grid");
@@ -73,6 +81,10 @@ async function refreshSpeakers() {
 
   const eventId = wall.getAttribute("data-sessionize-event-id");
   if (!eventId) return;
+
+  // Baked in at build time from Sessionize's private API — the browser never
+  // calls that API directly (see _data/sessionize.js for why).
+  const topSpeakerIds = readTopSpeakerIds(wall);
 
   const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?under=True`;
   const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
@@ -84,7 +96,7 @@ async function refreshSpeakers() {
     ]);
 
     const sessions = parseSessions(sessionsHtml);
-    const speakers = parseSpeakers(speakersHtml);
+    const speakers = sortSpeakers(parseSpeakers(speakersHtml), topSpeakerIds);
 
     // Nothing usable came back — keep showing the statically-built list.
     if (speakers.length === 0) return;

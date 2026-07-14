@@ -61,6 +61,11 @@ export default function (eleventyConfig) {
     return sessions.find((session) => session.id === id) ?? null;
   });
 
+  // Serialize a value to JSON, e.g. for embedding in a data-* attribute.
+  eleventyConfig.addFilter("json", function (value) {
+    return JSON.stringify(value ?? null);
+  });
+
   // Watch targets
   eleventyConfig.addWatchTarget("assets/css/");
   eleventyConfig.addWatchTarget("assets/js/");
