@@ -128,6 +128,23 @@ export function parseSpeakers(html) {
   return speakers;
 }
 
+/**
+ * Returns a new array with Top Speakers moved to the front, each speaker
+ * gaining an `isTopSpeaker` boolean. `topSpeakerIds` is the set of Sessionize
+ * speaker IDs flagged "Top Speaker" in Sessionize (see _data/sessionize.js —
+ * that flag only comes from Sessionize's private "All Data" API, not the
+ * public embed HTML parsed above). Everyone else keeps their existing
+ * relative order (Sessionize already returns speakers sorted alphabetically
+ * by first name), since Array.prototype.sort is stable.
+ */
+export function sortSpeakers(speakers, topSpeakerIds = []) {
+  const topIds = topSpeakerIds instanceof Set ? topSpeakerIds : new Set(topSpeakerIds);
+
+  return speakers
+    .map((speaker) => ({ ...speaker, isTopSpeaker: topIds.has(speaker.id) }))
+    .sort((a, b) => Number(b.isTopSpeaker) - Number(a.isTopSpeaker));
+}
+
 export function buildRooms(sessions) {
   const rooms = new Map();
   for (const session of sessions) {

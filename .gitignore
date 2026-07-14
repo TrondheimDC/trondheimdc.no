@@ -286,6 +286,11 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+# Local env vars / secrets (e.g. SESSIONIZE_API_URL) — never commit these.
+.env
+.env.*
+!.env.example
+
 # Playwright test artifacts
 playwright-report/
 test-results/

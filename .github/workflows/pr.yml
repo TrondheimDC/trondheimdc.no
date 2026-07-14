@@ -25,6 +25,8 @@ jobs:
       - name: Build Eleventy site
         working-directory: src
         run: bun run build
+        env:
+          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -52,6 +54,8 @@ jobs:
       - name: Build Eleventy site
         working-directory: src
         run: bun run build
+        env:
+          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
