@@ -12,7 +12,7 @@
 
 Fill in your contact information via the form below to register your interest:
 
-[Volunteer registration form](https://forms.gle/Eh1dA9AvEejJDAry8)
+<a href="https://forms.gle/Eh1dA9AvEejJDAry8" target="_blank" rel="noopener noreferrer">Volunteer registration form</a>
 
 We will start putting together the volunteer group in the autumn, and you will hear more from us then.
 

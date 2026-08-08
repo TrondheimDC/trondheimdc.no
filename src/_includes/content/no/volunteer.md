@@ -12,7 +12,7 @@
 
 Fyll ut kontaktinformasjonen din via skjemaet under for å registrere interessen din:
 
-[Registreringsskjema for frivillige](https://forms.gle/Eh1dA9AvEejJDAry8)
+<a href="https://forms.gle/Eh1dA9AvEejJDAry8" target="_blank" rel="noopener noreferrer">Registreringsskjema for frivillige</a>
 
 Vi starter arbeidet med å sette sammen frivilliggruppen til høsten, og du vil høre nærmere fra oss da.
 
