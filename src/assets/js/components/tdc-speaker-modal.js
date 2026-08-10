@@ -64,11 +64,12 @@ class TdcSpeakerModal {
     const talkTitle = button.getAttribute("data-speaker-talk-title") || "";
     const talkDescription = button.getAttribute("data-speaker-talk-description") || "";
 
-    // Record every profile open as a named event so Matomo can show which
+    // Record every profile click as a named event so Matomo can show which
     // speakers get the most interest. The queue also works before Matomo's
-    // script has finished loading.
+    // script has finished loading. The Sessionize ID remains in the markup
+    // for stable client-side identification if a speaker's display name changes.
     const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Speakers", "Open profile", name]);
+    tracker.push(["trackEvent", "Speakers", "Click", name, 1]);
 
     this.nameEl.textContent = name;
     this.avatarEl.src = image;

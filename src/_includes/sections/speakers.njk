@@ -19,6 +19,7 @@
                 type="button"
                 class="speaker-card"
                 data-speaker-open
+                data-speaker-id="{{ speaker.id | escape }}"
                 data-speaker-name="{{ (speaker.firstName + ' ' + speaker.lastName) | escape }}"
                 data-speaker-image="{{ speaker.profilePicture | escape }}"
                 data-speaker-tagline="{{ speaker.tagLine | escape }}"

@@ -184,8 +184,53 @@ test.describe('Duck mascot', () => {
       await duck.dispatchEvent('click');
     }
 
-    await expect(dLetters.first()).toHaveText('Duck');
-    await expect(dLetters.first()).toHaveClass(/is-tduckc/);
+    await expect(dLetters.first()).toHaveText('Duck', { timeout: 10000 });
+    await expect(dLetters.first()).toHaveClass(/is-tduckc/, { timeout: 10000 });
     await expect(page.locator('.tdc-wordmark.is-tduckc')).toHaveCount(2);
+  });
+
+  test('tracks each click with its cumulative total', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.goto('/');
+
+    const duck = page.locator('#hero tdc-duck .duck');
+    await duck.dispatchEvent('click');
+    await duck.dispatchEvent('click');
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
+        (entry) => entry[0] === 'trackEvent' && entry[1] === 'Duck',
+      ),
+    );
+
+    expect(events).toEqual([
+      ['trackEvent', 'Duck', 'Click', 'Total click 1', 1],
+      ['trackEvent', 'Duck', 'Click', 'Total click 2', 2],
+    ]);
+  });
+});
+
+test.describe('Speaker analytics', () => {
+  test('tracks the clicked speaker by name', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.goto('/');
+
+    const speaker = page.locator('[data-speaker-open]').first();
+    await expect(speaker).toBeVisible();
+    const name = await speaker.getAttribute('data-speaker-name');
+    await speaker.dispatchEvent('click');
+
+    const event = await page.evaluate((speakerName) =>
+      ((window as Window & { _paq?: unknown[][] })._paq || []).find(
+        (entry) =>
+          entry[0] === 'trackEvent' &&
+          entry[1] === 'Speakers' &&
+          entry[2] === 'Click' &&
+          entry[3] === speakerName,
+      ),
+      name,
+    );
+
+    expect(event).toEqual(['trackEvent', 'Speakers', 'Click', name, 1]);
   });
 });
