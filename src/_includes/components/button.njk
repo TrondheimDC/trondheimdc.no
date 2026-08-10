@@ -1,7 +1,8 @@
 {# Button macro — one macro, many variants #}
-{% macro button(text, href, variant="primary", size="md", icon=null, external=false) %}
+{% macro button(text, href, variant="primary", size="md", icon=null, external=false, tracking=null) %}
 <a href="{{ href }}"
    class="btn btn--{{ variant }} btn--{{ size }}"
+  {% if tracking %}data-analytics-event="{{ tracking }}"{% endif %}
    {% if external %}target="_blank" rel="noopener noreferrer"{% endif %}>
   {% if icon %}<span class="btn__icon" aria-hidden="true">{{ icon }}</span>{% endif %}
   {{ text }}

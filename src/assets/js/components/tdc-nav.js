@@ -6,6 +6,8 @@
  * - URL hash sync
  */
 class TdcNav extends HTMLElement {
+  #activeSection = location.hash.slice(1) || "hero";
+
   connectedCallback() {
     this.toggle = this.querySelector(".site-nav__toggle");
     this.nav = this.querySelector(".site-nav");
@@ -71,6 +73,7 @@ class TdcNav extends HTMLElement {
             if (location.hash !== `#${id}`) {
               history.replaceState(null, "", `#${id}`);
             }
+            this.#trackSectionView(entry.target);
           }
         });
       },
@@ -81,6 +84,21 @@ class TdcNav extends HTMLElement {
     );
 
     sections.forEach((section) => observer.observe(section));
+  }
+
+  #trackSectionView(section) {
+    const id = section.id;
+    if (this.#activeSection === id) return;
+    this.#activeSection = id;
+
+    // Hash changes made with replaceState do not create a Matomo page view by
+    // themselves. Record each section as a virtual page so scrolling through
+    // the single-page site is visible in the page reports.
+    const tracker = window._paq = window._paq || [];
+    const heading = section.querySelector("h1, h2, h3")?.textContent?.trim();
+    tracker.push(["setCustomUrl", window.location.href]);
+    tracker.push(["setDocumentTitle", heading ? `${document.title} — ${heading}` : document.title]);
+    tracker.push(["trackPageView"]);
   }
 
   #setActive(sectionId) {

@@ -19,4 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(children[j]);
     }
   });
+
+  document.addEventListener("click", (event) => {
+    const ticketLink = event.target.closest('[data-analytics-event="ticket-click"]');
+    if (!ticketLink) return;
+
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Tickets", "Click purchase button", ticketLink.textContent.trim()]);
+  });
 });
