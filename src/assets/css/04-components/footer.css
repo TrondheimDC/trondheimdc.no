@@ -1,6 +1,5 @@
 /* Site footer (partials/footer.njk). */
 .site-footer {
-  margin-block-start: var(--spacing-12);
   padding-block: var(--spacing-10);
   background-color: var(--color-bg-surface);
 }
