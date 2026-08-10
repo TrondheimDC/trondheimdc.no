@@ -39,6 +39,24 @@
   background-image: var(--wordmark-c);
 }
 
+/* Fifteen duck clicks turn the long D into the yellow word "Duck". */
+.tdc-wordmark.is-tduckc {
+  --wordmark-t: url("../../images/logos/letters/T-green.svg");
+  --wordmark-c: url("../../images/logos/letters/C-green.svg");
+}
+
+.tdc-wordmark__letter--d.is-tduckc {
+  aspect-ratio: auto;
+  background-image: none;
+  color: var(--color-fg-accent);
+  font-family: var(--font-family-display);
+  font-size: calc(var(--wordmark-size) * 0.92);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.08em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 /* Light theme → red letters. Mirrors the two-pronged theme strategy in
    00-settings/themes.css (explicit choice + OS preference). */
 [data-theme="light"] .tdc-wordmark {
@@ -53,4 +71,20 @@
     --wordmark-d: url("../../images/logos/letters/D-red-long.svg");
     --wordmark-c: url("../../images/logos/letters/C-red.svg");
   }
+}
+
+/* TDuckC always keeps T and C green, regardless of the active theme. */
+.tdc-wordmark.is-tduckc {
+  --wordmark-t: url("../../images/logos/letters/T-green.svg");
+  --wordmark-c: url("../../images/logos/letters/C-green.svg");
+}
+
+/* The transformed brand is still a home link, but should not look like a
+   newly inserted text link while the Easter egg is active. */
+.site-nav__brand.is-tduckc,
+.site-nav__brand.is-tduckc:hover,
+.site-nav__brand.is-tduckc:focus-visible {
+  color: inherit;
+  cursor: default;
+  text-decoration: none;
 }

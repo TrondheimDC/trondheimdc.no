@@ -172,4 +172,20 @@ test.describe('Duck mascot', () => {
     // load after the user triggers party mode, never on initial page load.
     expect(duckMateRequests).toEqual([]);
   });
+
+  test('changes the D to yellow Duck after fifteen clicks', async ({ page }) => {
+    await page.goto('/');
+
+    const duck = page.locator('#hero tdc-duck .duck');
+    const dLetters = page.locator('.tdc-wordmark__letter--d');
+
+    await expect(dLetters.first()).toHaveText('');
+    for (let click = 0; click < 15; click++) {
+      await duck.dispatchEvent('click');
+    }
+
+    await expect(dLetters.first()).toHaveText('Duck');
+    await expect(dLetters.first()).toHaveClass(/is-tduckc/);
+    await expect(page.locator('.tdc-wordmark.is-tduckc')).toHaveCount(2);
+  });
 });

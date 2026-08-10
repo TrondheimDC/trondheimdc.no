@@ -57,7 +57,7 @@ function getPathPrefix() {
 }
 
 /** Total clicks needed to trigger the TDuckC logo swap */
-const TDUCKC_THRESHOLD = 10;
+const TDUCKC_THRESHOLD = 15;
 
 /** Lazy-load duck-mate engine (script + CSS) once, then return initDuckMate */
 let _duckMateReady = null;
@@ -272,17 +272,15 @@ export class TdcDuck extends HTMLElement {
 
   /**
    * 🦆 TDuckC Easter egg!
-   * The duck walks up to the logo, a cartoon poof cloud appears,
-   * and the logo transforms into TDuckC.
+   * The duck flies up to the navigation logo, a cartoon construction cloud
+   * appears, and the logo transforms into TDuckC.
    */
   activateTduckc() {
     if (this.isTduckc) return;
     this.isTduckc = true;
 
-    const heroLogo = document.getElementById('hero-logo');
-    if (!heroLogo) return;
-
-    const originalHeight = heroLogo.getBoundingClientRect().height;
+    const logo = document.querySelector('.site-nav__brand .tdc-wordmark')
+      || document.querySelector('.tdc-wordmark');
     const lang = document.documentElement.lang || 'no';
 
     // 1) Show determination message
@@ -291,66 +289,65 @@ export class TdcDuck extends HTMLElement {
       : '🦆 Eg har ein idé...';
     this.bubble.classList.add('is-visible');
 
-    // 2) Walk toward the logo
+    if (!logo) return;
+
+    // 2) Fly upward toward the navigation logo.
     const duckRect = this.getBoundingClientRect();
-    const logoRect = heroLogo.getBoundingClientRect();
+    const logoRect = logo.getBoundingClientRect();
     const targetX = logoRect.left + logoRect.width / 2 - duckRect.width / 2;
     const targetY = logoRect.top + logoRect.height / 2 - duckRect.height / 2;
     const deltaX = targetX - duckRect.left;
     const deltaY = targetY - duckRect.top;
 
     this.duck.style.animation = 'none';
-    this.style.transition = 'transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    this.style.transition = 'transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
     this.style.zIndex = '100';
-    this.classList.add('duck--walking');
+    this.classList.add('duck--flying');
 
     requestAnimationFrame(() => {
-      this.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.6)`;
+      this.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.55) rotate(-8deg)`;
     });
 
-    // 3) After walk, show cloud poof and swap logo
+    // 3) After flight, show a cartoon construction cloud.
     setTimeout(() => {
       this.bubble.classList.remove('is-visible');
-      this.classList.remove('duck--walking');
+      this.classList.remove('duck--flying');
 
-      // Create cartoon working cloud
       const cloud = document.createElement('div');
       cloud.className = 'tduckc-cloud';
       cloud.innerHTML = `
-        <div class="tduckc-cloud__poof">💭</div>
-        <div class="tduckc-cloud__text">${lang === 'en' ? '🔧 Working... 🔧' : '🔧 Jobber... 🔧'}</div>
-        <div class="tduckc-cloud__stars">✨🐥🌟☁️✨</div>
+        <span class="tduckc-cloud__puff tduckc-cloud__puff--one"></span>
+        <span class="tduckc-cloud__puff tduckc-cloud__puff--two"></span>
+        <span class="tduckc-cloud__puff tduckc-cloud__puff--three"></span>
+        <div class="tduckc-cloud__text">🔨 ${lang === 'en' ? 'Building...' : 'Bygger...'} 🔨</div>
+        <div class="tduckc-cloud__tools">🔧 ✨ 🪚</div>
       `;
-      heroLogo.parentElement.insertBefore(cloud, heroLogo);
+      const logoHolder = logo.closest('.site-nav__brand') || logo.parentElement;
+      logoHolder.classList.add('is-tduckc-building');
+      logoHolder.appendChild(cloud);
       this.style.opacity = '0';
-      this.style.transition = 'opacity 0.3s ease';
       requestAnimationFrame(() => cloud.classList.add('is-active'));
 
-      // 4) Swap logo
+      // 4) Complete the build and reveal the new wordmarks.
       setTimeout(() => {
-        const newLogo = document.createElement('img');
-        newLogo.src = `${getPathPrefix()}/assets/images/logos/TDuckC_yellow.svg`;
-        newLogo.alt = 'TDuckC 2026 logo';
-        newLogo.className = heroLogo.className;
-        newLogo.classList.add('hero__logo--tduckc');
-        newLogo.id = 'hero-logo-tduckc';
-        newLogo.style.height = `${originalHeight}px`;
-        newLogo.style.width = 'auto';
-        newLogo.style.opacity = '0';
-        newLogo.style.transform = 'scale(0.8)';
-        newLogo.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        heroLogo.replaceWith(newLogo);
+        document.querySelectorAll('.tdc-wordmark').forEach((wordmark) => {
+          wordmark.classList.add('is-tduckc');
+          const d = wordmark.querySelector('.tdc-wordmark__letter--d');
+          if (!d) return;
+          d.textContent = 'Duck';
+          d.classList.add('is-tduckc');
+        });
+        document.querySelectorAll('.site-nav__brand').forEach((brand) => {
+          brand.classList.add('is-tduckc');
+        });
 
         cloud.classList.add('is-fading');
-        requestAnimationFrame(() => {
-          newLogo.style.opacity = '1';
-          newLogo.style.transform = 'scale(1)';
-        });
         this.spawnConfetti(25);
 
-        // Move duck back
+        // Fly the duck back to its original position.
         setTimeout(() => {
           cloud.remove();
+          logoHolder.classList.remove('is-tduckc-building');
           this.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease';
           this.style.transform = '';
           this.style.opacity = '1';
@@ -366,8 +363,8 @@ export class TdcDuck extends HTMLElement {
 
         document.title = document.title.replace('TDC', 'TDuckC');
         setTimeout(() => { this.bubble.classList.remove('is-visible'); }, 4000);
-      }, 1800);
-    }, 1600);
+      }, 1400);
+    }, 1400);
   }
 
   spawnConfetti(count) {
