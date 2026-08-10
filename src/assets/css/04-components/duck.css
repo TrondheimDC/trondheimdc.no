@@ -183,26 +183,31 @@
   text-shadow: 0 0 12px rgba(255, 204, 0, 0.6);
 }
 
-/* Duck walking animation (waddle) */
-.duck--walking .duck {
-  animation: duck-waddle 0.3s ease-in-out infinite alternate !important;
+/* Duck flight animation (waddle in the air) */
+.duck--flying .duck {
+  animation: duck-fly 0.24s ease-in-out infinite alternate !important;
 }
 
-@keyframes duck-waddle {
-  0%   { transform: rotate(-8deg) translateY(0); }
-  100% { transform: rotate(8deg) translateY(-4px); }
+@keyframes duck-fly {
+  0%   { transform: rotate(-10deg) translateY(0); }
+  100% { transform: rotate(10deg) translateY(-5px); }
 }
 
-/* ---- Cartoon cloud / poof ---- */
+/* ---- Cartoon construction cloud ---- */
+.site-nav__brand {
+  position: relative;
+}
+
 .tduckc-cloud {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: clamp(180px, 40vw, 320px);
-  height: clamp(120px, 25vw, 220px);
-  background: radial-gradient(ellipse at center, #fff 0%, #f0f0f0 50%, #e8e8e8 80%, transparent 100%);
-  border-radius: 50%;
+  width: 190px;
+  height: 96px;
+  transform: translate(-50%, -50%) scale(0) rotate(-4deg);
+  background: var(--color-white-1);
+  border: 3px solid var(--color-black-2);
+  border-radius: 48% 52% 45% 55%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -210,25 +215,25 @@
   z-index: 50;
   pointer-events: none;
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  filter: drop-shadow(0 4px 0 var(--color-black-2));
 }
 
 .tduckc-cloud.is-active {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(1) rotate(-4deg);
   opacity: 1;
 }
 
 .tduckc-cloud.is-fading {
-  transform: translate(-50%, -50%) scale(1.3);
+  transform: translate(-50%, -50%) scale(1.25) rotate(4deg);
   opacity: 0;
   transition: transform 0.6s ease, opacity 0.4s ease;
 }
 
 .tduckc-cloud__text {
-  font-size: clamp(1rem, 3vw, 1.5rem);
-  font-weight: 800;
-  color: #333;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
   z-index: 1;
   animation: cloud-text-shake 0.15s ease-in-out infinite alternate;
 }
@@ -238,23 +243,35 @@
   100% { transform: translate(1px, -1px) rotate(1deg); }
 }
 
-.tduckc-cloud__poof {
+.tduckc-cloud__tools {
+  color: var(--color-fg-accent);
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  z-index: 1;
+}
+
+.tduckc-cloud__puff {
   position: absolute;
-  font-size: 2rem;
+  display: block;
+  width: 34px;
+  height: 34px;
+  background: var(--color-white-1);
+  border: 3px solid var(--color-black-2);
+  border-radius: 50%;
   animation: poof-float 0.8s ease-in-out infinite alternate;
 }
-.tduckc-cloud__poof:first-child {
-  top: 10%;
-  left: 15%;
+.tduckc-cloud__puff--one {
+  top: -18px;
+  left: 22px;
 }
-.tduckc-cloud__poof--2 {
-  top: 15%;
-  right: 18%;
+.tduckc-cloud__puff--two {
+  top: -10px;
+  right: 28px;
   animation-delay: 0.2s;
 }
-.tduckc-cloud__poof--3 {
-  bottom: 18%;
-  left: 25%;
+.tduckc-cloud__puff--three {
+  bottom: -13px;
+  left: 48px;
   animation-delay: 0.4s;
 }
 
