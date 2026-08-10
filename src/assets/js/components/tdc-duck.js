@@ -152,6 +152,7 @@ export class TdcDuck extends HTMLElement {
     this.duck.addEventListener('click', (e) => {
       e.stopPropagation();
       this.quack();
+      this.trackDuckClick();
       this.trackClicks();
     });
 
@@ -167,6 +168,7 @@ export class TdcDuck extends HTMLElement {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.quack();
+        this.trackDuckClick();
         this.trackClicks();
       }
     });
@@ -222,6 +224,11 @@ export class TdcDuck extends HTMLElement {
     setTimeout(() => {
       this.duck.classList.remove('is-spinning');
     }, 800);
+  }
+
+  trackDuckClick() {
+    const tracker = window._paq = window._paq || [];
+    tracker.push(['trackEvent', 'Duck', 'Click', `Total click ${this.totalClicks}`, this.totalClicks]);
   }
 
   trackClicks() {
