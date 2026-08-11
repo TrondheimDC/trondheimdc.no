@@ -5,6 +5,40 @@
   display: block;
 }
 
+/* Sessionize's desktop grid is wider than narrow viewports. Keep that
+   overflow inside the schedule instead of expanding the whole document. */
+.program-embed {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Use Sessionize's compact, single-column presentation at every viewport
+   width. The desktop grid creates a page-level horizontal scrollbar and the
+   room headers add little value when sessions are stacked. */
+.program-embed .sz-cssgrid {
+  display: block !important;
+}
+
+.program-embed .sz-cssgrid__track-label {
+  display: none !important;
+}
+
+/* Keep the room name shown inside each stacked session card. */
+.program-embed .sz-session__room {
+  display: inline-block !important;
+  visibility: visible !important;
+}
+
+.program-embed .sz-cssgrid__time-separator {
+  display: block !important;
+  width: 100% !important;
+}
+
+.program-embed .sz-session {
+  width: auto !important;
+  margin-block-end: var(--spacing-4);
+}
+
 .sessions-grid {
   display: grid;
   gap: var(--spacing-4);
