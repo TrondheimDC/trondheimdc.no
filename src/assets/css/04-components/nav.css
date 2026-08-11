@@ -9,7 +9,8 @@
 .site-nav {
   position: sticky;
   inset-block-start: 0;
-  z-index: 100;
+  z-index: 1000;
+  isolation: isolate;
   background-color: color-mix(in srgb, var(--color-bg-base) 82%, transparent);
   backdrop-filter: blur(8px);
   border-block-end: 1px solid transparent;

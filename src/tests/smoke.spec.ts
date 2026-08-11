@@ -10,12 +10,12 @@ import { test, expect } from '@playwright/test';
  * that the parked easter eggs never load.
  */
 
-// Sections rendered on the single-page layout (home.njk). "program" and "cfp"
-// are intentionally not listed: the agenda isn't published yet and the CFP is
-// closed, so both includes are commented out in home.njk.
+// Sections rendered on the single-page layout (home.njk). The program embed is
+// placed immediately before the speaker area.
 const SECTION_IDS = [
   'about',
   'tickets',
+  'program',
   'speakers',
   'partner',
   'faq',
@@ -23,7 +23,7 @@ const SECTION_IDS = [
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'speakers', 'partner', 'faq', 'coc'];
+const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'partner', 'faq', 'coc'];
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
@@ -36,6 +36,23 @@ test.describe('Pages load', () => {
       await page.goto(path);
       await expect(page).toHaveTitle(/TDC/);
     });
+
+    test(`${path} uses the Sessionize GridSmart embed`, async ({ page }) => {
+      await page.goto(path);
+      await expect(
+        page.locator('#program script[src="https://sessionize.com/api/v2/xx320rm2/view/GridSmart"]'),
+      ).toHaveCount(1);
+    });
+
+    test(`${path} places the program directly before speakers`, async ({ page }) => {
+      await page.goto(path);
+      const order = await page.locator('main > tdc-section > section').evaluateAll((sections) =>
+        sections.map((section) => section.id),
+      );
+
+      expect(order.indexOf('program')).toBe(order.indexOf('speakers') - 1);
+    });
+
   }
 });
 

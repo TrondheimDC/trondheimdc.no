@@ -1,4 +1,6 @@
-/* Sessionize-driven program layout */
+/* Sessionize owns the embedded schedule layout. Keep this file for the
+   legacy program component styles below; do not override the embed's grid. */
+
 .program-schedule {
   display: block;
 }
