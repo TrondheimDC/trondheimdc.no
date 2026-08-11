@@ -233,4 +233,14 @@ test.describe('Speaker analytics', () => {
 
     expect(event).toEqual(['trackEvent', 'Speakers', 'Click', name, 1]);
   });
+
+  test('locks page scroll while the speaker modal is open', async ({ page }) => {
+    await page.goto('/');
+
+    await page.locator('[data-speaker-open]').first().click();
+    await expect(page.locator('body')).toHaveClass(/modal-open/);
+
+    await page.locator('[data-speaker-close]').click();
+    await expect(page.locator('body')).not.toHaveClass(/modal-open/);
+  });
 });

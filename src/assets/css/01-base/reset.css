@@ -30,6 +30,11 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Keep background content stationary while a dialog owns the scroll. */
+body.modal-open {
+  overflow: hidden;
+}
+
 /* Media defaults */
 img,
 picture,
