@@ -129,6 +129,18 @@ export class TdcDuck extends HTMLElement {
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
 
+    // Closing the Duck Mate flock is also a fresh start for the hero's
+    // five-click party trigger.
+    this._hDuckMateClosed = () => {
+      this.clickCount = 0;
+      clearTimeout(this.clickTimer);
+      clearTimeout(this._partyTimeout);
+      this.isPartyMode = false;
+      this.duck.classList.remove('is-partying');
+      this.bubble.classList.remove('is-visible');
+    };
+    window.addEventListener('duck-mate:closed', this._hDuckMateClosed);
+
     // The hero passes the 8-bit duck via the `image` attribute (already
     // path-prefix resolved by the template); fall back to the 8-bit mascot.
     const imgSrc = this.getAttribute('image') || `${getPathPrefix()}/assets/images/8bit-duck.svg`;
@@ -274,7 +286,13 @@ export class TdcDuck extends HTMLElement {
     const init = await loadDuckMate();
     if (!init) return;
     _duckMateCount++;
-    init({ debug: false, multiInstance: true, scale: 0.8 + Math.random() * 0.4, speed: 0.8 + Math.random() * 0.6 });
+    init({
+      debug: false,
+      id: `tdc-duck-mate-${_duckMateCount}`,
+      multiInstance: true,
+      scale: 0.8 + Math.random() * 0.4,
+      speed: 0.8 + Math.random() * 0.6,
+    });
   }
 
   /**

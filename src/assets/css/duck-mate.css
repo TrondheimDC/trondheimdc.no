@@ -37,12 +37,90 @@
   cursor: grabbing;
 }
 
+.duck-mate-name-label {
+  position: absolute;
+  z-index: 2;
+  max-width: 10rem;
+  padding: 3px 7px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(30, 30, 30, 0.88);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font: 600 12px/1.2 'Space Mono', monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 4px));
+}
+
+.duck-mate-name-label[hidden] { display: none; }
+
+.duck-mate-egg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999999;
+  pointer-events: none;
+  image-rendering: pixelated;
+  will-change: transform;
+}
+
 /* ── Controls toolbar ── */
 
 .duck-mate-ctrl-box {
   position: fixed;
   z-index: 1000000;
   pointer-events: none;
+}
+
+/* One shared toolbar for the whole flock. */
+.duck-mate-global-toolbar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000000;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.duck-mate-context-menu {
+  position: fixed;
+  z-index: 1000001;
+  min-width: 10rem;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(30, 30, 30, 0.96);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.duck-mate-context-menu[hidden] { display: none; }
+
+.duck-mate-context-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.duck-mate-context-menu button:hover,
+.duck-mate-context-menu button:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  outline: 2px solid #FFD700;
+  outline-offset: -2px;
 }
 
 .duck-mate-controls {
@@ -57,6 +135,11 @@
   pointer-events: auto;
   transition: opacity 0.25s;
   opacity: 0.7;
+}
+
+.duck-mate-global-toolbar:focus-within,
+.duck-mate-global-toolbar:hover {
+  opacity: 1;
 }
 
 .duck-mate-controls:hover,
@@ -106,17 +189,23 @@
 /* ── High Contrast (forced-colors) ── */
 
 @media (forced-colors: active) {
-  .duck-mate-controls {
+  .duck-mate-controls,
+  .duck-mate-global-toolbar,
+  .duck-mate-context-menu,
+  .duck-mate-name-label {
     border: 2px solid ButtonText;
     background: Canvas;
   }
-  .duck-mate-btn {
+  .duck-mate-btn,
+  .duck-mate-context-menu button {
     border: 2px solid ButtonText;
     color: ButtonText;
     background: Canvas;
   }
   .duck-mate-btn:hover,
-  .duck-mate-btn:focus-visible {
+  .duck-mate-btn:focus-visible,
+  .duck-mate-context-menu button:hover,
+  .duck-mate-context-menu button:focus-visible {
     border-color: Highlight;
     color: Highlight;
   }
