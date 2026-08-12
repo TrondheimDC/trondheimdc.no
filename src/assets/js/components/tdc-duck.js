@@ -274,7 +274,13 @@ export class TdcDuck extends HTMLElement {
     const init = await loadDuckMate();
     if (!init) return;
     _duckMateCount++;
-    init({ debug: false, multiInstance: true, scale: 0.8 + Math.random() * 0.4, speed: 0.8 + Math.random() * 0.6 });
+    init({
+      debug: false,
+      id: `tdc-duck-mate-${_duckMateCount}`,
+      multiInstance: true,
+      scale: 0.8 + Math.random() * 0.4,
+      speed: 0.8 + Math.random() * 0.6,
+    });
   }
 
   /**

@@ -21,7 +21,16 @@
   const GRAVITY = 600;                   // px / s²
   const MAX_PARTICLES = 60;
   const STORAGE_KEY = 'duck-mate-prefs';
+  const FLOCK_STORAGE_KEY = 'duck-mate-flock';
+  const FLOCK_STORAGE_VERSION = 3;
   const PERCH_SCAN_MS = 4000;
+  const BREEDING_COOLDOWN_MS = 8 * 60 * 1000;
+  const LIFECYCLE_MIN_MS = 180 * 1000;
+  const LIFECYCLE_MAX_MS = 300 * 1000;
+  const COURTSHIP_MIN_MS = 12 * 1000;
+  const COURTSHIP_MAX_MS = 20 * 1000;
+  const HATCHLING_SCALE = 0.45;
+  const HATCHLING_GROWTH_MS = 3 * 60 * 1000;
 
   let _instanceCount = 0;
   /** Global registry of all live DuckMate instances for collision detection. */
@@ -83,8 +92,72 @@
     return items[items.length - 1];
   }
 
-  function loadPrefs()     { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
-  function savePrefs(p)    { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch { /* */ } }
+  function loadPrefs() {
+    try {
+      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch { return {}; }
+  }
+  function savePrefs(p) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch { /* */ } }
+
+  function loadFlock() {
+    try {
+      const value = JSON.parse(localStorage.getItem(FLOCK_STORAGE_KEY) || '{}');
+      if (!value || !Array.isArray(value.ducks)) return {};
+      const ducks = value.ducks
+        .map(d => {
+          if (!d || typeof d.id !== 'string') return null;
+          const name = validDuckName(d.name);
+          // Earlier schemas stored generated "Duck N" labels exactly like
+          // renamed ducks. Only migrate non-default names as user names.
+          const customName = value.version === FLOCK_STORAGE_VERSION
+            ? d.customName === true
+            : Boolean(name && !/^Duck \d+$/.test(name));
+          return { id: d.id, name, customName, breedCooldownUntil: Number(d.breedCooldownUntil) || 0 };
+        })
+        .filter(Boolean);
+      // Version 1 only knew about names. Keep likely user names while safely
+      // upgrading the flock to the lifecycle-aware schema.
+      if (value.version !== 2 && value.version !== FLOCK_STORAGE_VERSION) {
+        return { version: FLOCK_STORAGE_VERSION, ducks, lifecycles: [], children: [] };
+      }
+      const lifecycles = Array.isArray(value.lifecycles) ? value.lifecycles.filter(l => l && typeof l.id === 'string') : [];
+      const children = Array.isArray(value.children) ? value.children.filter(c => c && typeof c.id === 'string') : [];
+      return { version: FLOCK_STORAGE_VERSION, ducks, lifecycles, children };
+    } catch { return {}; }
+  }
+
+  function saveFlock(snapshot) {
+    try { localStorage.setItem(FLOCK_STORAGE_KEY, JSON.stringify({ version: FLOCK_STORAGE_VERSION, ...snapshot })); } catch { /* */ }
+  }
+
+  function stableId() {
+    if (global.crypto && typeof global.crypto.randomUUID === 'function') return global.crypto.randomUUID();
+    return `duck-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function validDuckName(value) {
+    const name = String(value == null ? '' : value).trim().replace(/\s+/g, ' ');
+    return name.length >= 1 && name.length <= 32 ? name : null;
+  }
+
+  function seededRandom(seed) {
+    let x = (Number(seed) >>> 0) || 1;
+    return () => {
+      x += 0x6D2B79F5;
+      let t = x;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function lifecycleTiming(seed) {
+    const r = seededRandom(seed);
+    const totalMs = Math.round(lerp(LIFECYCLE_MIN_MS, LIFECYCLE_MAX_MS, r()));
+    const courtshipMs = Math.min(totalMs - 30000, Math.round(lerp(COURTSHIP_MIN_MS, COURTSHIP_MAX_MS, r())));
+    return { totalMs, courtshipMs };
+  }
 
   // ═══════════════════════════════════════════════════════════════
   //  §3  EventBus
@@ -675,6 +748,7 @@
 
   class AudioManager {
     constructor(cfg) {
+      cfg = cfg && typeof cfg === 'object' ? cfg : {};
       this._actx = null; this._gain = null;
       this._enabled = cfg.enabled !== false;
       this._urls = { quack: cfg.quackUrl || '', splash: cfg.splashUrl || '' };
@@ -735,7 +809,12 @@
       src.start(t);
     }
 
-    setVolume(v) { this._vol = clamp(v, 0, 1); this._applyVol(); savePrefs({ ...loadPrefs(), volume: this._vol }); }
+    setVolume(v) { this._vol = clamp(Number(v) || 0, 0, 1); this._applyVol(); savePrefs({ ...loadPrefs(), volume: this._vol }); }
+    setMuted(value) { this._muted = Boolean(value); this._applyVol(); }
+    setEnabled(value) { this._enabled = Boolean(value); if (!this._enabled) this.destroy(); }
+    // Compatibility aliases retained for callers of the earlier foundation.
+    setAudioEnabled(value) { this.setEnabled(value); }
+    setAudio(value) { this.setEnabled(value); }
     toggleMute() { this._muted = !this._muted; this._applyVol(); savePrefs({ ...loadPrefs(), muted: this._muted }); return this._muted; }
     get muted() { return this._muted; }
     get volume() { return this._vol; }
@@ -887,16 +966,26 @@
       this._bc.restore();
     }
 
-    /** Draw egg-wobble placeholder. */
-    drawEgg(t) {
-      const cx = this._cw / 2, cy = this._ch / 2, s = this._scale;
-      const w = Math.sin(t * DEF_TIMING.eggWobbleSpeed) * 0.15;
+    /** Draw an egg at buffer-local coordinates. The one-argument form is the loading placeholder. */
+    drawEgg(t, x = this._cw / 2, y = this._ch / 2, crackStage = 1, seed = 0) {
+      const s = this._scale;
+      const cx = x, cy = y;
+      const w = Math.sin(t * DEF_TIMING.eggWobbleSpeed + seed * 0.001) * 0.15;
       this._bc.save(); this._bc.translate(cx, cy); this._bc.rotate(w);
       this._bc.fillStyle = '#FFFDE7';
       this._bc.beginPath(); this._bc.ellipse(0, 0, 14 * s, 18 * s, 0, 0, Math.PI * 2); this._bc.fill();
       this._bc.strokeStyle = '#FFD54F'; this._bc.lineWidth = 1.5 * s; this._bc.stroke();
-      this._bc.strokeStyle = '#FFC107'; this._bc.lineWidth = s;
-      this._bc.beginPath(); this._bc.moveTo(-4*s, -2*s); this._bc.lineTo(0, 3*s); this._bc.lineTo(4*s, 0); this._bc.stroke();
+      if (crackStage > 0) {
+        this._bc.strokeStyle = '#FFC107'; this._bc.lineWidth = s;
+        const branch = (seed % 3) - 1;
+        this._bc.beginPath(); this._bc.moveTo(-4*s, -2*s); this._bc.lineTo(branch*s, 2*s); this._bc.lineTo(4*s, 0); this._bc.stroke();
+        if (crackStage > 1) {
+          this._bc.beginPath(); this._bc.moveTo(branch*s, 2*s); this._bc.lineTo((branch - 3)*s, 7*s); this._bc.moveTo(branch*s, 2*s); this._bc.lineTo((branch + 4)*s, 6*s); this._bc.stroke();
+        }
+        if (crackStage > 2) {
+          this._bc.beginPath(); this._bc.moveTo(-4*s, -2*s); this._bc.lineTo(-7*s, -8*s); this._bc.moveTo(4*s, 0); this._bc.lineTo(8*s, -5*s); this._bc.stroke();
+        }
+      }
       this._bc.restore();
     }
 
@@ -2527,6 +2616,98 @@
     get seq() { return 'perch_idle'; }
   }
 
+  /** Coordinated adult courtship. The coordinator owns the relationship; this
+   * state supplies a staged approach, shy flutter, nuzzle, and celebration. */
+  class Courtship extends State {
+    constructor() { super('courtship', 'interaction'); this._partnerId = null; this._side = 1; this._stage = 'approach'; }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      this._partnerId = cx.coordinator.courtshipPartner(cx.instance);
+      const partner = cx.coordinator.instanceById(this._partnerId);
+      this._side = partner && Math.abs(partner._bb.x - bb.x) > 1
+        ? (bb.x < partner._bb.x ? -1 : 1)
+        : (cx.instance._flockId < this._partnerId ? -1 : 1);
+      this._setStage(cx, 'approach');
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      const partner = cx.coordinator.instanceById(this._partnerId);
+      const relationship = cx.coordinator.courtshipFor(cx.instance._flockId);
+      if (!partner || !relationship) {
+        cx.sched.next(bb, cx);
+        return;
+      }
+
+      const duration = Math.max(relationship.eggAt - relationship.startedAt, 1);
+      const progress = clamp((Date.now() - relationship.startedAt) / duration, 0, 1);
+      const midpoint = (bb.x + cx.ren.fS / 2 + partner._bb.x + partner._ren.fS / 2) / 2;
+      const spacing = Math.max(38, Math.min(cx.ren.fS, partner._ren.fS) * (progress < 0.58 ? 0.78 : 0.58));
+      let target = midpoint + this._side * spacing / 2 - cx.ren.fS / 2;
+
+      if (progress < 0.22) {
+        this._setStage(cx, 'approach');
+        bb.x = lerp(bb.x, target, clamp(dt * 2.2, 0, 1));
+      } else if (progress < 0.52) {
+        this._setStage(cx, 'flutter');
+        target += this._side * Math.sin(this.elapsed * 4.5) * 5;
+        bb.x = lerp(bb.x, target, clamp(dt * 3, 0, 1));
+      } else if (progress < 0.82) {
+        this._setStage(cx, 'nuzzle');
+        target += this._side * Math.sin(this.elapsed * 2.8) * 2;
+        bb.x = lerp(bb.x, target, clamp(dt * 3.5, 0, 1));
+      } else {
+        this._setStage(cx, 'celebrate');
+        target += this._side * Math.sin(this.elapsed * 6) * 4;
+        bb.x = lerp(bb.x, target, clamp(dt * 4, 0, 1));
+      }
+
+      bb.facingR = this._side < 0;
+      bb.onGround = true;
+      advFrame(this, dt, cx.ad, progress < 0.22 ? 'walk_right' : 'idle_preen');
+    }
+    _setStage(cx, stage) {
+      if (this._stage === stage && cx.instance._duckEl.dataset.courtshipStage === stage) return;
+      this._stage = stage;
+      cx.instance._duckEl.dataset.courtshipStage = stage;
+    }
+    postDraw(bb, cx) {
+      const bc = cx.ren.bc;
+      bc.save();
+      bc.textAlign = 'center';
+      const center = cx.ren.W / 2;
+      const pulse = 1 + Math.sin(this.elapsed * 5) * 0.12;
+      if (this._stage === 'approach') {
+        bc.fillStyle = '#FFD54F';
+        bc.font = `bold ${10 * cx.opts.scale}px sans-serif`;
+        bc.fillText('✦', center, 16 + Math.sin(this.elapsed * 4) * 2);
+      } else {
+        const count = this._stage === 'flutter' ? 2 : this._stage === 'nuzzle' ? 3 : 5;
+        for (let i = 0; i < count; i++) {
+          const phase = this.elapsed * (2.4 + i * 0.12) + i * 1.7;
+          const rise = ((phase * 13) % 30);
+          const x = center + Math.sin(phase) * (7 + i * 2);
+          const y = 30 - rise;
+          const alpha = clamp(1 - rise / 34, 0.25, 1);
+          bc.globalAlpha = alpha;
+          bc.fillStyle = i % 2 ? '#FF8FB3' : '#FF4F81';
+          bc.font = `bold ${Math.round((9 + i) * cx.opts.scale * pulse)}px sans-serif`;
+          bc.fillText('♥', x, y);
+        }
+        if (this._stage === 'celebrate') {
+          bc.globalAlpha = 0.9;
+          bc.fillStyle = '#FFD54F';
+          bc.font = `bold ${9 * cx.opts.scale}px sans-serif`;
+          bc.fillText('✦', center - 20, 18 + Math.sin(this.elapsed * 7) * 3);
+          bc.fillText('✦', center + 20, 15 + Math.cos(this.elapsed * 7) * 3);
+        }
+      }
+      bc.restore();
+    }
+    exit(bb, cx) { delete cx.instance._duckEl.dataset.courtshipStage; }
+    canStart() { return false; }
+    get seq() { return 'walk_right'; }
+  }
+
   // ═══════════════════════════════════════════════════════════════
   //  §11  Behavior Scheduler
   // ═══════════════════════════════════════════════════════════════
@@ -2717,6 +2898,431 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  //  §14  Global flock coordinator
+  // ═══════════════════════════════════════════════════════════════
+
+  class FlockCoordinator {
+    constructor() {
+      const prefs = loadPrefs();
+      this.paused = false;
+      this.muted = Boolean(prefs.muted);
+      this.volume = typeof prefs.volume === 'number' ? clamp(prefs.volume, 0, 1) : 0.4;
+      const stored = loadFlock();
+      this._names = new Map((stored.ducks || []).filter(d => d.customName && d.name).map(d => [d.id, d.name]));
+      this._cooldowns = new Map((stored.ducks || []).map(d => [d.id, Number(d.breedCooldownUntil) || 0]));
+      this._toolbar = null;
+      this._menu = null;
+      this._active = null;
+      this._lifecycles = new Map((stored.lifecycles || []).map(l => [l.id, { ...l }]));
+      this._children = new Map((stored.children || []).map(c => [c.id, { ...c }]));
+      this._pairCooldowns = new Map();
+      this._eggElements = new Map();
+      document.addEventListener('click', e => {
+        if (this._menu && !this._menu.contains(e.target)) this._hideMenu();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') this._hideMenu();
+      });
+    }
+
+    register(instance) {
+      if (!this._toolbar) this._createToolbar();
+      const requestedId = typeof instance._opts.id === 'string' ? instance._opts.id.trim() : '';
+      const id = requestedId && !_instances.some(i => i !== instance && i._flockId === requestedId)
+        ? requestedId
+        : stableId();
+      instance._flockId = id;
+      instance._hasCustomName = this._names.has(id);
+      instance._name = this._names.get(id) || `Duck ${_instanceCount + 1}`;
+      instance._updateNameLabel();
+      instance._paused = this.paused;
+      instance._isBaby = Boolean(instance._opts.isBaby);
+      instance._breedingMatureAt = Number(instance._opts.breedingMatureAt) || 0;
+      instance._breedCooldownUntil = Number(this._cooldowns.get(id)) || 0;
+      instance._growth = instance._opts.growthStartedAt ? {
+        startedAt: Number(instance._opts.growthStartedAt),
+        durationMs: Number(instance._opts.growthDurationMs) || HATCHLING_GROWTH_MS,
+        adultScale: Number(instance._opts.adultScale) || 1,
+      } : null;
+      instance._audio.setMuted(this.muted);
+      instance._audio.setVolume(this.volume);
+      this._reconcileAbsentCourtships();
+      for (const life of this._lifecycles.values()) {
+        if (life.state === 'egg' && !life.hostId) life.hostId = id;
+      }
+      this._persist();
+      this._resumeRelationships();
+      this._restoreChildren();
+      return id;
+    }
+
+    unregister(instance) {
+      this._names.delete(instance._flockId);
+      this._cooldowns.delete(instance._flockId);
+      this._reconcileAbsentCourtships();
+      for (const life of this._lifecycles.values()) {
+        if (life.state === 'egg' && life.hostId === instance._flockId) life.hostId = _instances.find(i => i !== instance && !i._dead)?._flockId || null;
+      }
+      this._persist();
+      if (_instances.length <= 1 && this._toolbar) { this._toolbar.remove(); this._toolbar = null; }
+    }
+
+    _persist() {
+      saveFlock({
+        ducks: _instances.filter(i => !i._dead).map(i => ({
+          id: i._flockId,
+          name: i._hasCustomName ? i._name : null,
+          customName: i._hasCustomName === true,
+          breedCooldownUntil: i._breedCooldownUntil || 0,
+        })),
+        lifecycles: [...this._lifecycles.values()],
+        children: [...this._children.values()],
+      });
+    }
+
+    instanceById(id) { return _instances.find(i => !i._dead && i._flockId === id) || null; }
+
+    _reconcileAbsentCourtships() {
+      for (const [id, life] of this._lifecycles) {
+        if (life.state === 'courtship' && (!this.instanceById(life.parentA) || !this.instanceById(life.parentB))) {
+          this._lifecycles.delete(id);
+          this._removeEggElement(id);
+        }
+      }
+    }
+
+    _resumeRelationships() {
+      for (const life of this._lifecycles.values()) {
+        if (life.state !== 'courtship') continue;
+        const a = this.instanceById(life.parentA), b = this.instanceById(life.parentB);
+        if (a && b) {
+          a._sched.force('courtship', a._bb, a._cx);
+          b._sched.force('courtship', b._bb, b._cx);
+        }
+      }
+    }
+
+    _restoreChildren() {
+      if (this._restoringChildren) return;
+      this._restoringChildren = true;
+      for (const child of this._children.values()) {
+        if (this.instanceById(child.id)) continue;
+        initDuckMate({ id: child.id, multiInstance: true, isBaby: Date.now() < child.matureAt,
+          breedingMatureAt: child.matureAt, growthStartedAt: child.bornAt,
+          growthDurationMs: HATCHLING_GROWTH_MS, adultScale: child.adultScale || 1,
+          scale: Date.now() < child.matureAt ? child.scale : child.adultScale || 1, duckColor: child.color });
+      }
+      this._restoringChildren = false;
+    }
+
+    isCourtshipActiveFor(id) {
+      return [...this._lifecycles.values()].some(l => l.state === 'courtship' && (l.parentA === id || l.parentB === id));
+    }
+
+    courtshipFor(id) {
+      return [...this._lifecycles.values()].find(l => l.state === 'courtship' && (l.parentA === id || l.parentB === id)) || null;
+    }
+
+    courtshipPartner(instance) {
+      const life = [...this._lifecycles.values()].find(l => l.state === 'courtship' && (l.parentA === instance._flockId || l.parentB === instance._flockId));
+      return life ? (life.parentA === instance._flockId ? life.parentB : life.parentA) : null;
+    }
+
+    _isBreedingAdult(instance, now) {
+      if (!instance || instance._dead || instance._isBaby || instance._growth) return false;
+      if (now < (instance._breedingMatureAt || 0)) return false;
+      const child = this._children.get(instance._flockId);
+      return !child || now >= Number(child.matureAt || Infinity);
+    }
+
+    _eligibleAdults(now) {
+      return _instances.filter(i => this._isBreedingAdult(i, now))
+        .filter(i => !this.isCourtshipActiveFor(i._flockId))
+        .filter(i => ![...this._lifecycles.values()].some(l => l.state === 'egg' && (l.parentA === i._flockId || l.parentB === i._flockId)))
+        .filter(i => now >= (i._breedCooldownUntil || 0));
+    }
+
+    _activeLifecycleCount() { return [...this._lifecycles.values()].filter(l => l.state === 'courtship' || l.state === 'egg').length; }
+
+    attemptMeeting(first, second, now = Date.now()) {
+      if (!first || !second || first === second) return false;
+      const ids = [first._flockId, second._flockId].sort();
+      const pairKey = `${ids[0]}:${ids[1]}`;
+      const cooldownUntil = this._pairCooldowns.get(pairKey) || 0;
+      if (now < cooldownUntil || this._activeLifecycleCount() >= 2) return false;
+      this._pairCooldowns.set(pairKey, now + 30000);
+
+      const seedText = `${pairKey}:${Math.floor(now / 1000)}`;
+      let seed = 2166136261;
+      for (let i = 0; i < seedText.length; i++) seed = Math.imul(seed ^ seedText.charCodeAt(i), 16777619);
+      const lovestruck = seededRandom(seed >>> 0)() < 0.38;
+      return lovestruck && Boolean(this.startCourtship(first, second, now));
+    }
+
+    startCourtship(first, second, now = Date.now()) {
+      if (!first || !second || first === second || this._activeLifecycleCount() >= 2) return null;
+      if (!this._eligibleAdults(now).includes(first) || !this._eligibleAdults(now).includes(second)) return null;
+      const seed = (now ^ first._flockId.length * 2654435761 ^ second._flockId.length) >>> 0;
+      const timing = lifecycleTiming(seed);
+      const life = {
+        id: `lifecycle-${stableId()}`,
+        parentA: first._flockId,
+        parentB: second._flockId,
+        startedAt: now,
+        eggAt: now + timing.courtshipMs,
+        hatchAt: now + timing.totalMs,
+        seed,
+        crackSeed: Math.floor(seededRandom(seed)() * 0xFFFFFFFF),
+        state: 'courtship',
+        eggX: null,
+        eggY: null,
+        hostId: first._flockId,
+      };
+      this._lifecycles.set(life.id, life);
+      first._breedCooldownUntil = now + BREEDING_COOLDOWN_MS;
+      second._breedCooldownUntil = now + BREEDING_COOLDOWN_MS;
+      first._sched.force('courtship', first._bb, first._cx);
+      second._sched.force('courtship', second._bb, second._cx);
+      this._persist();
+      return life;
+    }
+
+    _processLifecycle(life, now) {
+      if (life.state === 'courtship' && now >= life.eggAt) {
+        const a = this.instanceById(life.parentA), b = this.instanceById(life.parentB);
+        // A relationship cannot be completed while either adult is absent.
+        if (!a || !b) { this._lifecycles.delete(life.id); return; }
+        life.state = 'egg';
+        life.eggX = (a._bb.x + b._bb.x) / 2;
+        life.eggY = Math.max(a._bb.groundY(a._ren.fS), b._bb.groundY(b._ren.fS));
+        life.hostId = a._flockId;
+        this._persist();
+      }
+      if (life.state === 'egg' && now >= life.hatchAt) this._hatch(life, now);
+    }
+
+    _hatch(life, now) {
+      if (life.state !== 'egg') return;
+      life.state = 'hatched';
+      life.hatchedAt = now;
+      this._removeEggElement(life.id);
+      const childId = `duckling-${life.id}`;
+      const child = this._children.get(childId) || {
+        id: childId,
+        lifecycleId: life.id,
+        parentA: life.parentA,
+        parentB: life.parentB,
+        bornAt: now,
+        matureAt: now + HATCHLING_GROWTH_MS,
+        scale: HATCHLING_SCALE,
+        adultScale: 1,
+        color: DUCK_COLORS[life.seed % DUCK_COLORS.length],
+      };
+      this._children.set(childId, child);
+      this._persist(); // mark hatch before constructing, making it exactly-once across failures/reloads
+      if (!this.instanceById(child.id)) {
+        initDuckMate({ id: child.id, multiInstance: true, isBaby: true, breedingMatureAt: child.matureAt,
+          growthStartedAt: child.bornAt, growthDurationMs: HATCHLING_GROWTH_MS, adultScale: child.adultScale,
+          scale: child.scale, duckColor: child.color });
+      }
+    }
+
+    update(now = Date.now()) {
+      if (this.paused) return;
+      for (const life of [...this._lifecycles.values()]) this._processLifecycle(life, now);
+      for (const instance of _instances) this._updateGrowth(instance, now);
+    }
+
+    _updateGrowth(instance, now) {
+      const growth = instance._growth;
+      if (!growth || instance._dead) return;
+      const t = clamp((now - growth.startedAt) / growth.durationMs, 0, 1);
+      const eased = t * t * (3 - 2 * t);
+      const target = lerp(HATCHLING_SCALE, growth.adultScale, eased);
+      if (Math.abs(instance._opts.scale - target) > 0.001) instance.setScale(target);
+      if (t >= 1) { instance._isBaby = false; instance._growth = null; instance._breedingMatureAt = 0; this._persist(); }
+    }
+
+    renderEggs(instance) {
+      if (instance !== _instances.find(candidate => !candidate._dead)) return;
+      const activeEggs = new Set();
+      for (const life of this._lifecycles.values()) {
+        if (life.state !== 'egg') continue;
+        activeEggs.add(life.id);
+        const age = Date.now() - life.eggAt;
+        const progress = clamp(age / Math.max(life.hatchAt - life.eggAt, 1), 0, 1);
+        const stage = progress < 0.55 ? 0 : progress < 0.82 ? 1 : progress < 0.98 ? 2 : 3;
+        this._drawEggElement(life, age / 1000, stage);
+      }
+      for (const id of this._eggElements.keys()) if (!activeEggs.has(id)) this._removeEggElement(id);
+    }
+
+    _drawEggElement(life, elapsed, crackStage) {
+      let record = this._eggElements.get(life.id);
+      const cssW = 56, cssH = 64;
+      const dpr = window.devicePixelRatio || 1;
+      if (!record) {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'duck-mate-egg';
+        canvas.setAttribute('aria-hidden', 'true');
+        canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+        canvas.style.width = `${cssW}px`; canvas.style.height = `${cssH}px`;
+        document.body.appendChild(canvas);
+        record = { canvas, ctx: canvas.getContext('2d') };
+        this._eggElements.set(life.id, record);
+      }
+      const { canvas, ctx } = record;
+      // Lifecycle coordinates use duck top-left positions. Preserve the old
+      // sprite-buffer placement by offsetting to the centre of a 64px frame.
+      const centerX = life.eggX + FRAME_W / 2;
+      const centerY = life.eggY + FRAME_H / 2;
+      canvas.style.transform = `translate(${(centerX - cssW / 2).toFixed(1)}px,${(centerY - cssH / 2).toFixed(1)}px)`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+      const wobble = Math.sin(elapsed * DEF_TIMING.eggWobbleSpeed + (life.crackSeed || 0) * 0.001) * 0.15;
+      ctx.save(); ctx.translate(cssW / 2, cssH / 2); ctx.rotate(wobble);
+      ctx.fillStyle = '#FFFDE7';
+      ctx.beginPath(); ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#FFD54F'; ctx.lineWidth = 1.5; ctx.stroke();
+      if (crackStage > 0) {
+        ctx.strokeStyle = '#FFC107'; ctx.lineWidth = 1;
+        const branch = ((life.crackSeed || 0) % 3) - 1;
+        ctx.beginPath(); ctx.moveTo(-4, -2); ctx.lineTo(branch, 2); ctx.lineTo(4, 0); ctx.stroke();
+        if (crackStage > 1) {
+          ctx.beginPath(); ctx.moveTo(branch, 2); ctx.lineTo(branch - 3, 7); ctx.moveTo(branch, 2); ctx.lineTo(branch + 4, 6); ctx.stroke();
+        }
+        if (crackStage > 2) {
+          ctx.beginPath(); ctx.moveTo(-4, -2); ctx.lineTo(-7, -8); ctx.moveTo(4, 0); ctx.lineTo(8, -5); ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    _removeEggElement(id) {
+      this._eggElements.get(id)?.canvas.remove();
+      this._eggElements.delete(id);
+    }
+
+    pauseAll(value = !this.paused) {
+      this.paused = Boolean(value);
+      if (this._pauseButton) {
+        this._pauseButton.textContent = this.paused ? '▶' : '⏸';
+        this._pauseButton.title = this.paused ? 'Resume all ducks' : 'Pause all ducks';
+        this._pauseButton.setAttribute('aria-label', this._pauseButton.title);
+      }
+      _instances.forEach(instance => instance._setPaused(this.paused));
+    }
+
+    toggleMute() {
+      this.muted = !this.muted;
+      savePrefs({ ...loadPrefs(), muted: this.muted, volume: this.volume });
+      _instances.forEach(instance => {
+        instance._audio.setMuted(this.muted);
+        instance._bus.emit('muted', this.muted);
+      });
+      if (this._muteButton) {
+        this._muteButton.textContent = this.muted ? '🔇' : '🔊';
+        this._muteButton.title = this.muted ? 'Unmute sounds' : 'Mute sounds';
+        this._muteButton.setAttribute('aria-label', this._muteButton.title);
+      }
+    }
+
+    setVolume(value) {
+      this.volume = clamp(value, 0, 1);
+      savePrefs({ ...loadPrefs(), muted: this.muted, volume: this.volume });
+      _instances.forEach(instance => instance._audio.setVolume(this.volume));
+    }
+
+    rename(instance) {
+      const value = global.prompt('Duck name (1–32 characters):', instance._name);
+      if (value === null) return false;
+      const name = validDuckName(value);
+      if (!name) { global.alert('Please enter a name between 1 and 32 characters.'); return false; }
+      instance._name = name;
+      instance._hasCustomName = true;
+      this._names.set(instance._flockId, name);
+      instance._updateNameLabel();
+      this._persist();
+      instance._announce(`Duck renamed to ${name}`);
+      return true;
+    }
+
+    remove(instance, confirm = true) {
+      if (confirm && !global.confirm(`Remove ${instance._name}?`)) return false;
+      instance.remove();
+      return true;
+    }
+
+    closeAll() {
+      if (!_instances.length) return;
+      if (!global.confirm(`Remove all ${_instances.length} ducks?`)) return;
+      [..._instances].forEach(instance => instance.remove());
+    }
+
+    _createToolbar() {
+      const box = document.createElement('div');
+      box.className = 'duck-mate-global-toolbar';
+      box.setAttribute('role', 'toolbar');
+      box.setAttribute('aria-label', 'Duck Mate controls');
+      const button = (text, label, action, extra = '') => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = `duck-mate-btn ${extra}`; b.textContent = text;
+        b.title = label; b.setAttribute('aria-label', label); b.addEventListener('click', action); return b;
+      };
+      this._pauseButton = button('⏸', 'Pause all ducks', () => this.pauseAll());
+      this._muteButton = button(this.muted ? '🔇' : '🔊', this.muted ? 'Unmute sounds' : 'Mute sounds', () => this.toggleMute());
+      this._closeButton = button('✕', 'Close all ducks', () => this.closeAll(), 'duck-mate-btn--rm');
+      box.append(this._pauseButton, this._muteButton, this._closeButton);
+      document.body.appendChild(box);
+      this._toolbar = box;
+    }
+
+    _showMenu(instance, x, y) {
+      if (!this._menu) {
+        this._menu = document.createElement('div');
+        this._menu.className = 'duck-mate-context-menu';
+        this._menu.setAttribute('role', 'menu');
+        document.body.appendChild(this._menu);
+      }
+      this._menu.innerHTML = '';
+      const action = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; b.addEventListener('click', () => { fn(); this._hideMenu(); }); this._menu.appendChild(b); };
+      action(`Rename ${instance._name}`, () => this.rename(instance));
+      action(`Remove ${instance._name}`, () => this.remove(instance));
+      this._menu.style.left = `${Math.max(4, Math.min(x, innerWidth - 180))}px`;
+      this._menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 90))}px`;
+      this._menu.hidden = false;
+      this._active = instance;
+      this._menu.querySelector('button')?.focus();
+    }
+
+    _hideMenu() { if (this._menu) this._menu.hidden = true; this._active = null; }
+
+    bindInstance(instance) {
+      const open = e => { e.preventDefault(); this._showMenu(instance, e.clientX, e.clientY); };
+      const key = e => {
+        if (e.key === 'F2' || e.key === 'Delete' || (e.shiftKey && e.key === 'F10')) {
+          e.preventDefault();
+          if (e.key === 'F2') this.rename(instance); else if (e.key === 'Delete') this.remove(instance); else this._showMenu(instance, instance._bb.x, instance._bb.y);
+        }
+      };
+      instance._hContext = open; instance._hNameKey = key;
+      instance._duckEl.addEventListener('contextmenu', open);
+      instance._duckEl.addEventListener('keydown', key);
+      instance._announce = message => {
+        if (instance._ctrlAnn) instance._ctrlAnn.textContent = message;
+      };
+    }
+
+    unbindInstance(instance) {
+      instance._duckEl.removeEventListener('contextmenu', instance._hContext);
+      instance._duckEl.removeEventListener('keydown', instance._hNameKey);
+      this._hideMenu();
+    }
+  }
+
+  const _coordinator = new FlockCoordinator();
+
+  // ═══════════════════════════════════════════════════════════════
   //  §14  Debug Overlay
   // ═══════════════════════════════════════════════════════════════
 
@@ -2775,6 +3381,11 @@
       this._duckEl.tabIndex = 0;
       this._container.appendChild(this._duckEl);
 
+      this._nameLabel = document.createElement('span');
+      this._nameLabel.className = 'duck-mate-name-label';
+      this._nameLabel.hidden = true;
+      this._duckEl.appendChild(this._nameLabel);
+
       // Renderer
       this._ren = new Renderer(this._duckEl, this._opts);
 
@@ -2800,20 +3411,23 @@
         ren: this._ren, audio: this._audio, parts: this._parts,
         ad: this._ad, tim: this._tim, opts: this._opts,
         hsm: this._hsm, sched: this._sched, bus: this._bus,
+        coordinator: _coordinator, instance: this,
       };
-
-      // Controls
-      this._ctrlBox = document.createElement('div');
-      this._ctrlBox.className = 'duck-mate-ctrl-box';
-      const pos = this._opts.position || 'bottom-right';
-      if (pos.includes('bottom')) this._ctrlBox.style.bottom = '16px'; else this._ctrlBox.style.top = '16px';
-      if (pos.includes('right'))  this._ctrlBox.style.right  = '16px'; else this._ctrlBox.style.left = '16px';
-      document.body.appendChild(this._ctrlBox);
-      this._ctrlUI = new ControlsUI(this._ctrlBox, this._bus);
 
       // Debug
       this._dbg = null;
-      if (this._opts.debug) this._dbg = new DebugOverlay(this._ctrlBox);
+      if (this._opts.debug) {
+        this._ctrlBox = document.createElement('div');
+        this._ctrlBox.className = 'duck-mate-ctrl-box';
+        document.body.appendChild(this._ctrlBox);
+        this._dbg = new DebugOverlay(this._ctrlBox);
+      }
+
+      this._ctrlAnn = document.createElement('div');
+      this._ctrlAnn.className = 'duck-mate-sr';
+      this._ctrlAnn.setAttribute('aria-live', 'polite');
+      this._container.appendChild(this._ctrlAnn);
+      this._ctrlAnn.textContent = this._name || '';
 
       // Events
       this._bindEvents();
@@ -2825,9 +3439,11 @@
       this._lastT = performance.now();
       this._loop(this._lastT);
 
-      // Register in global instance list for collision detection
+      // Register in the global coordinator and collision list.
       this._instanceId = _instances.length;
       _instances.push(this);
+      _coordinator.register(this);
+      _coordinator.bindInstance(this);
     }
 
     _registerStates() {
@@ -2840,7 +3456,7 @@
         new CollisionBounce(), new DuckFight(),
         new ReadNewspaper(), new EatSeeds(), new Sunbathe(), new DoPushups(),
         new PeekABoo(), new ClickEmote(), new ScrollAwareWave(), new SectionPerch(),
-        new WalkOnSurface(), new ClimbToSurface(), new LadderClimb(),
+        new WalkOnSurface(), new ClimbToSurface(), new LadderClimb(), new Courtship(),
       ].forEach(s => this._hsm.register(s));
       this._hsm.setDefault('idle_preen');
     }
@@ -2857,7 +3473,9 @@
         this._bb.x = this._bb.vpW / 2;
         this._bb.y = this._bb.groundY(this._ren.fS);
         this._bb.onGround = true;
-        this._sched.next(this._bb, this._cx);
+        // Registration may already have restored/forced a relationship while
+        // the generated atlas was loading. Do not overwrite that state.
+        if (!this._hsm.current) this._sched.next(this._bb, this._cx);
       };
       img.src = cv.toDataURL();
     }
@@ -3008,6 +3626,7 @@
       }
 
       if (!this._paused) {
+        _coordinator.update(Date.now());
         // ─── Scroll levitation ───
         this._applyScrollLevitation(dt);
 
@@ -3024,6 +3643,8 @@
       if (this._hsm.current && this._hsm.current.postDraw) {
         this._hsm.current.postDraw(bb, this._cx);
       }
+
+      _coordinator.renderEggs(this);
 
       // Draw particles (transform to buffer-local coords)
       const bc = this._ren.bc;
@@ -3054,6 +3675,15 @@
       this._duckEl.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
       this._duckEl.style.width  = this._ren.W + 'px';
       this._duckEl.style.height = this._ren.H + 'px';
+      this._nameLabel.style.left = `${(this._ren.W / 2).toFixed(1)}px`;
+      this._nameLabel.style.top = `${Math.max(4, (this._ren.H - fS) / 2).toFixed(1)}px`;
+    }
+
+    _updateNameLabel() {
+      if (!this._nameLabel) return;
+      this._nameLabel.textContent = this._name || '';
+      this._nameLabel.hidden = !this._hasCustomName;
+      this._duckEl.setAttribute('aria-label', this._hasCustomName ? `Animated duck mascot named ${this._name}` : 'Animated duck mascot');
     }
 
     _clampPos() {
@@ -3114,7 +3744,7 @@
       const fS = this._ren.fS;
       const st = this._hsm.current;
       // Don't collide during drag, landing, or already bouncing
-      if (!st || bb.dragging || st.id === 'collision_bounce' || st.id === 'land_recover' || st.id === 'pick_up_drag_drop' || st.id === 'duck_fight') return;
+      if (!st || bb.dragging || st.id === 'collision_bounce' || st.id === 'land_recover' || st.id === 'pick_up_drag_drop' || st.id === 'duck_fight' || st.id === 'courtship') return;
 
       const myCx = bb.x + fS / 2;
       const myCy = bb.y + fS / 2;
@@ -3124,7 +3754,7 @@
         if (other === this || other._dead || other._paused) continue;
         const ob = other._bb;
         const oSt = other._hsm.current;
-        if (!oSt || ob.dragging || oSt.id === 'collision_bounce' || oSt.id === 'land_recover' || oSt.id === 'duck_fight') continue;
+        if (!oSt || ob.dragging || oSt.id === 'collision_bounce' || oSt.id === 'land_recover' || oSt.id === 'duck_fight' || oSt.id === 'courtship') continue;
 
         const oCx = ob.x + other._ren.fS / 2;
         const oCy = ob.y + other._ren.fS / 2;
@@ -3133,6 +3763,11 @@
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < hitR + other._ren.fS * 0.4) {
+          // Eligible adults may fall in love when they actually meet. If the
+          // meeting is not romantic, retain the existing bounce/fight outcome.
+          if (bb.onGround && ob.onGround && _coordinator.attemptMeeting(this, other)) {
+            break;
+          }
           // 30% chance of a full cartoon fight instead of just bouncing
           if (Math.random() < 0.3 && bb.onGround && ob.onGround) {
             // Duck fight!
@@ -3173,16 +3808,26 @@
 
     // ─── Public API ───
 
-    pause()       { this._paused = true;  this._bus.emit('paused', true); }
-    resume()      { this._paused = false; this._bus.emit('paused', false); }
-    togglePause() { this._paused ? this.resume() : this.pause(); }
-    toggleMute()  { const m = this._audio.toggleMute(); this._bus.emit('muted', m); }
+    _setPaused(value) { this._paused = Boolean(value); this._bus.emit('paused', this._paused); }
+    _announce(message) { if (this._ctrlAnn) this._ctrlAnn.textContent = message; }
+    pause()       { _coordinator.pauseAll(true); }
+    resume()      { _coordinator.pauseAll(false); }
+    togglePause() { _coordinator.pauseAll(!_coordinator.paused); }
+    toggleMute()  { _coordinator.toggleMute(); }
     setSpeed(x)   { this._opts.speed = clamp(x, 0.1, 3); }
-    setVolume(v)  { this._audio.setVolume(v); }
+    setVolume(v)  { _coordinator.setVolume(v); }
     setScale(s)   { this._opts.scale = clamp(s, 0.5, 4); this._ren.setScale(this._opts.scale); }
     setTheme(n)   { this._opts.theme = n; this._bus.emit('themeChange', n); }
     setMode(m)    { this._bb.reducedMotion = m === 'reduced'; }
     debugForce(id){ this._sched.force(id, this._bb, this._cx); }
+    debugStartCourtship(partnerId) {
+      const partner = partnerId ? _coordinator.instanceById(partnerId) : _instances.find(i => i !== this && !i._dead);
+      return Boolean(partner && _coordinator.startCourtship(this, partner));
+    }
+    debugLifecycleSnapshot() {
+      return [..._coordinator._lifecycles.values()].map(life => ({ ...life }));
+    }
+    setAudioEnabled(value) { this._audio.setEnabled(value); }
 
     remove() {
       if (this._dead) return;
@@ -3202,18 +3847,18 @@
       this._duckEl.removeEventListener('click', this._hClick);
       this._duckEl.removeEventListener('keydown', this._hKey);
       this._duckEl.removeEventListener('dblclick', this._hDbl);
+      _coordinator.unbindInstance(this);
       this._mq.removeEventListener('change', this._onMQ);
       // Destroy sub-systems
       this._ren.destroy();
       this._audio.destroy();
       this._parts.clear();
       this._bus.clear();
-      this._ctrlUI.destroy();
       if (this._dbg) this._dbg.destroy();
-      this._ctrlBox.remove();
       // Remove from global instance registry
       const idx = _instances.indexOf(this);
       if (idx >= 0) _instances.splice(idx, 1);
+      _coordinator.unregister(this);
       this._container.remove();
       _instanceCount--;
     }
@@ -3230,6 +3875,9 @@
     pause()         { this._m.pause(); }
     resume()        { this._m.resume(); }
     remove()        { this._m.remove(); }
+    rename()        { return _coordinator.rename(this._m); }
+    get id()        { return this._m._flockId; }
+    get name()      { return this._m._name; }
     setSpeed(x)     { this._m.setSpeed(x); }
     setVolume(v)    { this._m.setVolume(v); }
     setScale(s)     { this._m.setScale(s); }
@@ -3237,6 +3885,9 @@
     setTheme(n)     { this._m.setTheme(n); }
     setMode(m)      { this._m.setMode(m); }
     debugForce(id)  { this._m.debugForce(id); }
+    debugStartCourtship(id) { return this._m.debugStartCourtship(id); }
+    debugLifecycleSnapshot() { return this._m.debugLifecycleSnapshot(); }
+    setAudioEnabled(value) { this._m.setAudioEnabled(value); }
   }
 
   /**

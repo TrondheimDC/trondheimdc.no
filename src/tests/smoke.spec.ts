@@ -225,6 +225,130 @@ test.describe('Duck mascot', () => {
       ['trackEvent', 'Duck', 'Click', 'Total click 2', 2],
     ]);
   });
+
+  test('shows a label above a duck after it is named', async ({ page }) => {
+    await page.goto('/');
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+    await page.evaluate(() => {
+      (window as Window & { testDuck?: { rename: () => boolean } }).testDuck = window.initDuckMate({ id: 'named-duck' });
+    });
+
+    page.once('dialog', (dialog) => dialog.accept('Ada'));
+    await page.evaluate(() => (window as Window & { testDuck: { rename: () => boolean } }).testDuck.rename());
+
+    const label = page.locator('.duck-mate-name-label');
+    await expect(label).toBeVisible();
+    await expect(label).toHaveText('Ada');
+    await expect(page.locator('.duck-mate-duck')).toHaveAttribute('aria-label', /named Ada/);
+  });
+
+  test('keeps generated duck names hidden, including after persistence', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem('duck-mate-flock', JSON.stringify({
+        version: 2,
+        ducks: [{ id: 'default-name-duck', name: 'Duck 1' }],
+        lifecycles: [],
+        children: [],
+      }));
+    });
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+    await page.evaluate(() => window.initDuckMate({ id: 'default-name-duck' }));
+
+    await expect(page.locator('.duck-mate-name-label')).toBeHidden();
+    await expect(page.locator('.duck-mate-duck')).toHaveAttribute('aria-label', 'Animated duck mascot');
+    const storedDuck = await page.evaluate(() => JSON.parse(localStorage.getItem('duck-mate-flock')!).ducks[0]);
+    expect(storedDuck).toMatchObject({ customName: false, name: null });
+  });
+
+  test('renders an egg in its own uncropped overlay canvas', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      const now = Date.now();
+      localStorage.setItem('duck-mate-flock', JSON.stringify({
+        version: 2,
+        ducks: [{ id: 'egg-host', name: 'Parent' }],
+        children: [],
+        lifecycles: [{
+          id: 'egg-test', parentA: 'egg-host', parentB: 'missing-parent', state: 'egg',
+          eggAt: now - 1000, hatchAt: now + 60000, eggX: 10, eggY: 120,
+          hostId: 'egg-host', crackSeed: 7, seed: 7,
+        }],
+      }));
+    });
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+    await page.evaluate(() => window.initDuckMate({ id: 'egg-host' }));
+
+    const egg = page.locator('.duck-mate-egg');
+    await expect(egg).toBeVisible();
+    const bounds = await egg.boundingBox();
+    expect(bounds).toMatchObject({ width: 56, height: 64 });
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+
+    const transparentEdge = await egg.evaluate((canvas: HTMLCanvasElement) => {
+      const context = canvas.getContext('2d')!;
+      const { width, height } = canvas;
+      const top = context.getImageData(0, 0, width, 1).data;
+      const bottom = context.getImageData(0, height - 1, width, 1).data;
+      const left = context.getImageData(0, 0, 1, height).data;
+      const right = context.getImageData(width - 1, 0, 1, height).data;
+      return [top, bottom, left, right].every(edge => {
+        for (let alpha = 3; alpha < edge.length; alpha += 4) if (edge[alpha] !== 0) return false;
+        return true;
+      });
+    });
+    expect(transparentEdge).toBe(true);
+  });
+
+  test('does not let baby ducks start a new egg lifecycle', async ({ page }) => {
+    await page.goto('/');
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+
+    const result = await page.evaluate(() => {
+      const adult = window.initDuckMate({ id: 'adult-duck' });
+      const baby = window.initDuckMate({
+        id: 'baby-duck',
+        multiInstance: true,
+        isBaby: true,
+        breedingMatureAt: Date.now() + 180000,
+        growthStartedAt: Date.now(),
+        growthDurationMs: 180000,
+      });
+      return {
+        started: baby.debugStartCourtship(adult.id),
+        lifecycles: baby.debugLifecycleSnapshot(),
+      };
+    });
+
+    expect(result.started).toBe(false);
+    expect(result.lifecycles).toEqual([]);
+    await expect(page.locator('.duck-mate-duck[data-courtship-stage]')).toHaveCount(0);
+  });
+
+  test('starts synchronized staged animation when two adult ducks fall in love', async ({ page }) => {
+    await page.goto('/');
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+
+    const courtship = await page.evaluate(() => {
+      const first = window.initDuckMate({ id: 'love-duck-a' });
+      const second = window.initDuckMate({ id: 'love-duck-b', multiInstance: true });
+      const started = first.debugStartCourtship(second.id);
+      const lifecycle = first.debugLifecycleSnapshot()[0];
+      return { started, duration: lifecycle.eggAt - lifecycle.startedAt };
+    });
+
+    expect(courtship.started).toBe(true);
+    expect(courtship.duration).toBeGreaterThanOrEqual(12000);
+    expect(courtship.duration).toBeLessThanOrEqual(20000);
+    const courting = page.locator('.duck-mate-duck[data-courtship-stage="approach"]');
+    await expect(courting).toHaveCount(2);
+    await expect(courting.first()).toHaveAttribute('aria-label', /Animated duck mascot/);
+  });
 });
 
 test.describe('Speaker analytics', () => {
