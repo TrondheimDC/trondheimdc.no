@@ -245,7 +245,7 @@ test.describe('Duck mascot', () => {
 
   test('keeps generated duck names hidden, including after persistence', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => {
+    const restoredLifecycles = await page.evaluate(() => {
       localStorage.setItem('duck-mate-flock', JSON.stringify({
         version: 2,
         ducks: [{ id: 'default-name-duck', name: 'Duck 1' }],
@@ -261,6 +261,43 @@ test.describe('Duck mascot', () => {
     await expect(page.locator('.duck-mate-duck')).toHaveAttribute('aria-label', 'Animated duck mascot');
     const storedDuck = await page.evaluate(() => JSON.parse(localStorage.getItem('duck-mate-flock')!).ducks[0]);
     expect(storedDuck).toMatchObject({ customName: false, name: null });
+  });
+
+  test('close-all clears eggs, persisted flock state, and the five-click counter', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      const now = Date.now();
+      localStorage.setItem('duck-mate-flock', JSON.stringify({
+        version: 3,
+        ducks: [{ id: 'close-host', name: 'Parent', customName: true }],
+        children: [],
+        lifecycles: [{
+          id: 'close-egg', parentA: 'close-host', parentB: 'missing', state: 'egg',
+          eggAt: now - 1000, hatchAt: now + 60000, eggX: 120, eggY: 120,
+          hostId: 'close-host', crackSeed: 3, seed: 3,
+        }],
+      }));
+    });
+    await page.addStyleTag({ url: '/assets/css/duck-mate.css' });
+    await page.addScriptTag({ url: '/assets/js/duck-mate.js' });
+    await page.evaluate(() => {
+      const duck = window.initDuckMate({ id: 'close-host' });
+      return duck?.debugLifecycleSnapshot();
+    });
+    await expect(page.locator('.duck-mate-egg')).toHaveCount(1);
+
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Close all ducks' }).click();
+
+    await expect(page.locator('.duck-mate-egg')).toHaveCount(0);
+    await expect(page.locator('.duck-mate-duck')).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duck-mate-flock')!).lifecycles)).toEqual([]);
+
+    // Five clicks after close must be the first four clicks of a new sequence,
+    // not an immediate party-mode activation from the previous flock.
+    const heroDuck = page.locator('#hero tdc-duck .duck');
+    for (let click = 0; click < 4; click++) await heroDuck.dispatchEvent('click');
+    await expect(heroDuck).not.toHaveClass(/is-partying/);
   });
 
   test('renders an egg in its own uncropped overlay canvas', async ({ page }) => {

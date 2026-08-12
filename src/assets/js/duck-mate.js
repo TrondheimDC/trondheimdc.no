@@ -3257,6 +3257,16 @@
       if (!_instances.length) return;
       if (!global.confirm(`Remove all ${_instances.length} ducks?`)) return;
       [..._instances].forEach(instance => instance.remove());
+      // Closing the flock is a full reset: no orphaned eggs, children,
+      // courtships, or persisted identities should survive the X action.
+      this._lifecycles.clear();
+      this._children.clear();
+      for (const id of [...this._eggElements.keys()]) this._removeEggElement(id);
+      this._names.clear();
+      this._cooldowns.clear();
+      this._pairCooldowns.clear();
+      this._persist();
+      global.dispatchEvent(new CustomEvent('duck-mate:closed'));
     }
 
     _createToolbar() {
