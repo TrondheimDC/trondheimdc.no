@@ -1,5 +1,6 @@
 // Speaker detail modal — populates the dialog with the clicked speaker's
 // bio and talk info (both always visible), plus their social links.
+import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
 
 class TdcSpeakerModal {
   constructor() {
@@ -51,6 +52,8 @@ class TdcSpeakerModal {
         this.dialog.close();
       }
     });
+
+    this.dialog.addEventListener("close", unlockModalScroll);
   }
 
   open(button) {
@@ -86,6 +89,8 @@ class TdcSpeakerModal {
     } else {
       this.dialog.setAttribute("open", "");
     }
+
+    lockModalScroll();
   }
 
   buildSocialLinks(twitter, linkedIn, blog) {

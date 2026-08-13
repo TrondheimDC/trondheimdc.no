@@ -1,3 +1,5 @@
+import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
+
 class TdcProgramModal {
   constructor() {
     this.dialog = document.getElementById("program-description-modal");
@@ -31,6 +33,8 @@ class TdcProgramModal {
         this.dialog.close();
       }
     });
+
+    this.dialog.addEventListener("close", unlockModalScroll);
   }
 
   open(button) {
@@ -45,6 +49,8 @@ class TdcProgramModal {
     } else {
       this.dialog.setAttribute("open", "");
     }
+
+    lockModalScroll();
   }
 }
 
