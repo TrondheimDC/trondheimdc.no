@@ -136,21 +136,31 @@ export function parseGridSchedule(html) {
   };
 }
 
-export function mergeScheduleData(schedule, sessions) {
+export function mergeScheduleData(schedule, sessions, options = {}) {
   const details = new Map(sessions.map((session) => [session.id, session]));
   const rooms = schedule.rooms.map((room) => ({ ...room }));
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
+  const fullWidthSessionTitles = new Set(options.fullWidthSessionTitles ?? []);
+  const sessionsByStart = new Map();
+  for (const session of schedule.sessions) {
+    const row = sessionsByStart.get(session.startsAt) ?? [];
+    row.push(session);
+    sessionsByStart.set(session.startsAt, row);
+  }
   const mergedSessions = schedule.sessions.map((session) => {
     const detail = details.get(session.id);
     const startIndex = roomIndex.get(session.roomStartId || session.roomId);
     const endIndex = roomIndex.get(session.roomEndId || session.roomId);
+    const isOnlySessionInRow = (sessionsByStart.get(session.startsAt) ?? []).length === 1;
+    const isFullWidth = isOnlySessionInRow || fullWidthSessionTitles.has(session.title || detail?.title);
     return {
       ...session,
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
       roomName: session.roomName || detail?.roomName || "",
-      roomStart: startIndex ?? 0,
-      roomEnd: endIndex ?? rooms.length - 1,
+      roomStart: isFullWidth ? 0 : (startIndex ?? 0),
+      roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),
+      isFullWidth,
     };
   });
   const rows = [...new Set(mergedSessions.map((session) => session.startsAt))]

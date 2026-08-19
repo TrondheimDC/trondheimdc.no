@@ -19,7 +19,8 @@
   --color-bg-danger: var(--color-red);
 
   --color-fg-base: var(--color-black-3);
-  --color-fg-brand: var(--color-green-3);
+  /* Light-mode interactive/accent states use red; dark mode keeps green. */
+  --color-fg-brand: var(--color-red-3);
   --color-fg-brand-2: var(--color-purple-3);
   --color-fg-brand-3: var(--color-yellow-3);
   --color-fg-brand-4: var(--color-yellow-2);
@@ -50,7 +51,8 @@
     --color-bg-danger: var(--color-red);
 
     --color-fg-base: var(--color-black-3);
-    --color-fg-brand: var(--color-green-3);
+    /* Keep the system-preference light theme identical to explicit light. */
+    --color-fg-brand: var(--color-red-3);
     --color-fg-brand-2: var(--color-purple-3);
     --color-fg-brand-3: var(--color-yellow-3);
     --color-fg-brand-4: var(--color-yellow-2);

@@ -119,6 +119,20 @@ test.describe('Program schedule', () => {
       expect(Math.abs(headerBox!.x - sessionBox!.x)).toBeLessThan(2);
     }
   });
+
+  test('spans a single session across the full desktop schedule row', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#program');
+
+    const grid = page.locator('.program-schedule__grid');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'Ubuntu as AI Compass' });
+    const [gridBox, sessionBox] = await Promise.all([grid.boundingBox(), session.boundingBox()]);
+
+    expect(gridBox).not.toBeNull();
+    expect(sessionBox).not.toBeNull();
+    expect(Math.abs(gridBox!.x - sessionBox!.x)).toBeLessThan(2);
+    expect(Math.abs(gridBox!.width - sessionBox!.width)).toBeLessThan(2);
+  });
 });
 
 test.describe('Single-page sections', () => {
