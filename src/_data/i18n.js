@@ -50,6 +50,13 @@ export default {
     program: {
       title: "Program",
       placeholder: "Programmet publiseres snart!",
+      favorite_hint: "Lagre foredrag du vil huske",
+      show_favorites: "Vis lagrede",
+      star: "Lagre foredrag",
+      unstar: "Fjern lagret foredrag",
+      show_all: "Vis alle foredrag",
+      shared_session: "Fellesområde",
+      close: "Lukk",
     },
     tickets: {
       title: "Billetter",
@@ -207,6 +214,13 @@ export default {
     program: {
       title: "Agenda",
       placeholder: "The agenda will be published soon!",
+      favorite_hint: "Save talks you want to remember",
+      show_favorites: "Show saved",
+      star: "Save talk",
+      unstar: "Remove saved talk",
+      show_all: "Show all talks",
+      shared_session: "Shared area",
+      close: "Close",
     },
     tickets: {
       title: "Tickets",

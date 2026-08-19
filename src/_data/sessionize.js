@@ -19,12 +19,20 @@
  * as a repo/environment secret for CI (see .github/workflows/{cd,pr}.yml).
  * If it's unset or the fetch fails, we just fall back to no top speakers.
  */
-import { fetchHtml, parseSessions, parseSpeakers, buildRooms, sortSpeakers } from "../assets/js/sessionize-client.js";
+import {
+  fetchHtml,
+  parseSessions,
+  parseSpeakers,
+  parseGridSchedule,
+  mergeScheduleData,
+  sortSpeakers,
+} from "../assets/js/sessionize-client.js";
 
 const eventId = "xx320rm2";
 
 const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?under=True`;
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
+const gridUrl = `https://sessionize.com/api/v2/${eventId}/view/GridSmart?under=True`;
 
 async function fetchTopSpeakerIds() {
   const apiUrl = process.env.SESSIONIZE_API_URL;
@@ -58,22 +66,27 @@ async function fetchTopSpeakerIds() {
 export default async function () {
   console.log("🎤 Fetching Sessionize data from HTML fragments...");
 
-  const [sessionsHtml, speakersHtml, topSpeakerIds] = await Promise.all([
+  const [sessionsHtml, speakersHtml, gridHtml, topSpeakerIds] = await Promise.all([
     fetchHtml(sessionsUrl, "Sessionize sessions"),
     fetchHtml(speakersUrl, "Sessionize speakers"),
+    fetchHtml(gridUrl, "Sessionize program grid"),
     fetchTopSpeakerIds(),
   ]);
 
   const sessions = parseSessions(sessionsHtml);
   const speakers = sortSpeakers(parseSpeakers(speakersHtml), topSpeakerIds);
-  const rooms = buildRooms(sessions);
+  const schedule = mergeScheduleData(parseGridSchedule(gridHtml), sessions);
+
+  if (!schedule.sessions.length) {
+    throw new Error("Sessionize program grid returned no sessions; refusing to build an empty program.");
+  }
 
   return {
     eventId,
     sessions,
     speakers,
-    rooms,
+    rooms: schedule.rooms,
+    schedule,
     topSpeakerIds,
-    timeSlots: [],
   };
 }

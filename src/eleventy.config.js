@@ -39,10 +39,15 @@ export default function (eleventyConfig) {
     });
   });
 
-  // Extract time (HH:MM) from ISO 8601 datetime string
+  // Format Sessionize's UTC timestamps in the event's local timezone.
   eleventyConfig.addFilter("isoTime", function (value) {
     if (!value) return "";
-    return value.substring(11, 16); // "2026-10-19T09:00:00" → "09:00"
+    return new Intl.DateTimeFormat("nb-NO", {
+      timeZone: "Europe/Oslo",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(value));
   });
 
   // Resolve Sessionize objects by ID in templates.

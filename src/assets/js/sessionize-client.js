@@ -30,6 +30,10 @@ export function stripHtml(value = "") {
   );
 }
 
+export function normalizeTimestamp(value = "") {
+  return value.replace(/(\.\d{3})\d+(Z|[+-]\d{2}:?\d{2})$/, "$1$2");
+}
+
 export async function fetchHtml(url, label) {
   try {
     console.log(`  Fetching ${label}...`);
@@ -74,8 +78,8 @@ export function parseSessions(html) {
       className,
       title: stripHtml(title),
       description: stripHtml(description),
-      startsAt: timeMatch?.[1] ?? "",
-      endsAt: timeMatch?.[2] ?? "",
+      startsAt: normalizeTimestamp(timeMatch?.[1] ?? ""),
+      endsAt: normalizeTimestamp(timeMatch?.[2] ?? ""),
       roomId: roomMatch?.[1] ?? "",
       roomName: stripHtml(roomMatch?.[2] ?? ""),
       speakers: speakerIds.map((speaker) => speaker.id),
@@ -83,6 +87,81 @@ export function parseSessions(html) {
   }
 
   return sessions;
+}
+
+export function parseGridSchedule(html) {
+  const roomMatches = [...html.matchAll(/<span class="sz-cssgrid__track-label[^>]*>([\s\S]*?)<\/span>/gi)];
+  const rooms = roomMatches.map((match) => {
+    const roomId = match[0].match(/sz-room--([^"\s]+)/i)?.[1] ?? "";
+    return { id: roomId, name: stripHtml(match[1]) };
+  }).filter((room) => room.id);
+  const dayMatch = html.match(/<h1 class="sz-day__title"[^>]*data-sztz="[^|]*\|[^|]*\|([^|]+)\|[^|]+"[^>]*>([\s\S]*?)<\/h1>/i);
+  const sessions = [];
+  const openingTagPattern = /<div\b[^>]*data-sessionid="([^"]+)"[^>]*class="([^"]*sz-session[^\"]*)"[^>]*style="([^"]*)"[^>]*>/gi;
+  const matches = [...html.matchAll(openingTagPattern)];
+
+  for (let index = 0; index < matches.length; index++) {
+    const match = matches[index];
+    const [, id, className, style] = match;
+    const start = match.index ?? 0;
+    const end = index + 1 < matches.length ? matches[index + 1].index ?? html.length : html.length;
+    const body = html.slice(start, end);
+    const timeMatch = body.match(/data-sztz="[^|]*\|[^|]*\|([^|]+)\|([^"]+)"/i);
+    const roomName = body.match(/data-roomid="([^"]+)" class="sz-session__room">([\s\S]*?)<\/div>/i);
+    const trackIds = [...style.matchAll(/track-([^\s/-]+)-(?:start|end)/gi)].map((track) => track[1]);
+    const title = body.match(/<h3 class="sz-session__title">[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h3>/i)?.[1] ?? "";
+    const speakerIds = [...body.matchAll(/data-speakerid="([^"]+)"/gi)].map((speaker) => speaker[1]);
+
+    sessions.push({
+      id,
+      className,
+      title: stripHtml(title),
+      startsAt: normalizeTimestamp(timeMatch?.[1] ?? ""),
+      endsAt: normalizeTimestamp(timeMatch?.[2] ?? ""),
+      roomId: roomName?.[1] ?? "",
+      roomName: stripHtml(roomName?.[2] ?? ""),
+      speakerIds,
+      roomStartId: trackIds[0] ?? "",
+      roomEndId: trackIds[trackIds.length - 1] ?? trackIds[0] ?? "",
+      isService: /sz-session--service/i.test(className),
+      isPlenum: /sz-session--plenum/i.test(className),
+    });
+  }
+
+  return {
+    date: normalizeTimestamp(dayMatch?.[1] ?? ""),
+    dateLabel: stripHtml(dayMatch?.[2] ?? ""),
+    rooms,
+    sessions,
+  };
+}
+
+export function mergeScheduleData(schedule, sessions) {
+  const details = new Map(sessions.map((session) => [session.id, session]));
+  const rooms = schedule.rooms.map((room) => ({ ...room }));
+  const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
+  const mergedSessions = schedule.sessions.map((session) => {
+    const detail = details.get(session.id);
+    const startIndex = roomIndex.get(session.roomStartId || session.roomId);
+    const endIndex = roomIndex.get(session.roomEndId || session.roomId);
+    return {
+      ...session,
+      description: detail?.description ?? "",
+      speakers: detail?.speakers ?? session.speakerIds,
+      roomName: session.roomName || detail?.roomName || "",
+      roomStart: startIndex ?? 0,
+      roomEnd: endIndex ?? rooms.length - 1,
+    };
+  });
+  const rows = [...new Set(mergedSessions.map((session) => session.startsAt))]
+    .filter(Boolean)
+    .sort()
+    .map((startsAt) => ({
+      startsAt,
+      sessions: mergedSessions.filter((session) => session.startsAt === startsAt),
+    }));
+
+  return { ...schedule, rooms, sessions: mergedSessions, rows };
 }
 
 export function parseSpeakers(html) {

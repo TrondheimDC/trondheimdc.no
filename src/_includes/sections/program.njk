@@ -1,12 +1,102 @@
 <tdc-section>
 <section class="section" id="program" aria-labelledby="program-title">
-  <div class="container stack">
+  <div class="container container--wide stack">
     <header class="section__header">
       <h2 class="section__title text-h1" id="program-title">{{ t.program.title }}</h2>
     </header>
 
-    <div class="program-embed" aria-label="{{ t.program.title }}">
-      <script type="text/javascript" src="https://sessionize.com/api/v2/xx320rm2/view/GridSmart"></script>
+    <div
+      class="program-schedule"
+      aria-label="{{ t.program.title }}"
+      data-favorites-key="tdc-favorites-{{ sessionize.eventId }}"
+      data-star-label="{{ t.program.star }}"
+      data-unstar-label="{{ t.program.unstar }}"
+      data-show-favorites-label="{{ t.program.show_favorites }}"
+      data-show-all-label="{{ t.program.show_all }}"
+    >
+      {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
+        <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
+        <div class="program-schedule__toolbar">
+          <p class="program-schedule__hint">{{ t.program.favorite_hint }}</p>
+          <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
+            <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
+          </button>
+        </div>
+
+        <div class="program-schedule__grid" style="--program-room-count: {{ sessionize.schedule.rooms.length }}">
+          <div class="program-schedule__rooms" aria-hidden="true">
+            <span></span>
+            {% for room in sessionize.schedule.rooms %}
+              <span class="program-schedule__room-label">{{ room.name }}</span>
+            {% endfor %}
+          </div>
+
+          {% for row in sessionize.schedule.rows %}
+            <div class="program-schedule__row" data-program-time="{{ row.startsAt }}">
+              <time class="program-schedule__time" datetime="{{ row.startsAt }}">{{ row.startsAt | isoTime }}</time>
+              <div class="program-schedule__sessions">
+                {% for session in row.sessions %}
+                  <article
+                    class="program-session{% if session.isService %} program-session--service{% endif %}{% if session.isPlenum %} program-session--plenum{% endif %}"
+                    style="--program-room-start: {{ session.roomStart + 1 }}; --program-room-end: {{ session.roomEnd + 2 }}"
+                    data-program-session
+                    data-session-id="{{ session.id | escape }}"
+                    data-session-title="{{ session.title | escape }}"
+                    data-session-description="{{ session.description | escape }}"
+                    data-session-start="{{ session.startsAt | isoTime }}"
+                    data-session-end="{{ session.endsAt | isoTime }}"
+                    data-session-room="{{ session.roomName | escape }}"
+                    data-session-service="{{ 'true' if session.isService else 'false' }}"
+                  >
+                    <div class="program-session__meta">
+                      <span class="program-session__room">{{ session.roomName or t.program.shared_session }}</span>
+                      <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
+                    </div>
+                    <div class="program-session__heading">
+                      <button type="button" class="program-session__title" data-session-open>
+                        {{ session.title }}
+                      </button>
+                      {% if not session.isService %}
+                        <button type="button" class="program-session__favorite" data-session-favorite aria-label="{{ t.program.star }}: {{ session.title | escape }}" aria-pressed="false">☆</button>
+                      {% endif %}
+                    </div>
+                    {% if session.speakers and not session.isService %}
+                      <div class="program-session__speakers">
+                        {% for speakerId in session.speakers %}
+                          {% set speaker = sessionize.speakers | speakerById(speakerId) %}
+                          {% if speaker %}
+                            <button
+                              type="button"
+                              class="program-session__speaker"
+                              data-speaker-open
+                              data-speaker-name="{{ (speaker.firstName + ' ' + speaker.lastName) | escape }}"
+                              data-speaker-image="{{ speaker.profilePicture | escape }}"
+                              data-speaker-tagline="{{ speaker.tagLine | escape }}"
+                              data-speaker-bio="{{ speaker.bio | escape }}"
+                              data-speaker-talk-title="{{ session.title | escape }}"
+                              data-speaker-talk-description="{{ session.description | escape }}"
+                            >{{ speaker.firstName }} {{ speaker.lastName }}</button>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </article>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <dialog class="program-session-modal" data-session-dialog aria-labelledby="program-session-modal-title">
+          <button type="button" class="program-session-modal__close" data-session-close aria-label="{{ t.program.close }}">✕</button>
+          <p class="program-session-modal__meta" data-session-modal-meta></p>
+          <h3 id="program-session-modal-title" data-session-modal-title></h3>
+          <p class="program-session-modal__description" data-session-modal-description></p>
+          <button type="button" class="program-session-modal__favorite" data-session-modal-favorite aria-pressed="false"></button>
+        </dialog>
+      {% else %}
+        <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
+      {% endif %}
     </div>
   </div>
 </section>
