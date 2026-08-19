@@ -37,7 +37,7 @@
               <div class="program-schedule__sessions">
                 {% for session in row.sessions %}
                   <article
-                    class="program-session{% if session.isService %} program-session--service{% endif %}{% if session.isPlenum %} program-session--plenum{% endif %}"
+                    class="program-session{% if session.isService %} program-session--service{% endif %}{% if session.isPlenum %} program-session--plenum{% endif %}{% if not session.isService %} program-session--favoritable{% endif %}"
                     style="--program-room-start: {{ session.roomStart + 1 }}; --program-room-end: {{ session.roomEnd + 2 }}"
                     data-program-session
                     data-session-id="{{ session.id | escape }}"
