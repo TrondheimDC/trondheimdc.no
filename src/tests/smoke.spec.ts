@@ -37,11 +37,12 @@ test.describe('Pages load', () => {
       await expect(page).toHaveTitle(/TDC/);
     });
 
-    test(`${path} uses the Sessionize GridSmart embed`, async ({ page }) => {
+    test(`${path} renders the custom program schedule`, async ({ page }) => {
       await page.goto(path);
-      await expect(
-        page.locator('#program script[src="https://sessionize.com/api/v2/xx320rm2/view/GridSmart"]'),
-      ).toHaveCount(1);
+      await expect(page.locator('#program .program-schedule')).toBeVisible();
+      await expect(page.locator('#program .program-schedule__room-label')).toHaveCount(6);
+      await expect(page.locator('#program [data-program-session]')).toHaveCount(55);
+      await expect(page.locator('#program [data-session-description]:not([data-session-description=""])')).toHaveCount(45);
     });
 
     test(`${path} places the program directly before speakers`, async ({ page }) => {
@@ -54,6 +55,84 @@ test.describe('Pages load', () => {
     });
 
   }
+});
+
+test.describe('Program schedule', () => {
+  test('opens a talk detail dialog', async ({ page }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    await session.locator('[data-session-open]').click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    await expect(page.locator('[data-session-modal-title]')).toHaveText('After the AI Hype – What’s Real, and What’s Next');
+    await expect(page.locator('[data-session-modal-description]')).not.toBeEmpty();
+  });
+
+  test('stars a talk and persists it across reloads', async ({ page }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    await session.locator('[data-session-favorite]').click();
+    await expect(session.locator('[data-session-favorite]')).toHaveAttribute('aria-pressed', 'true');
+    await page.reload();
+    await expect(page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).locator('[data-session-favorite]')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('keeps schedule content readable in both themes', async ({ page }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').first();
+    const darkColors = await session.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { background: style.backgroundColor, color: style.color };
+    });
+    expect(darkColors.background).not.toBe(darkColors.color);
+
+    await page.locator('tdc-theme-toggle button').click();
+    const lightColors = await session.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { background: style.backgroundColor, color: style.color };
+    });
+    expect(lightColors.background).not.toBe(lightColors.color);
+  });
+
+  test('places regular talks under their room columns on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#program');
+    const positions = await page.locator('[data-program-session][data-session-start="10:00"]')
+      .evaluateAll((sessions) => sessions.map((session) => ({
+        room: session.querySelector('.program-session__room')?.textContent?.trim(),
+        left: session.getBoundingClientRect().left,
+      })));
+
+    expect(new Set(positions.filter((item) => item.room !== 'Fellesareal').map((item) => item.left)).size).toBeGreaterThan(2);
+  });
+
+  test('aligns each session under its own room header column', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#program');
+
+    for (const roomName of ['Living room', 'Andromeda', 'Aurora']) {
+      const header = page.locator('.program-schedule__room-label', { hasText: roomName });
+      const session = page.locator('[data-program-session]').filter({ has: page.locator('.program-session__room', { hasText: roomName }) }).first();
+      const [headerBox, sessionBox] = await Promise.all([header.boundingBox(), session.boundingBox()]);
+
+      expect(headerBox).not.toBeNull();
+      expect(sessionBox).not.toBeNull();
+      expect(Math.abs(headerBox!.x - sessionBox!.x)).toBeLessThan(2);
+    }
+  });
+
+  test('spans a single session across the full desktop schedule row', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#program');
+
+    const grid = page.locator('.program-schedule__grid');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'Ubuntu as AI Compass' });
+    const [gridBox, sessionBox] = await Promise.all([grid.boundingBox(), session.boundingBox()]);
+
+    expect(gridBox).not.toBeNull();
+    expect(sessionBox).not.toBeNull();
+    expect(Math.abs(gridBox!.x - sessionBox!.x)).toBeLessThan(2);
+    expect(Math.abs(gridBox!.width - sessionBox!.width)).toBeLessThan(2);
+  });
 });
 
 test.describe('Single-page sections', () => {
