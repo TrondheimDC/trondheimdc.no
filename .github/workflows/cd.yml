@@ -52,6 +52,9 @@ jobs:
   e2e-new:
     name: e2e (new site)
     runs-on: ubuntu-latest
+    # Prevent a stuck browser/server process from consuming GitHub's entire
+    # six-hour runner limit without producing a useful result.
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
