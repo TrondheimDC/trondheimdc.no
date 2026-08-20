@@ -124,14 +124,20 @@ test.describe('Program schedule', () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/#program');
 
-    const grid = page.locator('.program-schedule__grid');
+    const roomLabels = page.locator('.program-schedule__room-label');
     const session = page.locator('[data-program-session]').filter({ hasText: 'Ubuntu as AI Compass' });
-    const [gridBox, sessionBox] = await Promise.all([grid.boundingBox(), session.boundingBox()]);
+    const [firstRoomBox, lastRoomBox, sessionBox] = await Promise.all([
+      roomLabels.first().boundingBox(),
+      roomLabels.last().boundingBox(),
+      session.boundingBox(),
+    ]);
 
-    expect(gridBox).not.toBeNull();
+    expect(firstRoomBox).not.toBeNull();
+    expect(lastRoomBox).not.toBeNull();
     expect(sessionBox).not.toBeNull();
-    expect(Math.abs(gridBox!.x - sessionBox!.x)).toBeLessThan(2);
-    expect(Math.abs(gridBox!.width - sessionBox!.width)).toBeLessThan(2);
+    const roomsWidth = lastRoomBox!.x + lastRoomBox!.width - firstRoomBox!.x;
+    expect(Math.abs(firstRoomBox!.x - sessionBox!.x)).toBeLessThan(2);
+    expect(Math.abs(roomsWidth - sessionBox!.width)).toBeLessThan(2);
   });
 });
 
