@@ -2,9 +2,12 @@
 .program-schedule__date { margin: 0 0 var(--spacing-6); color: var(--color-fg-base); font-size: var(--font-size-70); }
 .program-schedule__toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); margin-block-end: var(--spacing-6); }
 .program-schedule__hint { margin: 0; color: var(--color-fg-muted); }
+.program-schedule__filters { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: var(--spacing-2); }
+.program-schedule__topic-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
+.program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
 .program-schedule__filter, .program-session__favorite, .program-session-modal__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; }
 .program-schedule__filter { padding: var(--spacing-2) var(--spacing-3); }
-.program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+.program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
 .program-schedule__rooms, .program-schedule__row { display: grid; grid-template-columns: 4.5rem repeat(var(--program-room-count), minmax(10rem, 1fr)); gap: var(--spacing-2); min-width: calc(4.5rem + var(--program-room-count) * 10rem); }
 .program-schedule__rooms { margin-block-end: var(--spacing-2); }
@@ -50,5 +53,6 @@
 
 @media (max-width: 480px) {
   .program-schedule__toolbar { align-items: flex-start; flex-direction: column; }
+  .program-schedule__filters { justify-content: flex-start; }
   .program-session-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
 }

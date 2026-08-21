@@ -141,6 +141,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
   const rooms = schedule.rooms.map((room) => ({ ...room }));
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
   const fullWidthSessionTitles = new Set(options.fullWidthSessionTitles ?? []);
+  const topicsBySession = options.topicsBySession ?? new Map();
   const sessionsByStart = new Map();
   for (const session of schedule.sessions) {
     const row = sessionsByStart.get(session.startsAt) ?? [];
@@ -157,6 +158,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
       ...session,
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
+      topics: topicsBySession.get(session.id) ?? [],
       roomName: session.roomName || detail?.roomName || "",
       roomStart: isFullWidth ? 0 : (startIndex ?? 0),
       roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),
@@ -171,7 +173,9 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
       sessions: mergedSessions.filter((session) => session.startsAt === startsAt),
     }));
 
-  return { ...schedule, rooms, sessions: mergedSessions, rows };
+  const topics = [...new Set(mergedSessions.flatMap((session) => session.topics))].sort((a, b) => a.localeCompare(b));
+
+  return { ...schedule, rooms, sessions: mergedSessions, rows, topics };
 }
 
 export function parseSpeakers(html) {

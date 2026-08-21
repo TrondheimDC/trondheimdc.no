@@ -13,14 +13,25 @@
       data-unstar-label="{{ t.program.unstar }}"
       data-show-favorites-label="{{ t.program.show_favorites }}"
       data-show-all-label="{{ t.program.show_all }}"
+      data-all-topics-label="{{ t.program.all_topics }}"
+      data-topic-label="{{ t.program.topic }}"
     >
       {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
         <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
         <div class="program-schedule__toolbar">
           <p class="program-schedule__hint">{{ t.program.favorite_hint }}</p>
-          <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
-            <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
-          </button>
+          <div class="program-schedule__filters">
+            <label class="program-schedule__topic-label" for="program-topic-filter">{{ t.program.topic }}</label>
+            <select class="program-schedule__topic" id="program-topic-filter" data-program-topic-filter>
+              <option value="">{{ t.program.all_topics }}</option>
+              {% for topic in sessionize.schedule.topics %}
+                <option value="{{ topic | escape }}">{{ topic }}</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
+              <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
+            </button>
+          </div>
         </div>
 
         <div class="program-schedule__grid" style="--program-room-count: {{ sessionize.schedule.rooms.length }}">
@@ -47,6 +58,7 @@
                     data-session-end="{{ session.endsAt | isoTime }}"
                     data-session-room="{{ session.roomName | escape }}"
                     data-session-service="{{ 'true' if session.isService else 'false' }}"
+                    data-session-topics="{{ session.topics | join('|') | escape }}"
                   >
                     <div class="program-session__meta">
                       <span class="program-session__room">{{ session.roomName or t.program.shared_session }}</span>
