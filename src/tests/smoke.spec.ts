@@ -43,6 +43,7 @@ test.describe('Pages load', () => {
       await expect(page.locator('#program .program-schedule__room-label')).toHaveCount(6);
       await expect(page.locator('#program [data-program-session]')).toHaveCount(55);
       await expect(page.locator('#program [data-session-description]:not([data-session-description=""])')).toHaveCount(45);
+      await expect(page.locator('#program [data-program-topic-filter] option')).not.toHaveCount(1);
     });
 
     test(`${path} places the program directly before speakers`, async ({ page }) => {
@@ -74,6 +75,31 @@ test.describe('Program schedule', () => {
     await expect(session.locator('[data-session-favorite]')).toHaveAttribute('aria-pressed', 'true');
     await page.reload();
     await expect(page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).locator('[data-session-favorite]')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('combines topic and saved-talk filters', async ({ page }) => {
+    await page.goto('/');
+    const topicFilter = page.locator('[data-program-topic-filter]');
+    const sessions = page.locator('[data-program-session]');
+    const firstSession = sessions.filter({ has: page.locator('[data-session-favorite]') }).first();
+
+    // The live Sessionize API can change its topic list; seed one session with
+    // a topic so this test verifies the filtering behaviour independently.
+    await firstSession.evaluate((session) => { session.dataset.sessionTopics = 'Test topic'; });
+    await topicFilter.evaluate((select) => {
+      const option = document.createElement('option');
+      option.value = 'Test topic';
+      option.textContent = 'Test topic';
+      select.append(option);
+    });
+    await topicFilter.selectOption('Test topic');
+    await expect(firstSession).toBeVisible();
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+
+    await firstSession.locator('[data-session-favorite]').click();
+    await page.locator('[data-program-favorites-only]').click();
+    await expect(firstSession).toBeVisible();
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
   });
 
   test('keeps schedule content readable in both themes', async ({ page }) => {

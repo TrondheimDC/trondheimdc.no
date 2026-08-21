@@ -34,48 +34,77 @@ const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?unde
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
 const gridUrl = `https://sessionize.com/api/v2/${eventId}/view/GridSmart?under=True`;
 
-async function fetchTopSpeakerIds() {
+function getSessionTopics(session) {
+  const categories = session.categories ?? session.topics ?? session.tags ?? [];
+  const values = Array.isArray(categories) ? categories : [];
+
+  return values.flatMap((category) => {
+    if (typeof category === "string") return [category];
+    if (!category || typeof category !== "object") return [];
+
+    const items = category.categoryItems ?? category.items;
+    if (Array.isArray(items)) {
+      return items.map((item) => typeof item === "string" ? item : item?.title).filter(Boolean);
+    }
+
+    return category.title ? [category.title] : [];
+  });
+}
+
+async function fetchSessionMetadata() {
   const apiUrl = process.env.SESSIONIZE_API_URL;
   if (!apiUrl) {
-    console.log("  ℹ️  SESSIONIZE_API_URL not set — skipping Top Speaker lookup.");
-    return [];
+    console.log("  ℹ️  SESSIONIZE_API_URL not set — skipping session metadata lookup.");
+    return { topSpeakerIds: [], topicsBySession: new Map() };
   }
 
   try {
-    console.log("  Fetching Sessionize all-data API (top speakers)...");
+    console.log("  Fetching Sessionize all-data API (speakers and topics)...");
     const response = await fetch(apiUrl);
     if (!response.ok) {
       console.warn(`  ⚠️  Sessionize API returned ${response.status} for all-data lookup`);
-      return [];
+      return { topSpeakerIds: [], topicsBySession: new Map() };
     }
 
     const data = await response.json();
-    const speakers = Array.isArray(data) ? data[0]?.speakers : data.speakers;
+    const payload = Array.isArray(data) ? data[0] : data;
+    const speakers = payload?.speakers;
     if (!Array.isArray(speakers)) {
       console.warn("  ⚠️  Sessionize API response didn't include a speakers array");
-      return [];
     }
 
-    return speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id);
+    const sessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+    const topicsBySession = new Map(
+      sessions
+        .map((session) => [session.id, getSessionTopics(session).filter((topic, index, all) => all.indexOf(topic) === index)])
+        .filter(([id, topics]) => id && topics.length)
+    );
+
+    return {
+      topSpeakerIds: speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id),
+      topicsBySession,
+    };
   } catch (error) {
-    console.warn("  ⚠️  Sessionize API fetch failed for top speakers:", error.message);
-    return [];
+    console.warn("  ⚠️  Sessionize API fetch failed for session metadata:", error.message);
+    return { topSpeakerIds: [], topicsBySession: new Map() };
   }
 }
 
 export default async function () {
   console.log("🎤 Fetching Sessionize data from HTML fragments...");
 
-  const [sessionsHtml, speakersHtml, gridHtml, topSpeakerIds] = await Promise.all([
+  const [sessionsHtml, speakersHtml, gridHtml, sessionMetadata] = await Promise.all([
     fetchHtml(sessionsUrl, "Sessionize sessions"),
     fetchHtml(speakersUrl, "Sessionize speakers"),
     fetchHtml(gridUrl, "Sessionize program grid"),
-    fetchTopSpeakerIds(),
+    fetchSessionMetadata(),
   ]);
 
   const sessions = parseSessions(sessionsHtml);
-  const speakers = sortSpeakers(parseSpeakers(speakersHtml), topSpeakerIds);
-  const schedule = mergeScheduleData(parseGridSchedule(gridHtml), sessions);
+  const speakers = sortSpeakers(parseSpeakers(speakersHtml), sessionMetadata.topSpeakerIds);
+  const schedule = mergeScheduleData(parseGridSchedule(gridHtml), sessions, {
+    topicsBySession: sessionMetadata.topicsBySession,
+  });
 
   if (!schedule.sessions.length) {
     throw new Error("Sessionize program grid returned no sessions; refusing to build an empty program.");
@@ -87,6 +116,6 @@ export default async function () {
     speakers,
     rooms: schedule.rooms,
     schedule,
-    topSpeakerIds,
+    topSpeakerIds: sessionMetadata.topSpeakerIds,
   };
 }

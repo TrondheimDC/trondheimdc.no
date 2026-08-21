@@ -7,6 +7,7 @@ class TdcProgram {
     this.favorites = this.readFavorites();
     this.dialog = root.querySelector("[data-session-dialog]");
     this.onlyFavorites = root.querySelector("[data-program-favorites-only]");
+    this.topicFilter = root.querySelector("[data-program-topic-filter]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
@@ -35,8 +36,10 @@ class TdcProgram {
       this.onlyFavorites.textContent = active
         ? `☆ ${this.root.dataset.showFavoritesLabel}`
         : `★ ${this.root.dataset.showAllLabel}`;
-      this.applyFilter(!active);
+      this.applyFilter();
     });
+
+    this.topicFilter?.addEventListener("change", () => this.applyFilter());
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
     this.dialog?.addEventListener("close", unlockModalScroll);
@@ -72,13 +75,21 @@ class TdcProgram {
       button.textContent = saved ? "★" : "☆";
       button.setAttribute("aria-pressed", String(saved));
       button.setAttribute("aria-label", `${saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel}: ${session.dataset.sessionTitle}`);
-      session.hidden = this.onlyFavorites?.getAttribute("aria-pressed") === "true" && !saved;
+      session.hidden = this.isFilteredOut(session);
     });
   }
 
-  applyFilter(onlyFavorites) {
+  isFilteredOut(session) {
+    const onlyFavorites = this.onlyFavorites?.getAttribute("aria-pressed") === "true";
+    const selectedTopic = this.topicFilter?.value;
+    const topics = (session.dataset.sessionTopics || "").split("|").filter(Boolean);
+    return (onlyFavorites && !this.favorites.has(session.dataset.sessionId)) ||
+      (selectedTopic && !topics.includes(selectedTopic));
+  }
+
+  applyFilter() {
     this.root.querySelectorAll("[data-program-session]").forEach((session) => {
-      session.hidden = onlyFavorites && !this.favorites.has(session.dataset.sessionId);
+      session.hidden = this.isFilteredOut(session);
     });
   }
 
