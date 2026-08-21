@@ -1,7 +1,7 @@
 {
   "name": "tdc-2026-website",
   "version": "1.0.0",
-  "description": "Trondheim Developer Conference 2026 website",
+  "description": "TDC 2026 website",
   "type": "module",
   "scripts": {
     "dev": "eleventy --serve --watch",
