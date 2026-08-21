@@ -72,6 +72,9 @@ export function parseSessions(html) {
       })
     );
 
+    const topics = [...body.matchAll(/<li\b[^>]*class="[^"]*sz-tag[^"]*"[^>]*data-categoryname="main_tag"[^>]*>([\s\S]*?)<\/li>/gi)]
+      .map((topicMatch) => stripHtml(topicMatch[1]))
+      .filter(Boolean);
     sessions.push({
       id: sessionId || domId,
       domId,
@@ -83,6 +86,7 @@ export function parseSessions(html) {
       roomId: roomMatch?.[1] ?? "",
       roomName: stripHtml(roomMatch?.[2] ?? ""),
       speakers: speakerIds.map((speaker) => speaker.id),
+      topics,
     });
   }
 
@@ -158,7 +162,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
       ...session,
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
-      topics: topicsBySession.get(session.id) ?? [],
+      topics: topicsBySession.get(session.id) ?? detail?.topics ?? [],
       roomName: session.roomName || detail?.roomName || "",
       roomStart: isFullWidth ? 0 : (startIndex ?? 0),
       roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),

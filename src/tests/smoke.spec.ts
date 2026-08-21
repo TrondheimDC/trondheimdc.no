@@ -43,6 +43,7 @@ test.describe('Pages load', () => {
       await expect(page.locator('#program .program-schedule__room-label')).toHaveCount(6);
       await expect(page.locator('#program [data-program-session]')).toHaveCount(55);
       await expect(page.locator('#program [data-session-description]:not([data-session-description=""])')).toHaveCount(45);
+      await expect(page.locator('#program [data-program-topic-filter] option')).not.toHaveCount(1);
     });
 
     test(`${path} places the program directly before speakers`, async ({ page }) => {
