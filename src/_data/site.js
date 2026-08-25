@@ -1,6 +1,6 @@
 export default {
   title: "TDC 2026",
-  description: "Trondheim Developer Conference 2026",
+  description: "TDC 2026",
   url: "https://trondheimdc.no",
   date: "2026-10-19",
   venue: "Clarion Hotel Trondheim",
