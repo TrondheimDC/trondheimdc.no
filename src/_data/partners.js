@@ -17,7 +17,6 @@ export default [
   { name: "Variant", logo: "variant.svg", url: "https://variant.no" },
   { name: "Webstep", logo: "webstep.svg", url: "https://webstep.no" },
   { name: "NAV", logo: "nav.svg", url: "https://www.nav.no/" },
-  { name: "Itema", logo: "itema.svg", url: "https://itema.no" },
   { name: "EL og IT Forbundet", logo: "ELogIT.svg", url: "https://elogit.no" },
   {
     name: "Computas",
