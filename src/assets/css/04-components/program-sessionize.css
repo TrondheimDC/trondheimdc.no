@@ -21,12 +21,15 @@
 .program-schedule__sessions { display: contents; }
 .program-session { grid-column: calc(var(--program-room-start) + 1) / calc(var(--program-room-end) + 1); min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-base); }
 .program-session--favoritable { position: relative; }
+.program-session--service { align-items: center; min-height: 0; padding-block: var(--spacing-2); border-inline: 0; border-radius: 0; text-align: center; }
 .program-session--service, .program-session--plenum { background: color-mix(in srgb, var(--color-bg-surface) 78%, var(--color-bg-base)); }
 .program-session__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-2); color: var(--color-fg-muted); font-size: var(--font-size-10); }
+.program-session--service .program-session__meta, .program-session--service .program-session__heading { justify-content: center; }
 .program-session__room { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
 .program-session__duration { white-space: nowrap; }
 .program-session__heading { display: flex; align-items: flex-start; gap: var(--spacing-2); }
 .program-session__title { flex: 1; padding: 0; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
+.program-session--service .program-session__title { text-align: center; }
 .program-session__title:hover, .program-session__title:focus-visible, .program-session__speaker:hover, .program-session__speaker:focus-visible { color: var(--color-fg-brand); }
 .program-session__favorite { position: absolute; inset-block-start: var(--spacing-2); inset-inline-end: var(--spacing-2); display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; font-size: var(--font-size-60); line-height: 1; }
 .program-session--favoritable .program-session__meta, .program-session--favoritable .program-session__heading { padding-inline-end: calc(2rem + var(--spacing-2)); }
