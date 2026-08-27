@@ -34,6 +34,16 @@ export function normalizeTimestamp(value = "") {
   return value.replace(/(\.\d{3})\d+(Z|[+-]\d{2}:?\d{2})$/, "$1$2");
 }
 
+// Sessionize All Data returns event times without an offset. TDC is in
+// Europe/Oslo and the event is after the daylight-saving transition, so these
+// values represent UTC+02 local event time rather than UTC.
+export function normalizeApiTimestamp(value = "") {
+  const normalized = normalizeTimestamp(value);
+  return normalized && !/(Z|[+-]\d{2}:?\d{2})$/.test(normalized)
+    ? `${normalized}+02:00`
+    : normalized;
+}
+
 export async function fetchHtml(url, label) {
   try {
     console.log(`  Fetching ${label}...`);
@@ -98,8 +108,8 @@ export function parseApiData(data) {
     className: "sz-session",
     title: stripHtml(apiValue(session.title)),
     description: stripHtml(apiValue(session.description)),
-    startsAt: normalizeTimestamp(apiValue(session.startsAt, apiValue(session.start))),
-    endsAt: normalizeTimestamp(apiValue(session.endsAt, apiValue(session.end))),
+    startsAt: normalizeApiTimestamp(apiValue(session.startsAt, apiValue(session.start))),
+    endsAt: normalizeApiTimestamp(apiValue(session.endsAt, apiValue(session.end))),
     roomId: apiValue(session.roomId, session.room?.id),
     roomName: stripHtml(apiValue(session.roomName, session.room?.name)),
     speakers: (session.speakers ?? session.speakerIds ?? []).map((speaker) => typeof speaker === "string" ? speaker : speaker.id).filter(Boolean),
