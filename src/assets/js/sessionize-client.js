@@ -51,7 +51,16 @@ function sessionsOverlap(first, second) {
 }
 
 function buildScheduleRows(sessions, rooms) {
-  const starts = [...new Set(sessions.map((session) => session.startsAt).filter(Boolean))].sort();
+  const checkpoints = new Set(sessions.map((session) => session.startsAt).filter(Boolean));
+  for (const session of sessions.filter((session) => session.isLongService && session.startsAt && session.endsAt)) {
+    const offset = session.startsAt.endsWith("Z") ? "Z" : session.startsAt.match(/[+-]\d{2}:?\d{2}$/)?.[0] ?? "";
+    const start = new Date(`${session.startsAt.slice(0, 19)}Z`);
+    const end = new Date(`${session.endsAt.slice(0, 19)}Z`);
+    for (let point = new Date(start.getTime() + 60 * 60 * 1000); point <= end; point.setTime(point.getTime() + 60 * 60 * 1000)) {
+      checkpoints.add(`${point.toISOString().slice(0, 19)}${offset}`);
+    }
+  }
+  const starts = [...checkpoints].sort();
   return starts.map((startsAt) => ({
     startsAt,
     sessions: sessions.filter((session) => session.startsAt === startsAt).sort((a, b) => (a.roomStart ?? 0) - (b.roomStart ?? 0)),
