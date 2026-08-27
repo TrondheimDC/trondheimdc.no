@@ -12,7 +12,8 @@
         </span>
       </a>
 
-      <button class="site-nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="{{ t.ui.menu }}">
+      <button class="site-nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="{{ t.ui.menu }}"
+        data-menu-label="{{ t.ui.menu }}" data-menu-close-label="{{ t.ui.menu_close }}">
         <span class="site-nav__toggle-bar" aria-hidden="true"></span>
         <span class="site-nav__toggle-bar" aria-hidden="true"></span>
         <span class="site-nav__toggle-bar" aria-hidden="true"></span>
@@ -31,9 +32,9 @@
 
         <div class="site-nav__actions">
           <div class="site-nav__lang" role="group" aria-label="{{ 'Language' if lang == 'en' else 'Språk' }}">
-            <a href="{{ '/' | url }}" hreflang="no" lang="no" {% if lang == "no" %}aria-current="true"{% endif %}>NO</a>
+            <a href="{{ '/' | url }}" hreflang="no" lang="no" {% if lang == "no" %}aria-current="page"{% endif %}>NO</a>
             <span class="site-nav__lang-sep" aria-hidden="true">/</span>
-            <a href="{{ '/en/' | url }}" hreflang="en" lang="en" {% if lang == "en" %}aria-current="true"{% endif %}>EN</a>
+            <a href="{{ '/en/' | url }}" hreflang="en" lang="en" {% if lang == "en" %}aria-current="page"{% endif %}>EN</a>
           </div>
 
           <tdc-theme-toggle

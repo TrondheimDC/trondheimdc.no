@@ -13,6 +13,7 @@ class TdcProgram {
     this.description = root.querySelector("[data-session-modal-description]");
     this.meta = root.querySelector("[data-session-modal-meta]");
     this.activeSession = null;
+    this.returnFocus = null;
 
     root.addEventListener("click", (event) => {
       const favorite = event.target.closest("[data-session-favorite]");
@@ -42,7 +43,11 @@ class TdcProgram {
     this.topicFilter?.addEventListener("change", () => this.applyFilter());
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
-    this.dialog?.addEventListener("close", unlockModalScroll);
+    this.dialog?.addEventListener("close", () => {
+      unlockModalScroll();
+      this.returnFocus?.focus();
+      this.returnFocus = null;
+    });
     this.updateButtons();
   }
 
@@ -96,6 +101,7 @@ class TdcProgram {
   open(session) {
     if (!session || !this.dialog) return;
     this.activeSession = session;
+    this.returnFocus = session.querySelector("[data-session-open]");
     this.title.textContent = session.dataset.sessionTitle || "";
     this.description.textContent = session.dataset.sessionDescription || "";
     this.description.hidden = !this.description.textContent;

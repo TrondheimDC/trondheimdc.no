@@ -4,6 +4,7 @@ export default {
     ui: {
       skip: "Hopp til innhold",
       menu: "Meny",
+      menu_close: "Lukk meny",
       home: "Hjem",
       logo_alt: "TDC 2026-logo",
       theme_light: "Bytt til lyst tema",
@@ -170,6 +171,7 @@ export default {
     ui: {
       skip: "Skip to content",
       menu: "Menu",
+      menu_close: "Close menu",
       home: "Home",
       logo_alt: "TDC 2026 logo",
       theme_light: "Switch to light theme",

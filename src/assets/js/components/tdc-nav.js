@@ -48,15 +48,18 @@ class TdcNav extends HTMLElement {
     if (isOpen) {
       this.nav.removeAttribute("data-open");
       this.toggle.setAttribute("aria-expanded", "false");
+      this.toggle.setAttribute("aria-label", this.toggle.dataset.menuLabel);
     } else {
       this.nav.setAttribute("data-open", "");
       this.toggle.setAttribute("aria-expanded", "true");
+      this.toggle.setAttribute("aria-label", this.toggle.dataset.menuCloseLabel);
     }
   }
 
   #closeMenu() {
     this.nav?.removeAttribute("data-open");
     this.toggle?.setAttribute("aria-expanded", "false");
+    this.toggle?.setAttribute("aria-label", this.toggle?.dataset.menuLabel || "");
   }
 
   #observeSections() {
@@ -105,6 +108,8 @@ class TdcNav extends HTMLElement {
     this.links.forEach((link) => {
       const isActive = link.dataset.section === sectionId;
       link.classList.toggle("site-nav__link--active", isActive);
+      if (isActive) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
     });
   }
 }
