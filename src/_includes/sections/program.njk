@@ -50,7 +50,7 @@
               <div class="program-schedule__sessions">
                 {% for session in row.sessions %}
                   <article
-                    class="program-session{% if session.isService %} program-session--service{% endif %}{% if session.isPlenum %} program-session--plenum{% endif %}{% if not session.isService %} program-session--favoritable{% endif %}"
+                    class="program-session{% if session.isService %} program-session--service{% endif %}{% if session.isPlenum %} program-session--plenum{% endif %}{% if session.isLongService %} program-session--long-service-in-row{% endif %}{% if not session.isService %} program-session--favoritable{% endif %}"
                     style="--program-room-start: {{ session.roomStart + 1 }}; --program-room-end: {{ session.roomEnd + 2 }}"
                     data-program-session
                     data-session-id="{{ session.id | escape }}"
@@ -63,7 +63,7 @@
                     data-session-topics="{{ session.topics | join('|') | escape }}"
                   >
                     <div class="program-session__meta">
-                      <span class="program-session__room">{{ session.roomName or t.program.shared_session }}</span>
+                      <span class="program-session__room">{% if session.title == "Lunch" %}{{ t.program.lunch_location }}{% else %}{{ session.roomName or t.program.shared_session }}{% endif %}</span>
                       <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
                     </div>
                     <div class="program-session__heading">
@@ -98,6 +98,32 @@
                 {% endfor %}
               </div>
             </div>
+          {% endfor %}
+
+          {% for session in sessionize.schedule.overlays %}
+            <article
+              class="program-session program-session--service program-session--plenum program-session--long-service-overlay"
+              style="--program-room-start: {{ session.roomStart + 1 }}; --program-room-end: {{ session.roomEnd + 2 }}"
+              data-program-session
+              data-session-id="{{ session.id | escape }}"
+              data-session-title="{{ session.title | escape }}"
+              data-session-description="{{ session.description | escape }}"
+              data-session-start="{{ session.startsAt | isoTime }}"
+              data-session-end="{{ session.endsAt | isoTime }}"
+              data-session-start-at="{{ session.startsAt }}"
+              data-session-end-at="{{ session.endsAt }}"
+              data-session-room="{{ session.roomName | escape }}"
+              data-session-service="true"
+              data-session-long-service="true"
+            >
+              <div class="program-session__meta">
+                <span class="program-session__room">{{ session.roomName or t.program.shared_session }}</span>
+                <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
+              </div>
+              <div class="program-session__heading">
+                <button type="button" class="program-session__title" data-session-open>{{ session.title }}</button>
+              </div>
+            </article>
           {% endfor %}
         </div>
 
