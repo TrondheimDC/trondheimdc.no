@@ -21,6 +21,8 @@
  */
 import {
   fetchHtml,
+  fetchJson,
+  parseApiData,
   parseSessions,
   parseSpeakers,
   parseGridSchedule,
@@ -28,7 +30,7 @@ import {
   sortSpeakers,
 } from "../assets/js/sessionize-client.js";
 
-const eventId = "xx320rm2";
+const eventId = "1diujeu9";
 
 const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?under=True`;
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
@@ -91,13 +93,26 @@ async function fetchSessionMetadata() {
 }
 
 export default async function () {
+  const apiUrl = process.env.SESSIONIZE_API_URL;
+  let apiAttempted = false;
+  if (apiUrl) {
+    apiAttempted = true;
+    console.log("🎤 Trying Sessionize all-data API first...");
+    const apiData = parseApiData(await fetchJson(apiUrl, "Sessionize all-data API"));
+    if (apiData?.schedule.rows.length) {
+      const topSpeakerIds = apiData.speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id);
+      return { eventId, ...apiData, speakers: sortSpeakers(apiData.speakers, topSpeakerIds), topSpeakerIds };
+    }
+    console.warn("  ⚠️  Sessionize all-data API was unusable — falling back to HTML fragments.");
+  }
+
   console.log("🎤 Fetching Sessionize data from HTML fragments...");
 
   const [sessionsHtml, speakersHtml, gridHtml, sessionMetadata] = await Promise.all([
     fetchHtml(sessionsUrl, "Sessionize sessions"),
     fetchHtml(speakersUrl, "Sessionize speakers"),
     fetchHtml(gridUrl, "Sessionize program grid"),
-    fetchSessionMetadata(),
+    apiAttempted ? { topSpeakerIds: [], topicsBySession: new Map() } : fetchSessionMetadata(),
   ]);
 
   const sessions = parseSessions(sessionsHtml);

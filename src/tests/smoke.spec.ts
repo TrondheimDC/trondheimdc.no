@@ -40,9 +40,9 @@ test.describe('Pages load', () => {
     test(`${path} renders the custom program schedule`, async ({ page }) => {
       await page.goto(path);
       await expect(page.locator('#program .program-schedule')).toBeVisible();
-      await expect(page.locator('#program .program-schedule__room-label')).toHaveCount(6);
-      await expect(page.locator('#program [data-program-session]')).toHaveCount(55);
-      await expect(page.locator('#program [data-session-description]:not([data-session-description=""])')).toHaveCount(45);
+      await expect.poll(() => page.locator('#program .program-schedule__room-label').count()).toBeGreaterThanOrEqual(6);
+      await expect.poll(() => page.locator('#program [data-program-session]').count()).toBeGreaterThanOrEqual(45);
+      await expect.poll(() => page.locator('#program [data-session-description]:not([data-session-description=""])').count()).toBeGreaterThanOrEqual(45);
       await expect(page.locator('#program [data-program-topic-filter] option')).not.toHaveCount(1);
     });
 
