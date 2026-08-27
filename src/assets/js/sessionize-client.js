@@ -129,7 +129,7 @@ export function parseApiData(data) {
     .filter((room) => room.id);
   const invalidRoomIds = new Set(allRooms.filter((room) => isInvalidRoomName(room.name)).map((room) => room.id));
   const validSessions = sessions.filter((session) =>
-    !invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName)
+    session.isService || (!invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName))
   );
   const rooms = allRooms.filter((room) => !isInvalidRoomName(room.name));
   const roomNames = new Map(rooms.map((room) => [room.id, room.name]));
@@ -142,10 +142,10 @@ export function parseApiData(data) {
   }
   const mergedSessions = validSessions.map((session) => {
     const room = roomIndex.get(session.roomId) ?? 0;
-    const isFullWidth = (sessionsByStart.get(session.startsAt) ?? []).length === 1;
+    const isFullWidth = session.isService || (sessionsByStart.get(session.startsAt) ?? []).length === 1;
     return {
       ...session,
-      roomName: roomNames.get(session.roomId) ?? session.roomName,
+      roomName: isInvalidRoomName(session.roomName) ? "" : roomNames.get(session.roomId) ?? session.roomName,
       roomStartId: session.roomId,
       roomEndId: session.roomId,
       roomStart: isFullWidth ? 0 : room,
@@ -281,7 +281,7 @@ export function parseGridSchedule(html) {
     dateLabel: stripHtml(dayMatch?.[2] ?? ""),
     rooms,
     sessions: sessions.filter((session) =>
-      !invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName)
+      session.isService || (!invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName))
     ),
   };
 }
@@ -295,7 +295,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
     .filter((room) => !isInvalidRoomName(room.name))
     .map((room) => ({ ...room }));
   const validScheduleSessions = schedule.sessions.filter((session) =>
-    !invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName)
+    session.isService || (!invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName))
   );
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
   const fullWidthSessionTitles = new Set(options.fullWidthSessionTitles ?? []);
@@ -311,13 +311,13 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
     const startIndex = roomIndex.get(session.roomStartId || session.roomId);
     const endIndex = roomIndex.get(session.roomEndId || session.roomId);
     const isOnlySessionInRow = (sessionsByStart.get(session.startsAt) ?? []).length === 1;
-    const isFullWidth = isOnlySessionInRow || fullWidthSessionTitles.has(session.title || detail?.title);
+    const isFullWidth = session.isService || isOnlySessionInRow || fullWidthSessionTitles.has(session.title || detail?.title);
     return {
       ...session,
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
       topics: topicsBySession.get(session.id) ?? detail?.topics ?? [],
-      roomName: session.roomName || detail?.roomName || "",
+      roomName: isInvalidRoomName(session.roomName) ? "" : session.roomName || detail?.roomName || "",
       roomStart: isFullWidth ? 0 : (startIndex ?? 0),
       roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),
       isFullWidth,
