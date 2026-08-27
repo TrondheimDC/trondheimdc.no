@@ -26,7 +26,7 @@
 .program-session--service { border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .program-session--service, .program-session--plenum { background: color-mix(in srgb, var(--color-bg-surface) 78%, var(--color-bg-base)); }
 .program-session--long-service-in-row { display: none; }
-.program-session--long-service-overlay { display: flex; position: absolute; z-index: 0; pointer-events: none; justify-content: center; }
+.program-session--long-service-overlay { display: flex; position: absolute; z-index: 1; pointer-events: none; justify-content: center; }
 .program-session--long-service-overlay .program-session__title { pointer-events: auto; }
 .program-schedule__row { position: relative; z-index: 1; }
 .program-session__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-2); color: var(--color-fg-muted); font-size: var(--font-size-10); }
