@@ -98,7 +98,19 @@ export default async function () {
   if (apiUrl) {
     apiAttempted = true;
     console.log("🎤 Trying Sessionize all-data API first...");
-    const apiData = parseApiData(await fetchJson(apiUrl, "Sessionize all-data API"));
+    const [apiResponse, gridResponse] = await Promise.all([
+      fetchJson(apiUrl, "Sessionize all-data API"),
+      fetchJson(gridUrl, "Sessionize service entries"),
+    ]);
+    const apiPayload = Array.isArray(apiResponse) ? apiResponse[0] : apiResponse;
+    const gridPayload = Array.isArray(gridResponse) ? gridResponse[0] : gridResponse;
+    const serviceSessions = (gridPayload?.rooms ?? [])
+      .flatMap((room) => room.sessions ?? [])
+      .filter((session) => session.isServiceSession);
+    const apiData = parseApiData(apiPayload && {
+      ...apiPayload,
+      sessions: [...(apiPayload.sessions ?? []), ...serviceSessions],
+    });
     if (apiData?.schedule.rows.length) {
       const topSpeakerIds = apiData.speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id);
       return { eventId, ...apiData, speakers: sortSpeakers(apiData.speakers, topSpeakerIds), topSpeakerIds };
