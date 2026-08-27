@@ -40,7 +40,7 @@ jobs:
         # No ELEVENTY_PATH_PREFIX → pathPrefix defaults to "/", so the site is
         # served from the production root, replacing the old Jekyll site.
         env:
-          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL }}
+          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL || 'https://sessionize.com/api/v2/1diujeu9/view/All' }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -72,7 +72,7 @@ jobs:
         working-directory: src
         run: bun run build
         env:
-          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL }}
+          SESSIONIZE_API_URL: ${{ secrets.SESSIONIZE_API_URL || 'https://sessionize.com/api/v2/1diujeu9/view/All' }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

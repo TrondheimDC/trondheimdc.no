@@ -49,6 +49,121 @@ export async function fetchHtml(url, label) {
   }
 }
 
+export async function fetchJson(url, label) {
+  try {
+    console.log(`  Fetching ${label}...`);
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.warn(`  ⚠️  Sessionize returned ${response.status} for ${label}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`  ⚠️  Sessionize fetch failed for ${label}:`, error.message);
+    return null;
+  }
+}
+
+function apiValue(value, fallback = "") {
+  return value === undefined || value === null ? fallback : value;
+}
+
+export function parseApiData(data) {
+  const payload = Array.isArray(data) ? data[0] : data;
+  if (!payload || !Array.isArray(payload.sessions) || !Array.isArray(payload.speakers)) return null;
+  const categoryNames = new Map((payload.categories ?? []).flatMap((category) =>
+    (category.items ?? []).map((item) => [item.id, item.name])
+  ));
+
+  const speakers = payload.speakers.map((speaker) => ({
+    id: apiValue(speaker.id),
+    domId: apiValue(speaker.id),
+    className: "sz-speaker",
+    firstName: apiValue(speaker.firstName, apiValue(speaker.name).split(/\s+/)[0]),
+    lastName: apiValue(speaker.lastName, apiValue(speaker.name).split(/\s+/).slice(1).join(" ")),
+    profilePicture: apiValue(speaker.profilePicture, apiValue(speaker.profilePictureUrl)),
+    profilePictureAlt: apiValue(speaker.name),
+    tagLine: apiValue(speaker.tagLine, apiValue(speaker.tagline)),
+    bio: stripHtml(apiValue(speaker.bio)),
+    twitter: apiValue(speaker.twitter),
+    linkedIn: apiValue(speaker.linkedIn, apiValue(speaker.linkedin)),
+    blog: apiValue(speaker.blog),
+    isTopSpeaker: Boolean(speaker.isTopSpeaker),
+    sessions: Array.isArray(speaker.sessions) ? speaker.sessions.map((session) => typeof session === "string" ? session : session.id).filter(Boolean) : [],
+  }));
+
+  const sessions = payload.sessions.map((session) => ({
+    id: apiValue(session.id),
+    domId: apiValue(session.id),
+    className: "sz-session",
+    title: stripHtml(apiValue(session.title)),
+    description: stripHtml(apiValue(session.description)),
+    startsAt: normalizeTimestamp(apiValue(session.startsAt, apiValue(session.start))),
+    endsAt: normalizeTimestamp(apiValue(session.endsAt, apiValue(session.end))),
+    roomId: apiValue(session.roomId, session.room?.id),
+    roomName: stripHtml(apiValue(session.roomName, session.room?.name)),
+    speakers: (session.speakers ?? session.speakerIds ?? []).map((speaker) => typeof speaker === "string" ? speaker : speaker.id).filter(Boolean),
+    topics: (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean),
+    isService: Boolean(session.isService ?? session.isServiceSession),
+    isPlenum: Boolean(session.isPlenum ?? session.isPlenumSession),
+  })).filter((session) => session.id);
+
+  const rooms = (Array.isArray(payload.rooms) ? payload.rooms : buildRooms(sessions))
+    .map((room) => ({ id: apiValue(room.id), name: stripHtml(apiValue(room.name, room.title)) }))
+    .filter((room) => room.id);
+  const roomNames = new Map(rooms.map((room) => [room.id, room.name]));
+  const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
+  const sessionsByStart = new Map();
+  for (const session of sessions) {
+    const row = sessionsByStart.get(session.startsAt) ?? [];
+    row.push(session);
+    sessionsByStart.set(session.startsAt, row);
+  }
+  const mergedSessions = sessions.map((session) => {
+    const room = roomIndex.get(session.roomId) ?? 0;
+    const isFullWidth = (sessionsByStart.get(session.startsAt) ?? []).length === 1;
+    return {
+      ...session,
+      roomName: roomNames.get(session.roomId) ?? session.roomName,
+      roomStartId: session.roomId,
+      roomEndId: session.roomId,
+      roomStart: isFullWidth ? 0 : room,
+      roomEnd: isFullWidth ? rooms.length - 1 : room,
+      isFullWidth,
+    };
+  });
+  const rows = [...new Set(mergedSessions.map((session) => session.startsAt))]
+    .filter(Boolean)
+    .sort()
+    .map((startsAt) => ({ startsAt, sessions: mergedSessions.filter((session) => session.startsAt === startsAt) }));
+
+  return {
+    sessions,
+    speakers,
+    schedule: {
+      date: sessions.find((session) => session.startsAt)?.startsAt ?? "",
+      dateLabel: "",
+      rooms,
+      sessions: mergedSessions,
+      rows,
+      topics: [...new Set(mergedSessions.flatMap((session) => session.topics))].sort((a, b) => a.localeCompare(b)),
+    },
+  };
+}
+
+function getApiTopics(session) {
+  const categories = session.categories ?? session.topics ?? session.tags ?? [];
+  return (Array.isArray(categories) ? categories : [])
+    .flatMap((category) => {
+      if (typeof category === "string") return [category];
+      const items = category?.categoryItems ?? category?.items;
+      if (Array.isArray(items)) return items.map((item) => typeof item === "string" ? item : item?.title);
+      return category?.title ? [category.title] : [];
+    })
+    .filter(Boolean)
+    .filter((topic, index, all) => all.indexOf(topic) === index);
+}
+
 export function parseSessions(html) {
   const sessions = [];
   const openingTagPattern = /<li\b[^>]*id="sz-session-([^"]+)"[^>]*data-sessionid="([^"]+)"[^>]*class="([^"]*sz-session[^"]*)"[^>]*>/gi;

@@ -8,6 +8,7 @@
     <div
       class="program-schedule"
       aria-label="{{ t.program.title }}"
+      data-sessionize-event-id="{{ site.sessionizeEventId }}"
       data-favorites-key="tdc-favorites-{{ sessionize.eventId }}"
       data-star-label="{{ t.program.star }}"
       data-unstar-label="{{ t.program.unstar }}"
@@ -15,6 +16,7 @@
       data-show-all-label="{{ t.program.show_all }}"
       data-all-topics-label="{{ t.program.all_topics }}"
       data-topic-label="{{ t.program.topic }}"
+      data-shared-session-label="{{ t.program.shared_session }}"
     >
       {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
         <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
