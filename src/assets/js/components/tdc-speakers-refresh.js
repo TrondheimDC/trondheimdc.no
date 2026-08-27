@@ -27,6 +27,7 @@ function buildProgramSession(session, speakers, schedule) {
   article.className = "program-session";
   if (session.isService) article.classList.add("program-session--service");
   if (session.isPlenum) article.classList.add("program-session--plenum");
+  if (session.isLongService) article.classList.add("program-session--long-service-in-row");
   if (!session.isService) article.classList.add("program-session--favoritable");
   article.style.setProperty("--program-room-start", String(session.roomStart + 1));
   article.style.setProperty("--program-room-end", String(session.roomEnd + 2));
@@ -123,7 +124,19 @@ function replaceProgram(program, schedule, speakers) {
     rowEl.appendChild(sessions);
     newGrid.appendChild(rowEl);
   }
+  for (const session of schedule.overlays ?? []) {
+    const overlay = buildProgramSession(session, speakers, { root: program });
+    overlay.classList.remove("program-session--long-service-in-row");
+    overlay.classList.add("program-session--long-service-overlay");
+    overlay.style.setProperty("--program-room-start", String(session.roomStart + 1));
+    overlay.style.setProperty("--program-room-end", String(session.roomEnd + 2));
+    overlay.dataset.sessionStartAt = session.startsAt;
+    overlay.dataset.sessionEndAt = session.endsAt;
+    overlay.dataset.sessionLongService = "true";
+    newGrid.appendChild(overlay);
+  }
   oldGrid.replaceWith(newGrid);
+  program._tdcProgram?.positionLongService();
 
   const filter = program.querySelector("[data-program-topic-filter]");
   const selected = filter?.value;

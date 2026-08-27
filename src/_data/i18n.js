@@ -59,6 +59,7 @@ export default {
       topic: "Tema",
       all_topics: "Alle temaer",
       shared_session: "Fellesområde",
+      lunch_location: "Fellesområde & restaurant",
       close: "Lukk",
     },
     tickets: {
@@ -226,6 +227,7 @@ export default {
       topic: "Topic",
       all_topics: "All topics",
       shared_session: "Shared area",
+      lunch_location: "Shared area & restaurant",
       close: "Close",
     },
     tickets: {

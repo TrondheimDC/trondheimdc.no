@@ -165,6 +165,37 @@ test.describe('Program schedule', () => {
     expect(Math.abs(firstRoomBox!.x - sessionBox!.x)).toBeLessThan(2);
     expect(Math.abs(roomsWidth - sessionBox!.width)).toBeLessThan(2);
   });
+
+  test('keeps Kortslutning in Andromeda while the party is running', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#program');
+
+    const party = page.locator('.program-session--long-service-overlay[data-session-end="23:00"]');
+    const kortslutning = page.locator('[data-program-session]').filter({ hasText: 'Kortslutning Live' });
+    const [partyBox, kortslutningBox] = await Promise.all([party.boundingBox(), kortslutning.boundingBox()]);
+
+    expect(partyBox).not.toBeNull();
+    expect(kortslutningBox).not.toBeNull();
+    expect(Math.abs(partyBox!.y + partyBox!.height - (kortslutningBox!.y + kortslutningBox!.height))).toBeLessThan(2);
+    await expect(party).toHaveAttribute('data-session-end', '23:00');
+    await expect(kortslutning.locator('.program-session__room')).toHaveText('Andromeda');
+    expect(partyBox!.x).toBeGreaterThan(kortslutningBox!.x);
+    await expect(page.locator('.program-session--long-service-overlay[data-session-end="23:00"]')).toBeVisible();
+  });
+
+  test('orders program rooms alphabetically', async ({ page }) => {
+    await page.goto('/#program');
+    await expect(page.locator('.program-schedule__room-label')).toHaveText([
+      'Andromeda', 'Aurora', 'Cosmos 1 & 2', 'Cosmos 3AB', 'Cosmos 3CD', 'Living room',
+    ]);
+  });
+
+  test('labels lunch as taking place in the shared area and restaurant', async ({ page }) => {
+    await page.goto('/#program');
+
+    const lunch = page.locator('[data-program-session]').filter({ hasText: 'Lunch' });
+    await expect(lunch.locator('.program-session__room')).toHaveText(/Fellesområde & restaurant|Shared area & restaurant/);
+  });
 });
 
 test.describe('Single-page sections', () => {

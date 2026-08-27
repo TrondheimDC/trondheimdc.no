@@ -49,6 +49,36 @@ class TdcProgram {
       this.returnFocus = null;
     });
     this.updateButtons();
+    this.root._tdcProgram = this;
+    this.positionLongService();
+    window.addEventListener("resize", () => this.positionLongService());
+  }
+
+  positionLongService() {
+    const overlay = this.root.querySelector(".program-session--long-service-overlay");
+    const grid = this.root.querySelector(".program-schedule__grid");
+    if (!overlay || !grid || window.innerWidth < 1200) return;
+    const start = this.root.querySelector(`[data-program-time="${overlay.dataset.sessionStartAt}"]`);
+    const rows = [...this.root.querySelectorAll("[data-program-time]")].filter((row) => row.dataset.programTime < overlay.dataset.sessionEndAt);
+    const roomStart = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-start"), 10) - 1;
+    const roomEnd = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-end"), 10) - 2;
+    const roomLabels = [...grid.querySelectorAll(".program-schedule__room-label")];
+    const firstRoom = roomLabels[roomStart];
+    const lastRoom = roomLabels[roomEnd];
+    if (!start || !rows.length || !firstRoom || !lastRoom) return;
+    const gridBox = grid.getBoundingClientRect();
+    const startBox = start.getBoundingClientRect();
+    const endBox = rows.at(-1).getBoundingClientRect();
+    const firstBox = firstRoom.getBoundingClientRect();
+    const lastBox = lastRoom.getBoundingClientRect();
+    const finalSessions = [...rows.at(-1).querySelectorAll("[data-program-session]:not(.program-session--long-service-in-row)")];
+    const lastSessionBottom = finalSessions.length
+      ? Math.max(...finalSessions.map((session) => session.getBoundingClientRect().bottom))
+      : endBox.bottom;
+    overlay.style.left = `${firstBox.left - gridBox.left}px`;
+    overlay.style.top = `${startBox.top - gridBox.top}px`;
+    overlay.style.width = `${lastBox.right - firstBox.left}px`;
+    overlay.style.height = `${lastSessionBottom - startBox.top}px`;
   }
 
   readFavorites() {
