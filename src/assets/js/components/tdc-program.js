@@ -59,7 +59,7 @@ class TdcProgram {
     const grid = this.root.querySelector(".program-schedule__grid");
     if (!overlay || !grid || window.innerWidth < 1200) return;
     const start = this.root.querySelector(`[data-program-time="${overlay.dataset.sessionStartAt}"]`);
-    const rows = [...this.root.querySelectorAll("[data-program-time]")].filter((row) => row.dataset.programTime < overlay.dataset.sessionEndAt);
+    const rows = [...this.root.querySelectorAll("[data-program-time]")].filter((row) => row.dataset.programTime <= overlay.dataset.sessionEndAt);
     const roomStart = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-start"), 10) - 1;
     const roomEnd = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-end"), 10) - 2;
     const roomLabels = [...grid.querySelectorAll(".program-schedule__room-label")];
@@ -72,7 +72,7 @@ class TdcProgram {
     const firstBox = firstRoom.getBoundingClientRect();
     const lastBox = lastRoom.getBoundingClientRect();
     const finalSessions = [...rows.at(-1).querySelectorAll("[data-program-session]:not(.program-session--long-service-in-row)")];
-    const lastSessionBottom = finalSessions.length
+    const lastSessionBottom = finalSessions.length && rows.at(-1).dataset.programTime < overlay.dataset.sessionEndAt
       ? Math.max(...finalSessions.map((session) => session.getBoundingClientRect().bottom))
       : endBox.bottom;
     overlay.style.left = `${firstBox.left - gridBox.left}px`;

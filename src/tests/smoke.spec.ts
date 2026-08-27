@@ -176,11 +176,14 @@ test.describe('Program schedule', () => {
 
     expect(partyBox).not.toBeNull();
     expect(kortslutningBox).not.toBeNull();
-    expect(Math.abs(partyBox!.y + partyBox!.height - (kortslutningBox!.y + kortslutningBox!.height))).toBeLessThan(2);
+    expect(partyBox!.y + partyBox!.height).toBeGreaterThan(kortslutningBox!.y + kortslutningBox!.height);
     await expect(party).toHaveAttribute('data-session-end', '23:00');
     await expect(kortslutning.locator('.program-session__room')).toHaveText('Andromeda');
     expect(partyBox!.x).toBeGreaterThan(kortslutningBox!.x);
     await expect(page.locator('.program-session--long-service-overlay[data-session-end="23:00"]')).toBeVisible();
+    for (const time of ['20:00', '21:00', '22:00', '23:00']) {
+      await expect(page.locator(`[data-program-time$="T${time}:00+02:00"]`)).toBeVisible();
+    }
   });
 
   test('orders program rooms alphabetically', async ({ page }) => {
