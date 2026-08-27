@@ -13,6 +13,7 @@ class TdcSpeakerModal {
     this.talkTitleEl = document.getElementById("speaker-modal-talk-title");
     this.talkDescriptionEl = document.getElementById("speaker-modal-talk-description");
     this.socialsEl = document.getElementById("speaker-modal-socials");
+    this.returnFocus = null;
 
     if (
       !this.dialog ||
@@ -53,10 +54,15 @@ class TdcSpeakerModal {
       }
     });
 
-    this.dialog.addEventListener("close", unlockModalScroll);
+    this.dialog.addEventListener("close", () => {
+      unlockModalScroll();
+      this.returnFocus?.focus();
+      this.returnFocus = null;
+    });
   }
 
   open(button) {
+    this.returnFocus = button;
     const name = button.getAttribute("data-speaker-name") || "";
     const image = button.getAttribute("data-speaker-image") || "";
     const tagline = button.getAttribute("data-speaker-tagline") || "";
@@ -97,13 +103,13 @@ class TdcSpeakerModal {
     const links = [];
 
     if (twitter) {
-      links.push(this.createSocialLink(`https://twitter.com/${twitter}`, "𝕏"));
+      links.push(this.createSocialLink(`https://twitter.com/${twitter}`, "X (Twitter)"));
     }
     if (linkedIn) {
-      links.push(this.createSocialLink(linkedIn, "in"));
+      links.push(this.createSocialLink(linkedIn, "LinkedIn"));
     }
     if (blog) {
-      links.push(this.createSocialLink(blog, "🔗"));
+      links.push(this.createSocialLink(blog, "Website"));
     }
 
     return links;
