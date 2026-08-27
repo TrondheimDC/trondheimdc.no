@@ -17,6 +17,9 @@ html {
   text-size-adjust: 100%;
   -moz-tab-size: 4;
   tab-size: 4;
+  /* Reserve the scrollbar's gutter permanently so hiding it (body.modal-open
+     below) never shifts the page width. */
+  scrollbar-gutter: stable;
 }
 
 html:focus-within {
