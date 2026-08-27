@@ -46,6 +46,31 @@ export function normalizeApiTimestamp(value = "") {
 
 const invalidRoomNames = new Set(["fellesareal", "common area"]);
 
+function sessionsOverlap(first, second) {
+  return first.startsAt < second.endsAt && first.endsAt > second.startsAt;
+}
+
+function buildScheduleRows(sessions, rooms) {
+  const checkpoints = new Set(sessions.map((session) => session.startsAt).filter(Boolean));
+  for (const session of sessions.filter((session) => session.isLongService && session.startsAt && session.endsAt)) {
+    const offset = session.startsAt.endsWith("Z") ? "Z" : session.startsAt.match(/[+-]\d{2}:?\d{2}$/)?.[0] ?? "";
+    const start = new Date(`${session.startsAt.slice(0, 19)}Z`);
+    const end = new Date(`${session.endsAt.slice(0, 19)}Z`);
+    for (let point = new Date(start.getTime() + 60 * 60 * 1000); point <= end; point.setTime(point.getTime() + 60 * 60 * 1000)) {
+      checkpoints.add(`${point.toISOString().slice(0, 19)}${offset}`);
+    }
+  }
+  const starts = [...checkpoints].sort();
+  return starts.map((startsAt) => ({
+    startsAt,
+    sessions: sessions.filter((session) => session.startsAt === startsAt).sort((a, b) => (a.roomStart ?? 0) - (b.roomStart ?? 0)),
+  }));
+}
+
+function isLongService(session) {
+  return session.isService && new Date(session.endsAt) - new Date(session.startsAt) > 2 * 60 * 60 * 1000;
+}
+
 export function isInvalidRoomName(name = "") {
   return invalidRoomNames.has(name.trim().toLocaleLowerCase().replace(/\s+/g, " "));
 }
@@ -131,32 +156,26 @@ export function parseApiData(data) {
   const validSessions = sessions.filter((session) =>
     session.isService || (!invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName))
   );
-  const rooms = allRooms.filter((room) => !isInvalidRoomName(room.name));
+  const rooms = allRooms.filter((room) => !isInvalidRoomName(room.name)).sort((a, b) => a.name.localeCompare(b.name));
   const roomNames = new Map(rooms.map((room) => [room.id, room.name]));
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
-  const sessionsByStart = new Map();
-  for (const session of validSessions) {
-    const row = sessionsByStart.get(session.startsAt) ?? [];
-    row.push(session);
-    sessionsByStart.set(session.startsAt, row);
-  }
   const mergedSessions = validSessions.map((session) => {
     const room = roomIndex.get(session.roomId) ?? 0;
-    const isFullWidth = session.isService || (sessionsByStart.get(session.startsAt) ?? []).length === 1;
+    const hasOverlappingSession = validSessions.some((other) => other !== session && sessionsOverlap(session, other));
+    const isFullWidth = session.isService || !hasOverlappingSession;
+    const longService = isLongService(session);
     return {
       ...session,
       roomName: isInvalidRoomName(session.roomName) ? "" : roomNames.get(session.roomId) ?? session.roomName,
       roomStartId: session.roomId,
       roomEndId: session.roomId,
-      roomStart: isFullWidth ? 0 : room,
+      roomStart: longService ? Math.min(1, rooms.length - 1) : (isFullWidth ? 0 : room),
       roomEnd: isFullWidth ? rooms.length - 1 : room,
       isFullWidth,
+      isLongService: longService,
     };
   });
-  const rows = [...new Set(mergedSessions.map((session) => session.startsAt))]
-    .filter(Boolean)
-    .sort()
-    .map((startsAt) => ({ startsAt, sessions: mergedSessions.filter((session) => session.startsAt === startsAt) }));
+  const rows = buildScheduleRows(mergedSessions, rooms);
 
   return {
     sessions: validSessions,
@@ -168,6 +187,7 @@ export function parseApiData(data) {
       sessions: mergedSessions,
       rows,
       topics: [...new Set(mergedSessions.flatMap((session) => session.topics))].sort((a, b) => a.localeCompare(b)),
+      overlays: mergedSessions.filter(isLongService),
     },
   };
 }
@@ -293,47 +313,38 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
     .map((room) => room.id));
   const rooms = schedule.rooms
     .filter((room) => !isInvalidRoomName(room.name))
-    .map((room) => ({ ...room }));
+    .map((room) => ({ ...room }))
+    .sort((a, b) => a.name.localeCompare(b.name));
   const validScheduleSessions = schedule.sessions.filter((session) =>
     session.isService || (!invalidRoomIds.has(session.roomId) && !isInvalidRoomName(session.roomName))
   );
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
   const fullWidthSessionTitles = new Set(options.fullWidthSessionTitles ?? []);
   const topicsBySession = options.topicsBySession ?? new Map();
-  const sessionsByStart = new Map();
-  for (const session of validScheduleSessions) {
-    const row = sessionsByStart.get(session.startsAt) ?? [];
-    row.push(session);
-    sessionsByStart.set(session.startsAt, row);
-  }
   const mergedSessions = validScheduleSessions.map((session) => {
     const detail = details.get(session.id);
     const startIndex = roomIndex.get(session.roomStartId || session.roomId);
     const endIndex = roomIndex.get(session.roomEndId || session.roomId);
-    const isOnlySessionInRow = (sessionsByStart.get(session.startsAt) ?? []).length === 1;
-    const isFullWidth = session.isService || isOnlySessionInRow || fullWidthSessionTitles.has(session.title || detail?.title);
+    const hasOverlappingSession = validScheduleSessions.some((other) => other !== session && sessionsOverlap(session, other));
+    const isFullWidth = session.isService || (!hasOverlappingSession && !fullWidthSessionTitles.has(session.title || detail?.title));
+    const longService = isLongService({ ...session, startsAt: session.startsAt, endsAt: session.endsAt });
     return {
       ...session,
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
       topics: topicsBySession.get(session.id) ?? detail?.topics ?? [],
       roomName: isInvalidRoomName(session.roomName) ? "" : session.roomName || detail?.roomName || "",
-      roomStart: isFullWidth ? 0 : (startIndex ?? 0),
+      roomStart: longService ? Math.min(1, rooms.length - 1) : (isFullWidth ? 0 : (startIndex ?? 0)),
       roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),
       isFullWidth,
+      isLongService: longService,
     };
   });
-  const rows = [...new Set(mergedSessions.map((session) => session.startsAt))]
-    .filter(Boolean)
-    .sort()
-    .map((startsAt) => ({
-      startsAt,
-      sessions: mergedSessions.filter((session) => session.startsAt === startsAt),
-    }));
+  const rows = buildScheduleRows(mergedSessions, rooms);
 
   const topics = [...new Set(mergedSessions.flatMap((session) => session.topics))].sort((a, b) => a.localeCompare(b));
 
-  return { ...schedule, rooms, sessions: mergedSessions, rows, topics };
+  return { ...schedule, rooms, sessions: mergedSessions, rows, topics, overlays: mergedSessions.filter(isLongService) };
 }
 
 export function parseSpeakers(html) {
