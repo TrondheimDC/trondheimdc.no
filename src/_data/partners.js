@@ -73,4 +73,5 @@ export default [
     logo: "sopra-steria.svg",
     url: "https://www.soprasteria.no/",
   },
+  { name: "Equinor", logo: "equinor.svg", url: "https://www.equinor.com/" },
 ];
