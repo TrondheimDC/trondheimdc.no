@@ -181,9 +181,10 @@ test.describe('Program schedule', () => {
     await expect(kortslutning.locator('.program-session__room')).toHaveText('Andromeda');
     expect(partyBox!.x).toBeGreaterThan(kortslutningBox!.x);
     await expect(page.locator('.program-session--long-service-overlay[data-session-end="23:00"]')).toBeVisible();
-    for (const time of ['20:00', '21:00', '22:00', '23:00']) {
+    for (const time of ['20:00', '21:00', '22:00']) {
       await expect(page.locator(`[data-program-time$="T${time}:00+02:00"]`)).toBeVisible();
     }
+    await expect(page.locator('[data-program-time$="T23:00:00+02:00"]')).toHaveCount(0);
   });
 
   test('orders program rooms alphabetically', async ({ page }) => {
