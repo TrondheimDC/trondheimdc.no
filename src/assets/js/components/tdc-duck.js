@@ -175,6 +175,12 @@ export class TdcDuck extends HTMLElement {
       this.spin();
     });
 
+    // Right-clicking the hero duck opens the same party invitation as Duck Mate.
+    this.duck.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.showPartyMenu(e.clientX, e.clientY);
+    });
+
     // Keyboard: Enter/Space → quack
     this.duck.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -280,6 +286,33 @@ export class TdcDuck extends HTMLElement {
       clearTimeout(this._partyTimeout);
       this.bubble.classList.remove('is-visible');
     }
+  }
+
+  async showPartyMenu(x, y) {
+    await loadDuckMate();
+    this._partyMenu?.remove();
+    const menu = document.createElement('div');
+    menu.className = 'duck-mate-context-menu';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = `<button type="button" role="menuitem">${window.isDuckPartyActive?.() ? '🛑 Stop party' : '🎉 PARTY!'}</button>`;
+    menu.style.left = `${Math.max(4, Math.min(x, innerWidth - 180))}px`;
+    menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 55))}px`;
+    document.body.appendChild(menu);
+    this._partyMenu = menu;
+    menu.querySelector('button').focus();
+    menu.querySelector('button').addEventListener('click', async () => {
+      if (window.isDuckPartyActive?.()) {
+        window.stopDuckParty?.();
+      } else {
+        await this.spawnDuckMate();
+        window.startDuckParty?.();
+      }
+      menu.remove();
+    }, { once: true });
+    const close = (event) => {
+      if (!menu.contains(event.target)) { menu.remove(); document.removeEventListener('click', close); }
+    };
+    document.addEventListener('click', close);
   }
 
   async spawnDuckMate() {
