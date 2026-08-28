@@ -56,7 +56,7 @@ function buildScheduleRows(sessions, rooms) {
     const offset = session.startsAt.endsWith("Z") ? "Z" : session.startsAt.match(/[+-]\d{2}:?\d{2}$/)?.[0] ?? "";
     const start = new Date(`${session.startsAt.slice(0, 19)}Z`);
     const end = new Date(`${session.endsAt.slice(0, 19)}Z`);
-    for (let point = new Date(start.getTime() + 60 * 60 * 1000); point <= end; point.setTime(point.getTime() + 60 * 60 * 1000)) {
+    for (let point = new Date(start.getTime() + 60 * 60 * 1000); point < end; point.setTime(point.getTime() + 60 * 60 * 1000)) {
       checkpoints.add(`${point.toISOString().slice(0, 19)}${offset}`);
     }
   }
