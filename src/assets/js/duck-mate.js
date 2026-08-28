@@ -31,6 +31,8 @@
   const COURTSHIP_MAX_MS = 20 * 1000;
   const HATCHLING_SCALE = 0.45;
   const HATCHLING_GROWTH_MS = 3 * 60 * 1000;
+  const PARTY_DURATION_MS = 60 * 1000;
+  const PARTY_DANCE_MOVES = ['stage_performance', 'scroll_wave', 'click_emote', 'puddle_hop', 'walk_right', 'clone_parade'];
 
   let _instanceCount = 0;
   /** Global registry of all live DuckMate instances for collision detection. */
@@ -2708,6 +2710,65 @@
     get seq() { return 'walk_right'; }
   }
 
+  /** A persistent dance-floor state used while the flock is at a party. */
+  class PartyDance extends State {
+    constructor() {
+      super('party_dance', 'interaction');
+      this._move = 'stage_performance';
+      this._moveElapsed = 0;
+      this._nextMoveAt = 0;
+      this._moveTimer = null;
+    }
+    enter(bb, cx) {
+      super.enter(bb, cx);
+      bb.onGround = true;
+      const isDj = cx.instance._partyRole === 'dj';
+      this._move = isDj ? 'idle_preen' : pick(PARTY_DANCE_MOVES);
+      if (!isDj) {
+        cx.instance._duckEl.dataset.partyMove = this._move;
+        this._triggerPartyMove(cx);
+      }
+      this._moveElapsed = 0;
+      this._nextMoveAt = rand(1.8, 4.8);
+    }
+    update(dt, bb, cx) {
+      super.update(dt, bb, cx);
+      this._moveElapsed += dt;
+      if (cx.instance._partyRole !== 'dj' && this._moveElapsed >= this._nextMoveAt) {
+        const moves = PARTY_DANCE_MOVES.filter(move => move !== this._move);
+        this._move = pick(moves);
+        cx.instance._duckEl.dataset.partyMove = this._move;
+        this._triggerPartyMove(cx);
+        this._moveElapsed = 0;
+        this._nextMoveAt = rand(1.8, 4.8);
+        this.frame = 0;
+        this.fTimer = 0;
+      }
+      advFrame(this, dt, cx.ad, this._move);
+      if (Math.random() < dt * 2.5) {
+        cx.parts.spawn({ x: bb.x + cx.ren.fS / 2, y: bb.y - 4, vx: rand(-20, 20), vy: rand(-38, -18), maxLife: 0.8, size: rand(4, 8), color: pick(['#FFCC00', '#FF69B4', '#5CB85C', '#3D9EFF']), type: 'star', gravity: 35 });
+      }
+    }
+    _triggerPartyMove(cx) {
+      const duck = cx.instance._duckEl;
+      clearTimeout(this._moveTimer);
+      duck.classList.remove('is-party-moving');
+      void duck.offsetWidth;
+      duck.classList.add('is-party-moving');
+      this._moveTimer = setTimeout(() => duck.classList.remove('is-party-moving'), 1000);
+    }
+    postDraw(bb, cx) {
+      if (cx.instance._partyRole !== 'dj') return;
+      const bc = cx.ren.bc;
+      bc.save(); bc.textAlign = 'center';
+      bc.font = `bold ${10 * cx.opts.scale}px sans-serif`; bc.fillStyle = '#FFD700';
+      bc.fillText('DJ', cx.ren.W / 2, 8);
+      bc.restore();
+    }
+    canStart() { return false; }
+    get seq() { return this._move; }
+  }
+
   // ═══════════════════════════════════════════════════════════════
   //  §11  Behavior Scheduler
   // ═══════════════════════════════════════════════════════════════
@@ -2740,7 +2801,7 @@
       }
 
       // Gather candidates (exclude manual-only states)
-      const skip = new Set(['pick_up_drag_drop','land_recover','collision_bounce','duck_fight']);
+      const skip = new Set(['pick_up_drag_drop','land_recover','collision_bounce','duck_fight','party_dance']);
       const cands = [];
       for (const [id, st] of Object.entries(this._hsm.states)) {
         if (skip.has(id)) continue;
@@ -2913,6 +2974,9 @@
       this._toolbar = null;
       this._menu = null;
       this._active = null;
+      this._party = null;
+      this._partyTimer = null;
+      this._partyScene = null;
       this._lifecycles = new Map((stored.lifecycles || []).map(l => [l.id, { ...l }]));
       this._children = new Map((stored.children || []).map(c => [c.id, { ...c }]));
       this._pairCooldowns = new Map();
@@ -2946,6 +3010,7 @@
       } : null;
       instance._audio.setMuted(this.muted);
       instance._audio.setVolume(this.volume);
+      if (this._party) this._joinParty(instance);
       this._reconcileAbsentCourtships();
       for (const life of this._lifecycles.values()) {
         if (life.state === 'egg' && !life.hostId) life.hostId = id;
@@ -2965,6 +3030,7 @@
       }
       this._persist();
       if (_instances.length <= 1 && this._toolbar) { this._toolbar.remove(); this._toolbar = null; }
+      if (this._party && !_instances.some(i => !i._dead)) this.stopParty();
     }
 
     _persist() {
@@ -3287,6 +3353,85 @@
       this._toolbar = box;
     }
 
+    _joinParty(instance) {
+      instance._partyRole = this._party.djId === instance._flockId ? 'dj' : 'dancer';
+      instance._duckEl.classList.add('is-party-duck');
+      instance._duckEl.classList.toggle('is-party-dj', instance._partyRole === 'dj');
+      instance._duckEl.querySelectorAll('.duck-mate-dj-headphones, .duck-mate-mixing-table').forEach(prop => prop.remove());
+      if (instance._partyRole === 'dj') {
+        const headphones = document.createElement('span');
+        headphones.className = 'duck-mate-dj-headphones';
+        headphones.setAttribute('aria-hidden', 'true');
+        const table = document.createElement('span');
+        table.className = 'duck-mate-mixing-table';
+        table.innerHTML = '<b class="duck-mate-vinyl duck-mate-vinyl--one"></b><b class="duck-mate-vinyl duck-mate-vinyl--two"></b><i></i><i></i><i></i>';
+        table.setAttribute('aria-hidden', 'true');
+        instance._duckEl.append(headphones, table);
+      }
+      instance._sched.force('party_dance', instance._bb, instance._cx);
+      this._layoutParty();
+    }
+
+    _layoutParty() {
+      const guests = _instances.filter(i => !i._dead && i._partyRole);
+      const width = Math.max(innerWidth - 80, 120);
+      guests.forEach((instance, index) => {
+        const spread = guests.length === 1 ? 0.5 : index / (guests.length - 1);
+        instance._duckEl.style.setProperty('--party-x', `${40 + spread * width}px`);
+        instance._duckEl.style.setProperty('--party-delay', `${(index % 5) * -0.14}s`);
+      });
+    }
+
+    startParty() {
+      if (this._party) return;
+      const guests = _instances.filter(i => !i._dead);
+      if (!guests.length) return;
+      const dj = guests[Math.floor(Math.random() * guests.length)];
+      this._party = { djId: dj._flockId, startedAt: Date.now() };
+      this._createPartyScene();
+      guests.forEach(instance => this._joinParty(instance));
+      this._partyTimer = setTimeout(() => this.stopParty(), PARTY_DURATION_MS);
+      guests[0]._announce('Party started! The disco ball is dropping and the ducks are dancing.');
+    }
+
+    stopParty() {
+      if (!this._party) return;
+      clearTimeout(this._partyTimer);
+      this._partyTimer = null;
+      this._party = null;
+      this._partyScene?.remove();
+      this._partyScene = null;
+      _instances.filter(i => !i._dead).forEach(instance => {
+        instance._partyRole = null;
+        delete instance._duckEl.dataset.partyMove;
+        instance._duckEl.classList.remove('is-party-duck');
+        instance._duckEl.classList.remove('is-party-dj');
+        instance._duckEl.querySelectorAll('.duck-mate-dj-headphones, .duck-mate-mixing-table').forEach(prop => prop.remove());
+        instance._positionDuck();
+        instance._sched.next(instance._bb, instance._cx);
+        instance._announce('Party over. The ducks are catching their breath.');
+      });
+    }
+
+    _createPartyScene() {
+      const scene = document.createElement('div');
+      scene.className = 'duck-mate-party-scene';
+      scene.setAttribute('aria-hidden', 'true');
+      scene.innerHTML = '<div class="duck-mate-party-story">🎉 The ducks heard the beat!</div><div class="duck-mate-disco-cable"></div><div class="duck-mate-disco-ball"><div class="duck-mate-disco-ball__rotor"><span></span></div></div><div class="duck-mate-spotlight"></div><div class="duck-mate-dance-floor"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+      const colors = ['#FFCC00', '#FF69B4', '#5CB85C', '#3D9EFF', '#BDA9DD', '#FF6B6B'];
+      for (let i = 0; i < 42; i++) {
+        const confetti = document.createElement('b');
+        confetti.className = 'duck-mate-party-confetti';
+        confetti.style.setProperty('--confetti-left', `${Math.random() * 100}%`);
+        confetti.style.setProperty('--confetti-delay', `${Math.random() * 4}s`);
+        confetti.style.setProperty('--confetti-duration', `${3 + Math.random() * 4}s`);
+        confetti.style.setProperty('--confetti-color', colors[i % colors.length]);
+        scene.appendChild(confetti);
+      }
+      document.body.appendChild(scene);
+      this._partyScene = scene;
+    }
+
     _showMenu(instance, x, y) {
       if (!this._menu) {
         this._menu = document.createElement('div');
@@ -3296,10 +3441,11 @@
       }
       this._menu.innerHTML = '';
       const action = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; b.addEventListener('click', () => { fn(); this._hideMenu(); }); this._menu.appendChild(b); };
+      action(this._party ? '🛑 Stop party' : '🎉 PARTY!', () => this._party ? this.stopParty() : this.startParty());
       action(`Rename ${instance._name}`, () => this.rename(instance));
       action(`Remove ${instance._name}`, () => this.remove(instance));
       this._menu.style.left = `${Math.max(4, Math.min(x, innerWidth - 180))}px`;
-      this._menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 90))}px`;
+      this._menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 125))}px`;
       this._menu.hidden = false;
       this._active = instance;
       this._menu.querySelector('button')?.focus();
@@ -3463,7 +3609,7 @@
         new ButterflyChase(), new BananaSlip(),
         new UfoAbductDrop(), new ShowerCloud(), new BathtubFlop(), new StagePerformance(), new CloneParade(),
         new CuriosityCone(), new ShooResponse(), new PickUpDragDrop(), new LandRecover(),
-        new CollisionBounce(), new DuckFight(),
+        new CollisionBounce(), new DuckFight(), new PartyDance(),
         new ReadNewspaper(), new EatSeeds(), new Sunbathe(), new DoPushups(),
         new PeekABoo(), new ClickEmote(), new ScrollAwareWave(), new SectionPerch(),
         new WalkOnSurface(), new ClimbToSurface(), new LadderClimb(), new Courtship(),
@@ -3637,6 +3783,11 @@
 
       if (!this._paused) {
         _coordinator.update(Date.now());
+        // Party guests stay in the dance state for the whole party. This
+        // guard also protects against external scheduler/collision events.
+        if (this._partyRole && this._hsm.id !== 'party_dance') {
+          this._sched.force('party_dance', this._bb, this._cx);
+        }
         // ─── Scroll levitation ───
         this._applyScrollLevitation(dt);
 
@@ -3682,7 +3833,17 @@
       const fS = this._ren.fS;
       const x = this._bb.x - (this._ren.W - fS) / 2;
       const y = this._bb.y - (this._ren.H - fS) / 2;
-      this._duckEl.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+      this._duckEl.style.setProperty('--duck-frame-size', `${fS}px`);
+      if (this._partyRole) {
+        const floor = _coordinator._partyScene?.querySelector('.duck-mate-dance-floor');
+        const floorTop = floor?.getBoundingClientRect().top ?? (this._bb.vpH - Math.max(78, this._bb.vpH * 0.2));
+        // The generated duck's feet end a few pixels inside its 64px frame.
+        // Anchor those feet to the actual top edge of the perspective floor.
+        const floorY = floorTop - fS + 24;
+        this._duckEl.style.transform = `translate(calc(var(--party-x) - ${this._ren.W / 2}px),${floorY - (this._ren.H - fS) / 2}px)`;
+      } else {
+        this._duckEl.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+      }
       this._duckEl.style.width  = this._ren.W + 'px';
       this._duckEl.style.height = this._ren.H + 'px';
       this._nameLabel.style.left = `${(this._ren.W / 2).toFixed(1)}px`;
@@ -3710,6 +3871,7 @@
      */
     _applyScrollLevitation(dt) {
       const bb = this._bb;
+      if (this._partyRole) return;
       const st = this._hsm.current;
       // Don't levitate during drag, safety states, or while already flying to a perch
       if (!st || bb.dragging) return;
@@ -3751,6 +3913,7 @@
     _checkCollisions(dt) {
       if (_instances.length < 2) return;
       const bb = this._bb;
+      if (this._partyRole) return;
       const fS = this._ren.fS;
       const st = this._hsm.current;
       // Don't collide during drag, landing, or already bouncing
@@ -3931,6 +4094,9 @@
   } else {
     global.initDuckMate = initDuckMate;
     global.DuckMateVersion = VERSION;
+    global.startDuckParty = () => _coordinator.startParty();
+    global.stopDuckParty = () => _coordinator.stopParty();
+    global.isDuckPartyActive = () => Boolean(_coordinator._party);
   }
 
 })(typeof window !== 'undefined' ? window : this);
