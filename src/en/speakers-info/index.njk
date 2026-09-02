@@ -1,0 +1,23 @@
+---
+layout: default.njk
+lang: en
+title: Speaker Info — TDC 2026
+description: Practical information for speakers at TDC 2026.
+permalink: /en/speakers-info/
+---
+
+{% set t = i18n[lang] %}
+{% set speakersInfoContent = "./_includes/content/" + lang + "/speakers-info.md" %}
+
+<tdc-section>
+<section class="section section--surface" id="speakers-info" data-animate aria-labelledby="speakers-info-title">
+  <div class="container stack">
+    <header class="section__header">
+      <h1 class="section__title text-h1" id="speakers-info-title">{{ t.speakersInfo.title }}</h1>
+    </header>
+    <div class="prose measure">
+      {% renderFile speakersInfoContent %}
+    </div>
+  </div>
+</section>
+</tdc-section>
