@@ -216,6 +216,9 @@ export default {
       placeholder: "Speakers will be announced soon!",
       details_cta: "Read more",
     },
+    speakersInfo: {
+      title: "Speaker Info",
+    },
     program: {
       title: "Agenda",
       placeholder: "The agenda will be published soon!",
