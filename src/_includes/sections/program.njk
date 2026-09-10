@@ -23,6 +23,8 @@
         <div class="program-schedule__toolbar">
           <p class="program-schedule__hint">{{ t.program.favorite_hint }}</p>
           <div class="program-schedule__filters">
+            <label class="program-schedule__search-label" for="program-search">{{ t.program.search_label }}</label>
+            <input class="program-schedule__search" id="program-search" type="search" data-program-search placeholder="{{ t.program.search_placeholder | escape }}" autocomplete="off" />
             <label class="program-schedule__topic-label" for="program-topic-filter">{{ t.program.topic }}</label>
             <select class="program-schedule__topic" id="program-topic-filter" data-program-topic-filter>
               <option value="">{{ t.program.all_topics }}</option>
@@ -35,6 +37,7 @@
             </button>
           </div>
         </div>
+        <p class="program-schedule__no-results" data-program-search-empty hidden>{{ t.program.no_results }}</p>
 
         <div class="program-schedule__grid" style="--program-room-count: {{ sessionize.schedule.rooms.length }}">
           <div class="program-schedule__rooms" aria-hidden="true">
@@ -114,6 +117,7 @@
               data-session-end-at="{{ session.endsAt }}"
               data-session-room="{{ session.roomName | escape }}"
               data-session-service="true"
+              data-session-topics=""
               data-session-long-service="true"
             >
               <div class="program-session__meta">

@@ -127,6 +127,33 @@ export default async function () {
     apiAttempted ? { topSpeakerIds: [], topicsBySession: new Map() } : fetchSessionMetadata(),
   ]);
 
+  // Sessionize's public embed endpoints can return JSON instead of the legacy
+  // HTML fragments. Keep supporting the fragments, but prefer the structured
+  // response when it is available so local builds and deploys remain usable.
+  try {
+    const sessionsPayload = JSON.parse(sessionsHtml);
+    const speakersPayload = JSON.parse(speakersHtml);
+    const gridPayload = JSON.parse(gridHtml);
+    const sessionsData = Array.isArray(sessionsPayload) ? sessionsPayload[0] : sessionsPayload;
+    const gridData = Array.isArray(gridPayload) ? gridPayload[0] : gridPayload;
+    if (sessionsData?.sessions?.length && Array.isArray(speakersPayload) && gridData?.rooms?.length) {
+      const serviceSessions = gridData.rooms
+        .flatMap((room) => room.sessions ?? [])
+        .filter((session) => session.isServiceSession);
+      const apiData = parseApiData({
+        sessions: [...sessionsData.sessions, ...serviceSessions],
+        speakers: speakersPayload,
+        rooms: gridData.rooms,
+      });
+      if (apiData?.schedule.rows.length) {
+        const topSpeakerIds = apiData.speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id);
+        return { eventId, ...apiData, speakers: sortSpeakers(apiData.speakers, topSpeakerIds), topSpeakerIds };
+      }
+    }
+  } catch {
+    // The response is the legacy HTML format; continue with the HTML parsers.
+  }
+
   const sessions = parseSessions(sessionsHtml);
   const speakers = sortSpeakers(parseSpeakers(speakersHtml), sessionMetadata.topSpeakerIds);
   const schedule = mergeScheduleData(parseGridSchedule(gridHtml), sessions, {
