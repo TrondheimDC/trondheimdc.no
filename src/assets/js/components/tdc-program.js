@@ -8,6 +8,8 @@ class TdcProgram {
     this.dialog = root.querySelector("[data-session-dialog]");
     this.onlyFavorites = root.querySelector("[data-program-favorites-only]");
     this.topicFilter = root.querySelector("[data-program-topic-filter]");
+    this.searchInput = root.querySelector("[data-program-search]");
+    this.searchEmpty = root.querySelector("[data-program-search-empty]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
@@ -41,6 +43,7 @@ class TdcProgram {
     });
 
     this.topicFilter?.addEventListener("change", () => this.applyFilter());
+    this.searchInput?.addEventListener("input", () => this.applyFilter());
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
     this.dialog?.addEventListener("close", () => {
@@ -118,14 +121,39 @@ class TdcProgram {
     const onlyFavorites = this.onlyFavorites?.getAttribute("aria-pressed") === "true";
     const selectedTopic = this.topicFilter?.value;
     const topics = (session.dataset.sessionTopics || "").split("|").filter(Boolean);
+    const search = this.normalize(this.searchInput?.value || "");
+    const speakers = [...session.querySelectorAll("[data-speaker-open]")]
+      .map((speaker) => speaker.textContent)
+      .join(" ");
+    const searchable = this.normalize([
+      session.dataset.sessionTitle,
+      session.dataset.sessionDescription,
+      session.dataset.sessionStart,
+      session.dataset.sessionEnd,
+      session.dataset.sessionRoom,
+      session.dataset.sessionTopics,
+      speakers,
+    ].join(" "));
     return (onlyFavorites && !this.favorites.has(session.dataset.sessionId)) ||
-      (selectedTopic && !topics.includes(selectedTopic));
+      (selectedTopic && !topics.includes(selectedTopic)) ||
+      (search && !searchable.includes(search));
   }
 
   applyFilter() {
-    this.root.querySelectorAll("[data-program-session]").forEach((session) => {
+    const sessions = [...this.root.querySelectorAll("[data-program-session]")];
+    sessions.forEach((session) => {
       session.hidden = this.isFilteredOut(session);
     });
+    if (this.searchEmpty) {
+      this.searchEmpty.hidden = !this.searchInput?.value.trim() || sessions.some((session) => !session.hidden);
+    }
+  }
+
+  normalize(value) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase();
   }
 
   open(session) {

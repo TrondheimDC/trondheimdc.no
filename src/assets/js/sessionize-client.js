@@ -142,9 +142,11 @@ export function parseApiData(data) {
     startsAt: normalizeApiTimestamp(apiValue(session.startsAt, apiValue(session.start))),
     endsAt: normalizeApiTimestamp(apiValue(session.endsAt, apiValue(session.end))),
     roomId: apiValue(session.roomId, session.room?.id),
-    roomName: stripHtml(apiValue(session.roomName, session.room?.name)),
+    roomName: stripHtml(apiValue(session.roomName, typeof session.room === "string" ? session.room : session.room?.name)),
     speakers: (session.speakers ?? session.speakerIds ?? []).map((speaker) => typeof speaker === "string" ? speaker : speaker.id).filter(Boolean),
-    topics: (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean),
+    topics: (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean).length
+      ? (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean)
+      : getApiTopics(session),
     isService: Boolean(session.isService ?? session.isServiceSession),
     isPlenum: Boolean(session.isPlenum ?? session.isPlenumSession),
   })).filter((session) => session.id);
@@ -198,7 +200,7 @@ function getApiTopics(session) {
     .flatMap((category) => {
       if (typeof category === "string") return [category];
       const items = category?.categoryItems ?? category?.items;
-      if (Array.isArray(items)) return items.map((item) => typeof item === "string" ? item : item?.title);
+      if (Array.isArray(items)) return items.map((item) => typeof item === "string" ? item : item?.title ?? item?.name);
       return category?.title ? [category.title] : [];
     })
     .filter(Boolean)

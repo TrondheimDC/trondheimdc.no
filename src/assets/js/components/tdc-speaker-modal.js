@@ -59,6 +59,7 @@ class TdcSpeakerModal {
       this.returnFocus?.focus();
       this.returnFocus = null;
     });
+
   }
 
   open(button) {

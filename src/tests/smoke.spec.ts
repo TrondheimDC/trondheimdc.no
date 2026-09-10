@@ -44,6 +44,7 @@ test.describe('Pages load', () => {
       await expect.poll(() => page.locator('#program [data-program-session]').count()).toBeGreaterThanOrEqual(45);
       await expect.poll(() => page.locator('#program [data-session-description]:not([data-session-description=""])').count()).toBeGreaterThanOrEqual(45);
       await expect(page.locator('#program [data-program-topic-filter] option')).not.toHaveCount(1);
+      await expect(page.locator('#program [data-program-search]')).toBeVisible();
     });
 
     test(`${path} places the program directly before speakers`, async ({ page }) => {
@@ -100,6 +101,20 @@ test.describe('Program schedule', () => {
     await page.locator('[data-program-favorites-only]').click();
     await expect(firstSession).toBeVisible();
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+  });
+
+  test('searches talks across title, description, speakers, and metadata', async ({ page }) => {
+    await page.goto('/');
+    const search = page.locator('[data-program-search]');
+    const sessions = page.locator('[data-program-session]');
+
+    await search.fill('After the AI Hype');
+    await expect(sessions.filter({ hasText: 'After the AI Hype' })).toBeVisible();
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+
+    await search.fill('this text cannot match any talk');
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(0);
+    await expect(page.locator('[data-program-search-empty]')).toBeVisible();
   });
 
   test('keeps schedule content readable in both themes', async ({ page }) => {
