@@ -25,13 +25,15 @@
           <div class="program-schedule__filters">
             <label class="program-schedule__search-label" for="program-search">{{ t.program.search_label }}</label>
             <input class="program-schedule__search" id="program-search" type="search" data-program-search placeholder="{{ t.program.search_placeholder | escape }}" autocomplete="off" />
-            <label class="program-schedule__topic-label" for="program-topic-filter">{{ t.program.topic }}</label>
-            <select class="program-schedule__topic" id="program-topic-filter" data-program-topic-filter>
-              <option value="">{{ t.program.all_topics }}</option>
-              {% for topic in sessionize.schedule.topics %}
-                <option value="{{ topic | escape }}">{{ topic }}</option>
-              {% endfor %}
-            </select>
+            <div class="program-schedule__topic-control">
+              <label class="program-schedule__topic-label" for="program-topic-filter">{{ t.program.topic }}</label>
+              <select class="program-schedule__topic" id="program-topic-filter" data-program-topic-filter>
+                <option value="">{{ t.program.all_topics }}</option>
+                {% for topic in sessionize.schedule.topics %}
+                  <option value="{{ topic | escape }}">{{ topic }}</option>
+                {% endfor %}
+              </select>
+            </div>
             <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
               <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
             </button>

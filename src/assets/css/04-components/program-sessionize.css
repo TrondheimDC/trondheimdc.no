@@ -8,6 +8,7 @@
 .program-schedule__search { min-width: min(18rem, 100%); padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
 .program-schedule__search:hover, .program-schedule__search:focus-visible { border-color: var(--color-fg-brand); outline-color: var(--color-fg-brand); }
 .program-schedule__no-results { margin: 0 0 var(--spacing-4); color: var(--color-fg-muted); }
+.program-schedule__topic-control { display: flex; align-items: center; gap: var(--spacing-2); }
 .program-schedule__topic-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
 .program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
 .program-schedule__filter, .program-session__favorite, .program-session-modal__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; }
