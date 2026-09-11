@@ -115,7 +115,6 @@ export default {
       includes_title: "Hva inkluderer partnerskapet?",
       includes: [
         "En stand (3×2 m²) i vårt vrimleområde",
-        "Lunsj og etterfest inkludert",
         "Logo og lenke på konferansens nettside og markedsføringsmateriell",
         "Eksponering på storskjerm og digitale flater under konferansen",
         "Mulighet til å bidra med innhold eller aktivitet på deres stand",
@@ -289,7 +288,6 @@ export default {
       includes_title: "What does the partnership include?",
       includes: [
         "A booth (3×2 m²) in our networking area",
-        "Lunch and after-party included",
         "Logo and link on the conference website and marketing materials",
         "Exposure on large screens and digital surfaces during the conference",
         "Opportunity to contribute content or activities at your booth",
