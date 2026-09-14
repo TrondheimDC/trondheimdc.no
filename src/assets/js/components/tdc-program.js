@@ -46,6 +46,20 @@ class TdcProgram {
     this.searchInput?.addEventListener("input", () => this.applyFilter());
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
+
+    // Clicking the backdrop closes the dialog. The click lands on the <dialog>
+    // itself, so compare the pointer against the dialog box to tell the two apart.
+    this.dialog?.addEventListener("click", (event) => {
+      if (event.target !== this.dialog) return;
+      const rect = this.dialog.getBoundingClientRect();
+      const insideDialog =
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width;
+
+      if (!insideDialog) this.dialog.close();
+    });
     this.dialog?.addEventListener("close", () => {
       unlockModalScroll();
       this.returnFocus?.focus();

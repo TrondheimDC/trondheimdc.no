@@ -49,11 +49,11 @@
 .program-session__speaker { padding: 0; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font: inherit; font-size: var(--font-size-20); text-align: left; }
 .program-session-modal { width: min(720px, calc(100vw - 2rem)); max-width: min(720px, calc(100vw - 2rem)); max-height: min(85dvh, 800px); margin: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-6); background: var(--color-bg-surface); color: var(--color-fg-base); }
 .program-session-modal::backdrop { background: var(--color-overlay); }
-.program-session-modal__close { display: block; margin-inline-start: auto; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: transparent; color: var(--color-fg-base); cursor: pointer; }
+.program-session-modal__close { display: flex; align-items: center; justify-content: center; margin-inline-start: auto; width: 2rem; height: 2rem; padding: 0; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: transparent; color: var(--color-fg-base); line-height: 1; cursor: pointer; }
 .program-session-modal__meta { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
-.program-session-modal__favorite { padding: var(--spacing-2) var(--spacing-3); }
+.program-session-modal__favorite { margin-block-start: var(--spacing-5); padding: var(--spacing-2) var(--spacing-3); }
 .program-session[hidden] { display: none; }
 
 @media (max-width: 1199px) {
