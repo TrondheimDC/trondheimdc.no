@@ -1,4 +1,12 @@
 import { test, expect } from '@playwright/test';
+import type { Download } from '@playwright/test';
+
+async function readDownload(download: Download) {
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks).toString('utf-8');
+}
 
 /**
  * Smoke tests for the rebuilt TDC 2026 site.
@@ -115,6 +123,86 @@ test.describe('Program schedule', () => {
     await search.fill('this text cannot match any talk');
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(0);
     await expect(page.locator('[data-program-search-empty]')).toBeVisible();
+  });
+
+  test('serves a single talk as an .ics file', async ({ page }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    await session.locator('[data-session-open]').click();
+    await page.locator('[data-calendar-toggle]').click();
+
+    // Served as a real file, not a Blob, so mobile hands it to the calendar app.
+    const href = await page.locator('[data-calendar-link="ics"]').getAttribute('href') ?? '';
+    expect(href).toBe(`/program/${await session.getAttribute('data-session-id')}.ics`);
+
+    const response = await page.request.get(href);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('text/calendar');
+    const ics = await response.text();
+
+    expect(ics).toContain('BEGIN:VCALENDAR');
+    expect(ics).toContain('SUMMARY:After the AI Hype');
+    expect(ics).toMatch(/LOCATION:.+/);
+    expect(ics).toMatch(/DTSTART:20261019T\d{6}Z/);
+    expect(ics).toMatch(/DTEND:20261019T\d{6}Z/);
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(1);
+    // RFC 5545 caps content lines at 75 octets.
+    for (const line of ics.split('\r\n')) {
+      expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+    }
+  });
+
+  test('offers web calendars as prefilled deep links', async ({ page }) => {
+    await page.goto('/');
+    const menu = page.locator('[data-calendar-list]');
+    await expect(menu).toBeHidden();
+
+    await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).locator('[data-session-open]').click();
+    await page.locator('[data-calendar-toggle]').click();
+    await expect(menu).toBeVisible();
+    await expect(page.locator('[data-calendar-toggle]')).toHaveAttribute('aria-expanded', 'true');
+    // A disclosure, not a menu widget: plain links, reachable with Tab.
+    await expect(page.locator('[data-calendar-list] [role]')).toHaveCount(0);
+
+    const google = new URL(await page.locator('[data-calendar-link="google"]').getAttribute('href') ?? '');
+    expect(google.hostname).toBe('calendar.google.com');
+    expect(google.searchParams.get('text')).toContain('After the AI Hype');
+    expect(google.searchParams.get('dates')).toBe('20261019T070000Z/20261019T074500Z');
+    expect(google.searchParams.get('location')).toBe('Cosmos 1 & 2');
+
+    const outlook = new URL(await page.locator('[data-calendar-link="outlook"]').getAttribute('href') ?? '');
+    expect(outlook.hostname).toBe('outlook.office.com');
+    expect(outlook.searchParams.get('startdt')).toBe('2026-10-19T07:00:00.000Z');
+    await expect(page.locator('[data-calendar-list] .calendar-menu__item')).toHaveCount(3);
+
+    // Escape dismisses the menu before it dismisses the dialog under it.
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-session-dialog]')).toBeHidden();
+  });
+
+  test('exports every saved talk as one .ics file', async ({ page }) => {
+    await page.goto('/');
+    const exportButton = page.locator('[data-program-calendar-export]');
+    // Always rendered, so saving a talk cannot shift the toolbar's layout.
+    await expect(exportButton).toBeVisible();
+    await expect(exportButton).toBeDisabled();
+
+    const saved = page.locator('[data-program-session]').filter({ has: page.locator('[data-session-favorite]') });
+    await saved.nth(0).locator('[data-session-favorite]').click();
+    await saved.nth(1).locator('[data-session-favorite]').click();
+    await expect(exportButton).toBeEnabled();
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      exportButton.click(),
+    ]);
+
+    const ics = await readDownload(download);
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+    expect(ics).toContain('X-WR-CALNAME:');
   });
 
   test('keeps schedule content readable in both themes', async ({ page }) => {

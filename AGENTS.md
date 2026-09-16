@@ -63,6 +63,7 @@ npm run test:ci                # list reporter (CI)
 src/
   eleventy.config.js        # filters, plugins, passthrough, dir config
   package.json              # bun scripts
+  _lib/                     # build-only helpers (not templates, not shipped)
   _data/
     site.js                 # global config + featureFlags (e.g. easterEggs)
     i18n.js                 # UI strings / labels only, keyed { no, en }
@@ -75,6 +76,7 @@ src/
     content/en/*.md         # long-form prose (English)
   index.njk                 # NO home  (permalink /)
   en/index.njk              # EN home  (permalink /en/)
+  program-ics.11ty.js       # one .ics per session -> /program/<session-id>.ics
   assets/
     css/                    # design system (see §5)
     fonts/                  # self-hosted IBM Plex Sans (woff2)
@@ -157,7 +159,26 @@ load, and `duck-mate.*` must not be requested until party mode runs.
 
 ---
 
-## 8. Partners
+## 8. Calendar export
+
+The program's "add to calendar" button offers Google Calendar and Outlook deep
+links plus a downloadable `.ics`; the toolbar exports every saved talk as one
+file.
+
+- The iCalendar writer is `assets/js/calendar.js`, shared by the browser and by
+  the build (`_lib/session-calendar.js`), the same way `sessionize-client.js` is
+  shared — so the static per-session files and the client-side export can't drift.
+- Per-session `.ics` files are **generated at build time** and served from
+  `/program/<session-id>.ics`. They are real URLs on purpose: a served file is
+  what lets iOS hand the event to the calendar app. Do not swap these back to a
+  client-side Blob. (Android Chrome downloads `.ics` regardless — a browser
+  limitation, which is why the Google link is listed first.)
+- Calendar contents are **English only, in both languages**. Sessionize gives us
+  titles and abstracts in whatever language the speaker submitted, so the few
+  labels around them live as constants in `calendar.js`, not in `i18n.js`.
+- The saved-talks export stays a Blob: favourites only exist in `localStorage`.
+
+## 9. Partners
 
 - The partner logo wall renders **near the footer** (as in the old site), on every render of the page.
 - It is **data-driven** from `_data/partners.js` (`[{ name, url, logo }]`) — no hardcoded `<li>` list.
@@ -166,7 +187,7 @@ load, and `duck-mate.*` must not be requested until party mode runs.
 
 ---
 
-## 9. Learnings
+## 10. Learnings
 
 - CSS `@media` can't read `var()` → use literal px for breakpoints (see §5).
 - Dark is the default theme; light is the override (don't invert this).

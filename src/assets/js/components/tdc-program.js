@@ -1,4 +1,5 @@
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
+import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
 
 class TdcProgram {
   constructor(root) {
@@ -12,6 +13,14 @@ class TdcProgram {
     this.searchEmpty = root.querySelector("[data-program-search-empty]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
     this.modalFavoriteLabel = root.querySelector("[data-session-modal-favorite-label]");
+    this.calendarMenu = root.querySelector("[data-calendar-menu]");
+    this.calendarToggle = root.querySelector("[data-calendar-toggle]");
+    this.calendarList = root.querySelector("[data-calendar-list]");
+    // Top layer keeps the menu out of the dialog's scroll box; older browsers
+    // fall back to the [hidden] toggle and the same fixed positioning.
+    this.supportsPopover = typeof this.calendarList?.showPopover === "function";
+    if (this.supportsPopover) this.calendarList.setAttribute("popover", "manual");
+    this.calendarExport = root.querySelector("[data-program-calendar-export]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
     this.meta = root.querySelector("[data-session-modal-meta]");
@@ -48,6 +57,36 @@ class TdcProgram {
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
 
+    this.calendarToggle?.addEventListener("click", () => {
+      this.setCalendarMenu(this.calendarToggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    // Picking a web calendar leaves for the provider; close behind it.
+    this.calendarList?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-calendar-link]")) this.setCalendarMenu(false);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest("[data-calendar-menu]")) this.setCalendarMenu(false);
+    });
+
+    window.addEventListener("resize", () => this.positionCalendarMenu());
+    this.dialog?.addEventListener("scroll", () => this.positionCalendarMenu());
+
+    // Escape should dismiss the menu before it dismisses the dialog under it.
+    this.dialog?.addEventListener("cancel", (event) => {
+      if (this.calendarToggle?.getAttribute("aria-expanded") !== "true") return;
+      event.preventDefault();
+      this.setCalendarMenu(false);
+      this.calendarToggle.focus();
+    });
+
+    this.calendarExport?.addEventListener("click", () => {
+      const saved = [...this.root.querySelectorAll("[data-program-session]")]
+        .filter((session) => this.favorites.has(session.dataset.sessionId));
+      this.download(saved, this.root.dataset.calendarSavedName, { name: this.root.dataset.calendarSavedName });
+    });
+
     // Clicking the backdrop closes the dialog. The click lands on the <dialog>
     // itself, so compare the pointer against the dialog box to tell the two apart.
     this.dialog?.addEventListener("click", (event) => {
@@ -62,6 +101,7 @@ class TdcProgram {
       if (!insideDialog) this.dialog.close();
     });
     this.dialog?.addEventListener("close", () => {
+      this.setCalendarMenu(false);
       unlockModalScroll();
       this.returnFocus?.focus();
       this.returnFocus = null;
@@ -143,6 +183,7 @@ class TdcProgram {
       button.setAttribute("aria-label", `${saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel}: ${session.dataset.sessionTitle}`);
       session.hidden = this.isFilteredOut(session);
     });
+    if (this.calendarExport) this.calendarExport.disabled = this.favorites.size === 0;
   }
 
   isFilteredOut(session) {
@@ -184,12 +225,97 @@ class TdcProgram {
       .toLocaleLowerCase();
   }
 
+  // An .ics the attendee can import into whatever calendar they already use.
+  // The long service sessions render twice (in-row + overlay), so dedupe by id.
+  download(sessions, title, options = {}) {
+    const seen = new Set();
+    const events = sessions
+      .filter((session) => {
+        const id = session.dataset.sessionId;
+        if (!id || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((session) => this.toEvent(session));
+
+    if (!events.length) return;
+    downloadCalendar(calendarFilename(title), buildCalendar(events, options));
+  }
+
+  setCalendarMenu(open) {
+    if (!this.calendarToggle || !this.calendarList) return;
+    if (open && !this.activeSession) return;
+    if (open) this.updateCalendarLinks();
+
+    this.calendarList.hidden = !open;
+    if (this.supportsPopover) {
+      if (open) this.calendarList.showPopover();
+      else if (this.calendarList.matches(":popover-open")) this.calendarList.hidePopover();
+    }
+
+    this.calendarToggle.setAttribute("aria-expanded", String(open));
+    if (open) this.positionCalendarMenu();
+  }
+
+  // The menu is fixed-positioned, so clamp it into the viewport by hand: open
+  // upwards when there is room above the button, otherwise flip below.
+  positionCalendarMenu() {
+    if (!this.calendarList || this.calendarToggle?.getAttribute("aria-expanded") !== "true") return;
+
+    const margin = 8;
+    const list = this.calendarList;
+    list.style.top = "0px";
+    list.style.left = "0px";
+
+    const toggle = this.calendarToggle.getBoundingClientRect();
+    const { width, height } = list.getBoundingClientRect();
+    const above = toggle.top - margin - height;
+    const top = above >= margin ? above : Math.min(toggle.bottom + margin, window.innerHeight - height - margin);
+    const left = Math.min(toggle.left, window.innerWidth - width - margin);
+
+    list.style.top = `${Math.max(margin, top)}px`;
+    list.style.left = `${Math.max(margin, left)}px`;
+  }
+
+  updateCalendarLinks() {
+    const event = this.toEvent(this.activeSession);
+    const urls = {
+      google: googleCalendarUrl(event),
+      outlook: outlookCalendarUrl(event),
+      ics: `${this.root.dataset.calendarIcsBase}${encodeURIComponent(this.activeSession.dataset.sessionId)}.ics`,
+    };
+
+    this.calendarList.querySelectorAll("[data-calendar-link]").forEach((link) => {
+      const url = urls[link.dataset.calendarLink];
+      link.hidden = !url;
+      if (url) link.href = url;
+    });
+  }
+
+  toEvent(session) {
+    const speakers = [...session.querySelectorAll("[data-speaker-open]")]
+      .map((speaker) => speaker.dataset.speakerName)
+      .filter(Boolean);
+    const url = this.root.dataset.calendarUrl;
+
+    return {
+      uid: `${session.dataset.sessionId}@trondheimdc.no`,
+      title: session.dataset.sessionTitle,
+      start: session.dataset.sessionStartAt,
+      end: session.dataset.sessionEndAt,
+      location: session.dataset.sessionRoom || SHARED_LOCATION,
+      url,
+      description: sessionDescription({ speakers, description: session.dataset.sessionDescription, url }),
+    };
+  }
+
   open(session) {
     if (!session || !this.dialog) return;
     this.activeSession = session;
     // The pill is reused across sessions, so drop a stale .is-toggling before
     // updateModalFavorite() flips aria-pressed and replays the pop on open.
     this.modalFavorite?.classList.remove("is-toggling");
+    this.setCalendarMenu(false);
     this.returnFocus = session.querySelector("[data-session-open]");
     this.title.textContent = session.dataset.sessionTitle || "";
     this.description.textContent = session.dataset.sessionDescription || "";
