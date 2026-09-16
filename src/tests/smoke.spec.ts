@@ -305,6 +305,62 @@ test.describe('Program schedule', () => {
   });
 });
 
+test.describe('Standalone program page', () => {
+  // /program/ and /en/program/ render the same section as the home page, on
+  // their own, for anyone who would rather not scroll the single page. They
+  // are deliberately unlisted — nothing on the site links to them.
+  const PAGES = [
+    { path: '/program/', home: '/', heading: 'Program' },
+    { path: '/en/program/', home: '/en/', heading: 'Agenda' },
+  ];
+
+  for (const { path, home, heading } of PAGES) {
+    test(`${path} renders the full schedule`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator('#program .program-schedule')).toBeVisible();
+      await expect.poll(() => page.locator('#program [data-program-session]').count()).toBeGreaterThanOrEqual(45);
+      await expect(page.locator('#program [data-program-search]')).toBeVisible();
+    });
+
+    test(`${path} owns the h1 and carries no other sections`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator('h1#program-title')).toHaveText(heading);
+      const ids = await page.locator('main section[id]').evaluateAll((s) => s.map((el) => el.id));
+      expect(ids).toEqual(['program']);
+    });
+
+    test(`${path} stays a duplicate of the home page for search engines`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', new RegExp(`${home}$`));
+    });
+
+    test(`${path} points its nav and language switch somewhere real`, async ({ page }) => {
+      await page.goto(path);
+      for (const id of NAV_SECTIONS) {
+        await expect(page.locator(`.site-nav a[href="${home}#${id}"]`)).toHaveCount(1);
+      }
+      await expect(page.locator('.site-nav__lang a[hreflang="no"]')).toHaveAttribute('href', '/program/');
+      await expect(page.locator('.site-nav__lang a[hreflang="en"]')).toHaveAttribute('href', '/en/program/');
+    });
+
+    test(`${path} keeps the schedule readable with JavaScript off`, async ({ browser }) => {
+      const context = await browser.newContext({ javaScriptEnabled: false });
+      const page = await context.newPage();
+      await page.goto(path);
+      await expect(page.locator('#program .program-schedule')).toBeVisible();
+      await expect.poll(() => page.locator('#program [data-program-session]').count()).toBeGreaterThanOrEqual(45);
+      await context.close();
+    });
+  }
+
+  for (const path of ['/', '/en/']) {
+    test(`${path} does not link to the standalone program page`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator('a[href$="/program/"]')).toHaveCount(0);
+    });
+  }
+});
+
 test.describe('Single-page sections', () => {
   for (const path of ['/', '/en/']) {
     test(`${path} contains every migrated section`, async ({ page }) => {

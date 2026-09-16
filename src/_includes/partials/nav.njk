@@ -1,6 +1,13 @@
 {% set t = i18n[lang] %}
 {% set home = '/en/' if lang == 'en' else '/' %}
 
+{# On a standalone page (e.g. the unlisted /program/) the section anchors have
+   no target in the document, so point them back at the home page. Pages may
+   also override where the language switch goes; it defaults to the homes. #}
+{% set sectionBase = (home | url) if standalone else '' %}
+{% set noHome = noUrl | default('/') %}
+{% set enHome = enUrl | default('/en/') %}
+
 <tdc-nav>
   <nav class="site-nav" aria-label="{{ 'Main navigation' if lang == 'en' else 'Hovednavigasjon' }}">
     <div class="site-nav__inner container container--wide">
@@ -21,20 +28,20 @@
 
       <div class="site-nav__menu" id="nav-menu">
         <ul class="site-nav__links" role="list">
-          <li><a href="#about" class="site-nav__link" data-section="about">{{ t.nav.about }}</a></li>
-          <li><a href="#tickets" class="site-nav__link" data-section="tickets">{{ t.nav.tickets }}</a></li>
-          <li><a href="#program" class="site-nav__link" data-section="program">{{ t.nav.program }}</a></li>
-          <li><a href="#speakers" class="site-nav__link" data-section="speakers">{{ t.nav.speakers }}</a></li>
-          <li><a href="#partner" class="site-nav__link" data-section="partner">{{ t.nav.partners }}</a></li>
-          <li><a href="#faq" class="site-nav__link" data-section="faq">{{ t.nav.faq }}</a></li>
-          <li><a href="#coc" class="site-nav__link" data-section="coc">{{ t.nav.coc }}</a></li>
+          <li><a href="{{ sectionBase }}#about" class="site-nav__link" data-section="about">{{ t.nav.about }}</a></li>
+          <li><a href="{{ sectionBase }}#tickets" class="site-nav__link" data-section="tickets">{{ t.nav.tickets }}</a></li>
+          <li><a href="{{ sectionBase }}#program" class="site-nav__link" data-section="program">{{ t.nav.program }}</a></li>
+          <li><a href="{{ sectionBase }}#speakers" class="site-nav__link" data-section="speakers">{{ t.nav.speakers }}</a></li>
+          <li><a href="{{ sectionBase }}#partner" class="site-nav__link" data-section="partner">{{ t.nav.partners }}</a></li>
+          <li><a href="{{ sectionBase }}#faq" class="site-nav__link" data-section="faq">{{ t.nav.faq }}</a></li>
+          <li><a href="{{ sectionBase }}#coc" class="site-nav__link" data-section="coc">{{ t.nav.coc }}</a></li>
         </ul>
 
         <div class="site-nav__actions">
           <div class="site-nav__lang" role="group" aria-label="{{ 'Language' if lang == 'en' else 'Språk' }}">
-            <a href="{{ '/' | url }}" hreflang="no" lang="no" {% if lang == "no" %}aria-current="page"{% endif %}>NO</a>
+            <a href="{{ noHome | url }}" hreflang="no" lang="no" {% if lang == "no" %}aria-current="page"{% endif %}>NO</a>
             <span class="site-nav__lang-sep" aria-hidden="true">/</span>
-            <a href="{{ '/en/' | url }}" hreflang="en" lang="en" {% if lang == "en" %}aria-current="page"{% endif %}>EN</a>
+            <a href="{{ enHome | url }}" hreflang="en" lang="en" {% if lang == "en" %}aria-current="page"{% endif %}>EN</a>
           </div>
 
           <tdc-theme-toggle
