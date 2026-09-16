@@ -11,6 +11,7 @@ class TdcProgram {
     this.searchInput = root.querySelector("[data-program-search]");
     this.searchEmpty = root.querySelector("[data-program-search-empty]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
+    this.modalFavoriteLabel = root.querySelector("[data-session-modal-favorite-label]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
     this.meta = root.querySelector("[data-session-modal-meta]");
@@ -117,6 +118,20 @@ class TdcProgram {
     this.writeFavorites();
     this.updateButtons();
     if (this.activeSession?.dataset.sessionId === id) this.updateModalFavorite();
+    this.playStarAnimation(id);
+  }
+
+  // Runs on a real toggle only, and after aria-pressed is settled on both
+  // buttons. updateButtons() also runs on load, where replaying the pop for
+  // every star saved on an earlier visit would be noise.
+  playStarAnimation(id) {
+    const stars = [this.root.querySelector(`[data-program-session][data-session-id="${CSS.escape(id)}"] [data-session-favorite]`)];
+    if (this.activeSession?.dataset.sessionId === id) stars.push(this.modalFavorite);
+    stars.filter(Boolean).forEach((button) => {
+      button.classList.remove("is-toggling");
+      void button.offsetWidth; // reflow, so a second quick click restarts the animation
+      button.classList.add("is-toggling");
+    });
   }
 
   updateButtons() {
@@ -124,7 +139,6 @@ class TdcProgram {
       const saved = this.favorites.has(session.dataset.sessionId);
       const button = session.querySelector("[data-session-favorite]");
       if (!button) return;
-      button.textContent = saved ? "★" : "☆";
       button.setAttribute("aria-pressed", String(saved));
       button.setAttribute("aria-label", `${saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel}: ${session.dataset.sessionTitle}`);
       session.hidden = this.isFilteredOut(session);
@@ -173,6 +187,9 @@ class TdcProgram {
   open(session) {
     if (!session || !this.dialog) return;
     this.activeSession = session;
+    // The pill is reused across sessions, so drop a stale .is-toggling before
+    // updateModalFavorite() flips aria-pressed and replays the pop on open.
+    this.modalFavorite?.classList.remove("is-toggling");
     this.returnFocus = session.querySelector("[data-session-open]");
     this.title.textContent = session.dataset.sessionTitle || "";
     this.description.textContent = session.dataset.sessionDescription || "";
@@ -187,7 +204,7 @@ class TdcProgram {
   updateModalFavorite() {
     if (!this.activeSession || !this.modalFavorite) return;
     const saved = this.favorites.has(this.activeSession.dataset.sessionId);
-    this.modalFavorite.textContent = `${saved ? "★" : "☆"} ${saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel}`;
+    if (this.modalFavoriteLabel) this.modalFavoriteLabel.textContent = saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel;
     this.modalFavorite.setAttribute("aria-pressed", String(saved));
   }
 }

@@ -11,7 +11,7 @@
 .program-schedule__topic-control { display: flex; align-items: center; gap: var(--spacing-2); }
 .program-schedule__topic-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
 .program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
-.program-schedule__filter, .program-session__favorite, .program-session-modal__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; }
+.program-schedule__filter, .program-session__favorite, .program-session-modal__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
 .program-schedule__filter { padding: var(--spacing-2) var(--spacing-3); }
 .program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
@@ -42,7 +42,43 @@
 .program-session__title { flex: 1; padding: 0; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
 .program-session--service .program-session__title { text-align: center; }
 .program-session__title:hover, .program-session__title:focus-visible, .program-session__speaker:hover, .program-session__speaker:focus-visible { color: var(--color-fg-brand); }
-.program-session__favorite { position: absolute; inset-block-start: var(--spacing-2); inset-inline-end: var(--spacing-2); display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; font-size: var(--font-size-60); line-height: 1; }
+.program-session__favorite { position: absolute; inset-block-start: var(--spacing-2); inset-inline-end: var(--spacing-2); display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+.program-session__favorite:hover { transform: scale(1.1); }
+.program-session__favorite:active { transform: scale(0.88); transition-duration: 60ms; }
+
+/* Shared by the card star and the dialog pill. The star is an icon, not a text
+   glyph: a glyph sits on the baseline of whichever fallback font supplies it,
+   which pushes it off-centre next to the button's label (or in the round card
+   button). The SVG path is centred on the 24×24 viewBox instead. */
+.favorite-star { display: block; flex: none; fill: none; transition: fill var(--duration-fast) var(--ease-default); }
+[aria-pressed="true"] > .favorite-star { fill: currentColor; }
+
+/* Toggle feedback. .is-toggling is added by tdc-program.js on a real click only,
+   so the stars saved from a previous visit do not all fire on page load. */
+[aria-pressed="true"].is-toggling > .favorite-star { animation: favorite-pop var(--duration-normal) var(--ease-out); }
+[aria-pressed="false"].is-toggling > .favorite-star { animation: favorite-undo var(--duration-fast) var(--ease-default); }
+/* The ring bursts out of the round card button only; on the wide pill it would
+   read as the whole button inflating. */
+.program-session__favorite::after { content: ""; position: absolute; inset: -1px; border: 2px solid var(--color-fg-brand); border-radius: var(--radius-full); opacity: 0; pointer-events: none; }
+.program-session__favorite.is-toggling[aria-pressed="true"]::after { animation: favorite-burst var(--duration-normal) var(--ease-out); }
+
+@keyframes favorite-pop {
+  0% { transform: scale(0.6) rotate(-24deg); }
+  55% { transform: scale(1.3) rotate(8deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes favorite-burst {
+  0% { opacity: 0.6; transform: scale(0.65); }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+@keyframes favorite-undo {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.8); }
+  100% { transform: scale(1); }
+}
+
 .program-session--favoritable .program-session__meta, .program-session--favoritable .program-session__heading { padding-inline-end: calc(2rem + var(--spacing-2)); }
 .program-session__favorite[aria-pressed="true"], .program-session-modal__favorite[aria-pressed="true"] { color: var(--color-fg-brand); }
 .program-session__speakers { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-2); }
@@ -53,7 +89,9 @@
 .program-session-modal__meta { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
-.program-session-modal__favorite { margin-block-start: var(--spacing-5); padding: var(--spacing-2) var(--spacing-3); }
+/* Lines the star up with the label. */
+.program-session-modal__favorite { display: flex; align-items: center; gap: var(--spacing-2); margin-block-start: var(--spacing-5); padding: var(--spacing-2) var(--spacing-3); transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+.program-session-modal__favorite:active { transform: scale(0.96); transition-duration: 60ms; }
 .program-session[hidden] { display: none; }
 
 @media (max-width: 1199px) {

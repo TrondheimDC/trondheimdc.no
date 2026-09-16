@@ -18,6 +18,13 @@ const timeFormatter = new Intl.DateTimeFormat("nb-NO", {
   timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit", hour12: false,
 });
 
+// Same markup as the static star in sections/program.njk — keep the two in sync.
+const FAVORITE_ICON =
+  '<svg class="favorite-star" viewBox="0 0 24 24" width="20" height="20" ' +
+  'stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59' +
+  'L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>';
+
 function eventTime(value) {
   return value ? timeFormatter.format(new Date(value)) : "";
 }
@@ -61,7 +68,7 @@ function buildProgramSession(session, speakers, schedule) {
     favorite.type = "button";
     favorite.className = "program-session__favorite";
     favorite.dataset.sessionFavorite = "";
-    favorite.textContent = "☆";
+    favorite.innerHTML = FAVORITE_ICON;
     favorite.setAttribute("aria-label", `${schedule.root.dataset.starLabel}: ${session.title}`);
     favorite.setAttribute("aria-pressed", "false");
     heading.appendChild(favorite);
