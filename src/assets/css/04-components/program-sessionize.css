@@ -11,9 +11,9 @@
 .program-schedule__topic-control { display: flex; align-items: center; gap: var(--spacing-2); }
 .program-schedule__topic-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
 .program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
-.program-schedule__filter, .program-session__favorite, .program-session-modal__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+.program-schedule__filter, .program-session__favorite, .program-session-modal__favorite, .program-session-modal__calendar { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
 .program-schedule__filter { padding: var(--spacing-2) var(--spacing-3); }
-.program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+.program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible, .program-session-modal__calendar:hover, .program-session-modal__calendar:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
 .program-schedule__rooms, .program-schedule__row { display: grid; grid-template-columns: 4.5rem repeat(var(--program-room-count), minmax(10rem, 1fr)); gap: var(--spacing-2); min-width: calc(4.5rem + var(--program-room-count) * 10rem); }
 .program-schedule__rooms { margin-block-end: var(--spacing-2); }
@@ -89,9 +89,23 @@
 .program-session-modal__meta { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
-/* Lines the star up with the label. */
-.program-session-modal__favorite { display: flex; align-items: center; gap: var(--spacing-2); margin-block-start: var(--spacing-5); padding: var(--spacing-2) var(--spacing-3); transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+.program-session-modal__actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--spacing-2); margin-block-start: var(--spacing-5); }
+/* Fixed, with top/left set by tdc-program.js so the menu is clamped into the
+   viewport rather than clipped by the dialog's scroll box. The [popover]
+   overrides undo the UA's centring styles. */
+.calendar-menu__list { position: fixed; z-index: 10; inset: auto; margin: 0; display: flex; flex-direction: column; width: max-content; max-width: min(20rem, calc(100vw - 1rem)); max-height: calc(100dvh - 1rem); overflow-y: auto; overscroll-behavior: contain; padding: var(--spacing-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-base); box-shadow: var(--shadow-lg); }
+.calendar-menu__list[hidden] { display: none; }
+.calendar-menu__item { display: flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-2) var(--spacing-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; text-align: start; text-decoration: none; }
+.calendar-menu__item:hover, .calendar-menu__item:focus-visible { background: var(--color-bg-base); color: var(--color-fg-brand); }
+.calendar-menu__item[hidden] { display: none; }
+.calendar-menu__icon { flex: none; color: var(--color-fg-muted); }
+.calendar-menu__item:hover .calendar-menu__icon, .calendar-menu__item:focus-visible .calendar-menu__icon { color: inherit; }
+.program-session-modal__favorite, .program-session-modal__calendar { padding: var(--spacing-2) var(--spacing-3); }
+/* Lines the star up with the label the same way the calendar menu items do. */
+.program-session-modal__favorite { display: flex; align-items: center; gap: var(--spacing-2); transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
 .program-session-modal__favorite:active { transform: scale(0.96); transition-duration: 60ms; }
+.program-schedule__filter:disabled { cursor: default; opacity: 0.45; }
+.program-schedule__filter:disabled:hover { border-color: var(--color-border); color: var(--color-fg-base); }
 .program-session[hidden] { display: none; }
 
 @media (max-width: 1199px) {

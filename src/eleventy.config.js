@@ -84,7 +84,7 @@ export default function (eleventyConfig) {
       layouts: "_layouts",
       data: "_data",
     },
-    templateFormats: ["njk", "md", "html"],
+    templateFormats: ["njk", "md", "html", "11ty.js"],
     htmlTemplateEngine: "njk",
     markdownTemplateEngine: "njk",
   };

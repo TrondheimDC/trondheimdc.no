@@ -17,6 +17,9 @@
       data-all-topics-label="{{ t.program.all_topics }}"
       data-topic-label="{{ t.program.topic }}"
       data-shared-session-label="{{ t.program.shared_session }}"
+      data-calendar-url="{{ site.url }}{% if lang == 'en' %}/en/{% else %}/{% endif %}#program"
+      data-calendar-ics-base="{{ '/program/' | url }}"
+      data-calendar-saved-name="{{ t.program.calendar_saved_name | escape }}"
     >
       {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
         <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
@@ -37,6 +40,7 @@
             <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
               <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
             </button>
+            <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>{{ t.program.calendar_saved }}</button>
           </div>
         </div>
         <p class="program-schedule__no-results" data-program-search-empty hidden>{{ t.program.no_results }}</p>
@@ -63,6 +67,8 @@
                     data-session-description="{{ session.description | escape }}"
                     data-session-start="{{ session.startsAt | isoTime }}"
                     data-session-end="{{ session.endsAt | isoTime }}"
+                    data-session-start-at="{{ session.startsAt }}"
+                    data-session-end-at="{{ session.endsAt }}"
                     data-session-room="{{ session.roomName | escape }}"
                     data-session-service="{{ 'true' if session.isService else 'false' }}"
                     data-session-topics="{{ session.topics | join('|') | escape }}"
@@ -138,10 +144,29 @@
           <p class="program-session-modal__meta" data-session-modal-meta></p>
           <h3 id="program-session-modal-title" data-session-modal-title></h3>
           <p class="program-session-modal__description" data-session-modal-description></p>
-          <button type="button" class="program-session-modal__favorite" data-session-modal-favorite aria-pressed="false">
-            <svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
-            <span data-session-modal-favorite-label></span>
-          </button>
+          <div class="program-session-modal__actions">
+            <button type="button" class="program-session-modal__favorite" data-session-modal-favorite aria-pressed="false">
+              <svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
+              <span data-session-modal-favorite-label></span>
+            </button>
+            <div class="calendar-menu" data-calendar-menu>
+              <button type="button" class="program-session-modal__calendar" data-calendar-toggle aria-expanded="false" aria-controls="program-calendar-menu">{{ t.program.calendar_add }}</button>
+              <div class="calendar-menu__list" id="program-calendar-menu" data-calendar-list hidden>
+                <a class="calendar-menu__item" href="#" target="_blank" rel="noopener" data-calendar-link="google">
+                  <svg class="calendar-menu__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+                  {{ t.program.calendar_google }}
+                </a>
+                <a class="calendar-menu__item" href="#" target="_blank" rel="noopener" data-calendar-link="outlook">
+                  <svg class="calendar-menu__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                  {{ t.program.calendar_outlook }}
+                </a>
+                <a class="calendar-menu__item" href="#" data-calendar-link="ics">
+                  <svg class="calendar-menu__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 19h16"/></svg>
+                  {{ t.program.calendar_ics }}
+                </a>
+              </div>
+            </div>
+          </div>
         </dialog>
       {% else %}
         <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
