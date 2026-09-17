@@ -14,15 +14,6 @@
         <p class="card__body">{{ t.tickets.attendee_desc }}</p>
         {{ button(t.tickets.cta, site.ticketUrl, "primary", "md", null, true, "ticket-click") }}
       </article>
-      <article class="card stack">
-        <h3 class="card__title text-h3">{{ t.tickets.partner_title }}</h3>
-        <p class="card__body">{{ t.tickets.partner_desc }}</p>
-        {% if t.tickets.partner_sold_out %}
-          <span class="btn btn--ghost btn--disabled" aria-disabled="true">{{ t.tickets.partner_cta }}</span>
-        {% else %}
-          {{ button(t.tickets.partner_cta, site.partnerOrderUrl, "ghost") }}
-        {% endif %}
-      </article>
     </div>
   </div>
 </section>
