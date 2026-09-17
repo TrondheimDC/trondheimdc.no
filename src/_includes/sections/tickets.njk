@@ -8,12 +8,8 @@
       <p class="section__lead text-lead">{{ t.tickets.description }}</p>
     </header>
 
-    <div class="switcher" style="--switcher-threshold: 28rem;">
-      <article class="card stack">
-        <h3 class="card__title text-h3">{{ t.tickets.attendee_title }}</h3>
-        <p class="card__body">{{ t.tickets.attendee_desc }}</p>
-        {{ button(t.tickets.cta, site.ticketUrl, "primary", "md", null, true, "ticket-click") }}
-      </article>
+    <div class="cluster">
+      {{ button(t.tickets.cta, site.ticketUrl, "primary", "lg", null, true, "ticket-click") }}
     </div>
   </div>
 </section>

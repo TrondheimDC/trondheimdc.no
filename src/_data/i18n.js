@@ -68,11 +68,8 @@ export default {
     tickets: {
       title: "Billetter",
       description:
-        "Få tilgang til hele konferansen, inkludert mat og drikke. Gir også tilgang til konferansefesten på kvelden.",
+        "Få tilgang til hele konferansen, inkludert mat og drikke. Gir også tilgang til festen på kvelden.",
       cta: "Kjøp billetter",
-      attendee_title: "For deltakere",
-      attendee_desc:
-        "Få tilgang til hele konferansen, inkludert mat, drikke og fest.",
     },
     partners: {
       title: "Partnere",
@@ -140,7 +137,7 @@ export default {
         },
         {
           q: "Hva er inkludert i billetten?",
-          a: "Billetten gir tilgang til hele konferansen, inkludert mat og drikke, samt konferansefesten på kvelden.",
+          a: "Billetten gir tilgang til hele konferansen, inkludert mat og drikke, samt festen på kvelden.",
         },
         {
           q: "Er det garderobe?",
@@ -238,9 +235,6 @@ export default {
       description:
         "Get access to the full conference, including food and drinks. Also includes access to the evening party.",
       cta: "Buy tickets",
-      attendee_title: "For attendees",
-      attendee_desc:
-        "Get full access to the conference, including food, drinks and party.",
     },
     partners: {
       title: "Partners",
