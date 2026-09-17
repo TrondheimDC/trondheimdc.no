@@ -51,7 +51,9 @@ npm run test:ci                # list reporter (CI)
 
 ## 3. Architecture (new site)
 
-- **Single-page** site. All content lives in **sections** on one scrolling page. There are **no standalone content pages** (Code of Conduct, partner info, etc. are all sections, reached via in-page anchors).
+- **Single-page** site. All content lives in **sections** on one scrolling page, reached via in-page anchors (Code of Conduct, partner info, etc. are all sections).
+  - The one exception: `/program/` and `/en/program/` render `sections/program.njk` on their own, for people who would rather read the schedule without the single page around it. They are **unlisted** — nothing links to them, and `default.njk` canonicals them to the home page so they don't compete with it in search.
+  - Pages that aren't a home page set `standalone: true` in front matter. That flag makes `partials/nav.njk` prefix its section anchors with the home URL (bare `#about` has no target off the home page) and promotes the program section's heading to `<h1>`. Such pages also set `noUrl`/`enUrl` so the language switch crosses to the matching translation instead of the home pages.
 - **Bilingual** via directory-based i18n:
   - Norwegian (default) renders at `/` from `index.njk` (`lang: no`).
   - English renders at `/en/` from `en/index.njk` (`lang: en`).
@@ -76,6 +78,8 @@ src/
     content/en/*.md         # long-form prose (English)
   index.njk                 # NO home  (permalink /)
   en/index.njk              # EN home  (permalink /en/)
+  program/index.njk         # unlisted standalone program page (permalink /program/)
+  en/program/index.njk      # unlisted standalone program page (permalink /en/program/)
   program-ics.11ty.js       # one .ics per session -> /program/<session-id>.ics
   assets/
     css/                    # design system (see §5)

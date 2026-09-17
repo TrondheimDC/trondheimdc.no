@@ -2,7 +2,12 @@
 <section class="section" id="program" aria-labelledby="program-title">
   <div class="container container--wide stack">
     <header class="section__header">
-      <h2 class="section__title text-h1" id="program-title">{{ t.program.title }}</h2>
+      {# Standalone /program/ page: the schedule is the page, so it owns the h1. #}
+      {% if standalone %}
+        <h1 class="section__title text-h1" id="program-title">{{ t.program.title }}</h1>
+      {% else %}
+        <h2 class="section__title text-h1" id="program-title">{{ t.program.title }}</h2>
+      {% endif %}
     </header>
 
     <div
@@ -17,7 +22,7 @@
       data-all-topics-label="{{ t.program.all_topics }}"
       data-topic-label="{{ t.program.topic }}"
       data-shared-session-label="{{ t.program.shared_session }}"
-      data-calendar-url="{{ site.url }}{% if lang == 'en' %}/en/{% else %}/{% endif %}#program"
+      data-calendar-url="{{ site.url }}{{ page.url }}{% if not standalone %}#program{% endif %}"
       data-calendar-ics-base="{{ '/program/' | url }}"
       data-calendar-saved-name="{{ t.program.calendar_saved_name | escape }}"
     >

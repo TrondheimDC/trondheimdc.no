@@ -1,17 +1,18 @@
 ---
+layout: default.njk
+lang: en
+title: Agenda — TDC 2026
+description: The full TDC 2026 agenda, without the rest of the page.
 permalink: /en/program/
+# Unlisted: nothing links here. Renders the same program section as the home
+# page, on its own, for anyone who prefers the schedule without the scroll.
+standalone: true
+noUrl: /program/
+enUrl: /en/program/
 eleventyExcludeFromCollections: true
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url={{ '/en/' | url }}#program">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Program — TDC 2026</title>
-    <script>location.replace({{ ('/en/' | url) | dump }} + '#program');</script>
-  </head>
-  <body>
-    <p><a href="{{ '/en/' | url }}#program">Go to the program</a></p>
-  </body>
-</html>
+
+{# Language-scoped UI strings, as in home.njk (layouts render after the page). #}
+{% set t = i18n[lang] %}
+
+{% include "sections/program.njk" %}
