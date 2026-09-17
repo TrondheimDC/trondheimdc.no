@@ -72,8 +72,10 @@ class TdcNav extends HTMLElement {
           if (entry.isIntersecting) {
             const id = entry.target.id;
             this.#setActive(id);
-            // Update URL hash without scrolling (only when it changes).
-            if (location.hash !== `#${id}`) {
+            // Update URL hash without scrolling (only when it changes). Skip
+            // this on standalone pages (e.g. /program/): there's no home
+            // page section for the hash to mean anything to.
+            if (!this.hasAttribute("data-no-hash-sync") && location.hash !== `#${id}`) {
               history.replaceState(null, "", `#${id}`);
             }
             this.#trackSectionView(entry.target);
