@@ -13,6 +13,7 @@
 // fetch) via sessionize-client.js so both stay in sync.
 
 import { fetchHtml, parseGridSchedule, parseSessions, parseSpeakers, sortSpeakers, mergeScheduleData } from "../sessionize-client.js";
+import { languageBadge } from "./session-language.js";
 
 const timeFormatter = new Intl.DateTimeFormat("nb-NO", {
   timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit", hour12: false,
@@ -96,6 +97,9 @@ function buildProgramSession(session, speakers, schedule) {
     }
     article.appendChild(speakerList);
   }
+
+  const language = session.isService ? null : languageBadge(schedule.root, session.language);
+  if (language) article.appendChild(language);
   return article;
 }
 
@@ -154,7 +158,7 @@ function replaceProgram(program, schedule, speakers) {
   }
 }
 
-function buildSpeakerCard(speaker, sessions, detailsLabel) {
+function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
   const li = document.createElement("li");
   li.className = "speaker-item";
   li.id = `speaker-${speaker.id}`;
@@ -195,6 +199,8 @@ function buildSpeakerCard(speaker, sessions, detailsLabel) {
     talkEl.className = "speaker-card__talk";
     talkEl.textContent = talk.title;
     button.appendChild(talkEl);
+    const language = languageBadge(wall, talk.language);
+    if (language) button.appendChild(language);
   }
 
   const moreEl = document.createElement("span");
@@ -246,7 +252,7 @@ async function refreshSpeakers() {
     newGrid.className = "speakers-grid";
     newGrid.setAttribute("role", "list");
     for (const speaker of speakers) {
-      newGrid.appendChild(buildSpeakerCard(speaker, sessions, detailsLabel));
+      newGrid.appendChild(buildSpeakerCard(speaker, sessions, detailsLabel, wall));
     }
 
     grid.replaceWith(newGrid);

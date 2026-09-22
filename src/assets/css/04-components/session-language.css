@@ -1,0 +1,21 @@
+/* Talk language, as a small pill. On a program card it is the last item in
+   the column, pushed to the bottom, so a row of cards lines the word up and
+   you can scan the language without reading each title. */
+.session-language {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-fg-muted) 14%, transparent);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-10);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+}
+
+.program-session > .session-language {
+  align-self: flex-start;
+  margin-top: auto;
+}

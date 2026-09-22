@@ -1,0 +1,7 @@
+{# Session language macro #}
+{% macro sessionLanguage(code, t) %}
+  {%- if code == "en" or code == "no" -%}
+    {%- set label = t.program.language_en if code == "en" else t.program.language_no -%}
+    <span class="session-language" data-session-language="{{ code }}" title="{{ t.program.language }}: {{ label }}">{{ label }}</span>
+  {%- endif -%}
+{% endmacro %}

@@ -1,6 +1,7 @@
 // Speaker detail modal — populates the dialog with the clicked speaker's
 // bio and talk info (both always visible), plus their social links.
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
+import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
 
 class TdcSpeakerModal {
   constructor() {
@@ -12,6 +13,7 @@ class TdcSpeakerModal {
     this.talkEl = document.getElementById("speaker-modal-talk");
     this.talkTitleEl = document.getElementById("speaker-modal-talk-title");
     this.talkDescriptionEl = document.getElementById("speaker-modal-talk-description");
+    this.talkLanguageEl = document.getElementById("speaker-modal-talk-language");
     this.socialsEl = document.getElementById("speaker-modal-socials");
     this.returnFocus = null;
 
@@ -88,6 +90,7 @@ class TdcSpeakerModal {
     this.bioEl.textContent = bio;
     this.talkTitleEl.textContent = talkTitle;
     this.talkDescriptionEl.textContent = talkDescription;
+    setLanguageSlot(this.talkLanguageEl, sessionLanguageBadge(button.closest("[data-program-session]") ?? button));
     this.talkEl.hidden = !talkTitle && !talkDescription;
     this.socialsEl.replaceChildren(...this.buildSocialLinks(twitter, linkedIn, blog));
 

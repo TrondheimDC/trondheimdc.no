@@ -22,6 +22,9 @@
 import {
   fetchHtml,
   fetchJson,
+  getLanguage,
+  getSessionCategoryItems,
+  getTopics,
   parseApiData,
   parseSessions,
   parseSpeakers,
@@ -36,28 +39,11 @@ const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?unde
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
 const gridUrl = `https://sessionize.com/api/v2/${eventId}/view/GridSmart?under=True`;
 
-function getSessionTopics(session) {
-  const categories = session.categories ?? session.topics ?? session.tags ?? [];
-  const values = Array.isArray(categories) ? categories : [];
-
-  return values.flatMap((category) => {
-    if (typeof category === "string") return [category];
-    if (!category || typeof category !== "object") return [];
-
-    const items = category.categoryItems ?? category.items;
-    if (Array.isArray(items)) {
-      return items.map((item) => typeof item === "string" ? item : item?.title).filter(Boolean);
-    }
-
-    return category.title ? [category.title] : [];
-  });
-}
-
 async function fetchSessionMetadata() {
   const apiUrl = process.env.SESSIONIZE_API_URL;
   if (!apiUrl) {
     console.log("  ℹ️  SESSIONIZE_API_URL not set — skipping session metadata lookup.");
-    return { topSpeakerIds: [], topicsBySession: new Map() };
+    return { topSpeakerIds: [], topicsBySession: new Map(), languageBySession: new Map() };
   }
 
   try {
@@ -65,7 +51,7 @@ async function fetchSessionMetadata() {
     const response = await fetch(apiUrl);
     if (!response.ok) {
       console.warn(`  ⚠️  Sessionize API returned ${response.status} for all-data lookup`);
-      return { topSpeakerIds: [], topicsBySession: new Map() };
+      return { topSpeakerIds: [], topicsBySession: new Map(), languageBySession: new Map() };
     }
 
     const data = await response.json();
@@ -76,19 +62,28 @@ async function fetchSessionMetadata() {
     }
 
     const sessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+    const categoryItems = sessions
+      .filter((session) => session.id)
+      .map((session) => [session.id, getSessionCategoryItems(session)]);
     const topicsBySession = new Map(
-      sessions
-        .map((session) => [session.id, getSessionTopics(session).filter((topic, index, all) => all.indexOf(topic) === index)])
-        .filter(([id, topics]) => id && topics.length)
+      categoryItems
+        .map(([id, items]) => [id, getTopics(items)])
+        .filter(([, topics]) => topics.length)
+    );
+    const languageBySession = new Map(
+      categoryItems
+        .map(([id, items]) => [id, getLanguage(items)])
+        .filter(([, language]) => language)
     );
 
     return {
       topSpeakerIds: speakers.filter((speaker) => speaker.isTopSpeaker).map((speaker) => speaker.id),
       topicsBySession,
+      languageBySession,
     };
   } catch (error) {
     console.warn("  ⚠️  Sessionize API fetch failed for session metadata:", error.message);
-    return { topSpeakerIds: [], topicsBySession: new Map() };
+    return { topSpeakerIds: [], topicsBySession: new Map(), languageBySession: new Map() };
   }
 }
 
@@ -124,7 +119,7 @@ export default async function () {
     fetchHtml(sessionsUrl, "Sessionize sessions"),
     fetchHtml(speakersUrl, "Sessionize speakers"),
     fetchHtml(gridUrl, "Sessionize program grid"),
-    apiAttempted ? { topSpeakerIds: [], topicsBySession: new Map() } : fetchSessionMetadata(),
+    apiAttempted ? { topSpeakerIds: [], topicsBySession: new Map(), languageBySession: new Map() } : fetchSessionMetadata(),
   ]);
 
   // Sessionize's public embed endpoints can return JSON instead of the legacy
@@ -158,6 +153,7 @@ export default async function () {
   const speakers = sortSpeakers(parseSpeakers(speakersHtml), sessionMetadata.topSpeakerIds);
   const schedule = mergeScheduleData(parseGridSchedule(gridHtml), sessions, {
     topicsBySession: sessionMetadata.topicsBySession,
+    languageBySession: sessionMetadata.languageBySession,
   });
 
   if (!schedule.sessions.length) {

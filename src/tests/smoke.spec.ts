@@ -302,6 +302,58 @@ test.describe('Program schedule', () => {
     const lunch = page.locator('[data-program-session]').filter({ hasText: 'Lunch' });
     await expect(lunch.locator('.program-session__room')).toHaveText(/Fellesområde & restaurant|Shared area & restaurant/);
   });
+
+  test('labels every talk with the language it is held in', async ({ page }) => {
+    await page.goto('/#program');
+
+    const talks = page.locator('[data-program-session][data-session-service="false"]');
+    await expect(talks).not.toHaveCount(0);
+
+    const languages = await talks.evaluateAll((cards) =>
+      cards.map((card) => {
+        const badges = card.querySelectorAll('[data-session-language]');
+        const code = badges[0]?.getAttribute('data-session-language');
+        return { count: badges.length, code, label: badges[0]?.textContent?.trim() };
+      }),
+    );
+
+    for (const language of languages) {
+      expect(language.count).toBe(1);
+      expect(['en', 'no']).toContain(language.code);
+      expect(language.label).toBe(language.code === 'en' ? 'Engelsk' : 'Norsk');
+    }
+
+    await expect(page.locator('[data-program-session][data-session-service="true"] [data-session-language]')).toHaveCount(0);
+  });
+
+  test('carries the talk language into the detail dialog', async ({ page }) => {
+    await page.goto('/#program');
+
+    const norwegian = page.locator('[data-program-session]').filter({ has: page.locator('[data-session-language="no"]') }).first();
+    await norwegian.locator('[data-session-open]').click();
+
+    const dialogFlag = page.locator('[data-session-dialog] [data-session-modal-language] [data-session-language]');
+    await expect(dialogFlag).toHaveAttribute('data-session-language', 'no');
+    await expect(dialogFlag).toHaveText('Norsk');
+
+    await page.locator('[data-session-close]').click();
+    const english = page.locator('[data-program-session]').filter({ has: page.locator('[data-session-language="en"]') }).first();
+    await english.locator('[data-session-open]').click();
+    await expect(dialogFlag).toHaveAttribute('data-session-language', 'en');
+
+    await page.locator('[data-session-close]').click();
+    await page.locator('[data-program-session][data-session-service="true"]').first().locator('[data-session-open]').click();
+    await expect(dialogFlag).toHaveCount(0);
+  });
+
+  test('keeps the language and session length out of the topic filter', async ({ page }) => {
+    await page.goto('/#program');
+
+    const topics = await page.locator('[data-program-topic-filter] option').allTextContents();
+    expect(topics).not.toContain('English');
+    expect(topics).not.toContain('Norwegian');
+    expect(topics.filter((topic) => /minutes$/.test(topic))).toEqual([]);
+  });
 });
 
 test.describe('Standalone program page', () => {
