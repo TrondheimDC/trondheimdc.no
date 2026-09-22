@@ -1,0 +1,18 @@
+---
+layout: default.njk
+lang: no
+title: Bli partner — TDC 2026
+description: Bli partner på TDC 2026.
+permalink: /bli-partner/
+# Unlisted: nothing links here. Renders the same partner-pitch section the
+# home page used to, on its own, per direct link only.
+standalone: true
+noUrl: /bli-partner/
+enUrl: /en/become-a-partner/
+eleventyExcludeFromCollections: true
+---
+
+{# Language-scoped UI strings, as in home.njk (layouts render after the page). #}
+{% set t = i18n[lang] %}
+
+{% include "sections/partner.njk" %}

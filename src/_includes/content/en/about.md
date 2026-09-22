@@ -9,3 +9,9 @@ Any potential surplus is used to support the following year's conference and to 
 TDC was first held in 2012. Between 2012 and 2019, it evolved into a well-known meeting point for technology enthusiasts in the Trondheim region, with renowned speakers such as Scott Hanselman, Brian Christian, and Linda Liukas all having attended the conference. During the pandemic years, the conference was held in a smaller format under the name TDC Community Week. After the pandemic, efforts were made to revive the conference, and in 2024, TDC was held for the tenth time. The conference continues to grow and is now a professional celebration featuring dozens of talks, 20–30 exhibitors, and close to 1,000 participants.
 
 The conference "TDC" originally stood for "Trondheim Developer Conference", but that name was considered too narrow in scope. The conference is intended for everyone working in technology — whether designers, product managers, or backend developers. TDC is therefore simply "TDC", and the letter "D" can mean whatever you want it to!
+
+#### Members in TDC 2026
+
+Anders Kringstad, Alexander Samsig, Bård Flugon, Bjørn Herve Moslet, Hanna Aalmen, Hannah Jarholm, Hanne Bårdsen, Julie Frøseth, Kari Bach Henningsen, Karl Yngve Lervåg, Kasia Szlejter, Kevin K. Varughese, Kirsti Fossland Brørs, Luci André Knudsen, Mathias Flått, Natalia Mykhailovska, Roar V. Skjønberg, Roger Flataker, Rolf Anders Storset, Sara Løkken, Sigmund Henningsen, Stian Standahl, Terje Storvik and Vladas Diržys
+
+![Programkomité 2026](/assets/images/komite.jpg)
