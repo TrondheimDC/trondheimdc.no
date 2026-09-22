@@ -25,7 +25,6 @@ const SECTION_IDS = [
   'tickets',
   'program',
   'speakers',
-  'partner',
   'faq',
   'volunteer',
   'coc',
