@@ -402,6 +402,25 @@ test.describe('Standalone program page', () => {
       await expect.poll(() => page.locator('#program [data-program-session]').count()).toBeGreaterThanOrEqual(45);
       await context.close();
     });
+
+    test(`${path} opens a speaker from the schedule`, async ({ page }) => {
+      // The speaker dialog normally lives in the speaker wall, which this page
+      // does not render — it has to bring its own copy or the names are dead.
+      await page.goto(path);
+      const modal = page.locator('#speaker-description-modal');
+      await expect(modal).toBeHidden();
+
+      const speaker = page.locator('[data-program-session] [data-speaker-open]').first();
+      const name = (await speaker.textContent())?.trim() ?? '';
+      expect(name).not.toBe('');
+      await speaker.click();
+
+      await expect(modal).toBeVisible();
+      await expect(page.locator('#speaker-modal-name')).toHaveText(name);
+      await expect(page.locator('#speaker-modal-talk-title')).not.toBeEmpty();
+      await page.locator('[data-speaker-close]').click();
+      await expect(modal).toBeHidden();
+    });
   }
 
   for (const path of ['/', '/en/']) {
@@ -410,6 +429,99 @@ test.describe('Standalone program page', () => {
       await expect(page.locator('a[href$="/program/"]')).toHaveCount(0);
     });
   }
+});
+
+test.describe('Live program view', () => {
+  // EPG-style "follow the day": finished slots collapse out of the grid while
+  // the conference is running. ?now= fakes the clock so this is testable on any
+  // date; 13:00 falls on a slot boundary with eight slots already finished.
+  const DURING_THE_DAY = '/program/?now=2026-10-19T13:00:00%2B02:00';
+  const rows = (page) => page.locator('.program-schedule__row');
+  // :visible, not :not([hidden]) — a collapsed row has to actually be gone,
+  // and .program-schedule__row sets its own `display`.
+  const visibleRows = (page) => page.locator('.program-schedule__row:visible');
+
+  test('stays out of the way on any other day', async ({ page }) => {
+    await page.goto('/program/');
+    await expect(page.locator('[data-program-live-toggle]')).toBeHidden();
+    await expect(page.locator('[data-program-live-earlier]')).toBeHidden();
+    await expect(page.locator('[data-program-now]')).toBeHidden();
+    await expect(visibleRows(page)).toHaveCount(await rows(page).count());
+  });
+
+  test('collapses finished slots and tracks the current time', async ({ page }) => {
+    await page.goto(DURING_THE_DAY);
+    const total = await rows(page).count();
+
+    await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-program-now]')).toBeVisible();
+    await expect(page.locator('[data-program-now-time]')).toHaveText('13:00');
+
+    await expect(visibleRows(page)).toHaveCount(total - 8);
+    await expect(visibleRows(page).first().locator('.program-schedule__time')).toHaveText('13:00');
+    await expect(page.locator('.program-session.is-live').first()).toBeVisible();
+  });
+
+  test('snaps to the row on narrow screens instead of pointing into the stack', async ({ page }) => {
+    // Below 1200px rooms stack as cards instead of sitting in columns, so a
+    // row's height is "how many talks run at once" there, not "time passed" —
+    // creeping into it would point the line at an arbitrary card in the stack.
+    await page.setViewportSize({ width: 390, height: 1400 });
+    // Twelve minutes into a twenty-minute slot: on desktop this would sit well
+    // inside the row, not on its top edge.
+    await page.goto('/program/?now=2026-10-19T13:32:00%2B02:00');
+
+    const currentRow = visibleRows(page).first();
+    await expect(currentRow.locator('.program-schedule__time')).toHaveText('13:20');
+    const rowTop = await currentRow.evaluate((el) => el.getBoundingClientRect().top);
+    const lineTop = await page.locator('[data-program-now]').evaluate((el) => el.getBoundingClientRect().top);
+    expect(Math.abs(lineTop - rowTop)).toBeLessThan(2);
+  });
+
+  test('can bring the earlier slots back', async ({ page }) => {
+    await page.goto(DURING_THE_DAY);
+    const total = await rows(page).count();
+    const earlier = page.locator('[data-program-live-earlier]');
+
+    await expect(earlier).toBeVisible();
+    await earlier.click();
+    await expect(earlier).toHaveAttribute('aria-expanded', 'true');
+    await expect(visibleRows(page)).toHaveCount(total);
+    // Back in view, but clearly done with.
+    await expect(page.locator('.program-schedule__row.is-past')).toHaveCount(8);
+
+    await earlier.click();
+    await expect(visibleRows(page)).toHaveCount(total - 8);
+  });
+
+  test('can be switched off, and stays off', async ({ page }) => {
+    await page.goto(DURING_THE_DAY);
+    const total = await rows(page).count();
+
+    await page.locator('[data-program-live-toggle]').click();
+    await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-program-live-earlier]')).toBeHidden();
+    await expect(page.locator('[data-program-now]')).toBeHidden();
+    await expect(visibleRows(page)).toHaveCount(total);
+    await expect(page.locator('.program-session.is-past')).toHaveCount(0);
+
+    await page.goto(DURING_THE_DAY);
+    await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(visibleRows(page)).toHaveCount(total);
+  });
+
+  test('a search still reaches talks that have already been given', async ({ page }) => {
+    await page.goto(DURING_THE_DAY);
+    const total = await rows(page).count();
+
+    await page.locator('[data-program-search]').fill('After the AI Hype');
+    await expect(visibleRows(page)).toHaveCount(total);
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+    await expect(page.locator('[data-program-live-earlier]')).toBeHidden();
+
+    await page.locator('[data-program-search]').fill('');
+    await expect(visibleRows(page)).toHaveCount(total - 8);
+  });
 });
 
 test.describe('Single-page sections', () => {

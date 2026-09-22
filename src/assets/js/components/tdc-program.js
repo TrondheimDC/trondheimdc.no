@@ -1,5 +1,6 @@
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
 import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
+import { ProgramLive } from "./tdc-program-live.js";
 import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
 
 class TdcProgram {
@@ -112,6 +113,7 @@ class TdcProgram {
     this.root._tdcProgram = this;
     this.positionLongService();
     window.addEventListener("resize", () => this.positionLongService());
+    this.live = new ProgramLive(this);
   }
 
   positionLongService() {
@@ -119,13 +121,14 @@ class TdcProgram {
     const grid = this.root.querySelector(".program-schedule__grid");
     if (!overlay || !grid || window.innerWidth < 1200) return;
     const start = this.root.querySelector(`[data-program-time="${overlay.dataset.sessionStartAt}"]`);
-    const rows = [...this.root.querySelectorAll("[data-program-time]")].filter((row) => row.dataset.programTime <= overlay.dataset.sessionEndAt);
+    const rows = [...this.root.querySelectorAll("[data-program-time]")]
+      .filter((row) => !row.hidden && row.dataset.programTime <= overlay.dataset.sessionEndAt);
     const roomStart = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-start"), 10) - 1;
     const roomEnd = Number.parseInt(getComputedStyle(overlay).getPropertyValue("--program-room-end"), 10) - 2;
     const roomLabels = [...grid.querySelectorAll(".program-schedule__room-label")];
     const firstRoom = roomLabels[roomStart];
     const lastRoom = roomLabels[roomEnd];
-    if (!start || !rows.length || !firstRoom || !lastRoom) return;
+    if (!start || start.hidden || !rows.length || !firstRoom || !lastRoom) return;
     const gridBox = grid.getBoundingClientRect();
     const startBox = start.getBoundingClientRect();
     const endBox = rows.at(-1).getBoundingClientRect();
@@ -218,6 +221,8 @@ class TdcProgram {
     if (this.searchEmpty) {
       this.searchEmpty.hidden = !this.searchInput?.value.trim() || sessions.some((session) => !session.hidden);
     }
+    // Searching suspends the live view's collapse, so it has to re-run here.
+    this.live?.refresh();
   }
 
   normalize(value) {

@@ -36,14 +36,16 @@ bun run clean          # rm -rf _site
 ELEVENTY_PATH_PREFIX=/staging/ bun run build
 ```
 
-E2E tests run from `tests/` using Playwright:
+E2E tests run from `src/tests/` using Playwright, against the built `src/_site`:
 
 ```bash
-# from tests/
+# from src/tests/
 npm install
-npx playwright test            # or: npm test
-npm run test:ci                # list reporter (CI)
+npx playwright test            # serves ../_site on :4000 itself
 ```
+
+CSS and JS are **passthrough-copied**, so rebuild (`bun run build`) before
+testing or screenshotting — editing a stylesheet alone leaves `_site` stale.
 
 **Always build and run the smoke tests before pushing.**
 
@@ -72,7 +74,7 @@ src/
     partners.js             # partner list: [{ name, url, logo }]
   _layouts/                 # base.njk, home.njk
   _includes/
-    partials/               # head, nav, footer, partner-wall, theme-toggle, language-switch
+    partials/               # head, nav, footer, partner-wall, theme-toggle, language-switch, speaker-modal
     sections/               # one .njk per homepage section
     content/no/*.md         # long-form prose (Norwegian)
     content/en/*.md         # long-form prose (English)
@@ -182,7 +184,33 @@ file.
   labels around them live as constants in `calendar.js`, not in `i18n.js`.
 - The saved-talks export stays a Blob: favourites only exist in `localStorage`.
 
-## 9. Partners
+## 9. Program: speaker dialog and the live view
+
+- The speaker dialog is `partials/speaker-modal.njk`, **not** markup inside a
+  section. Its IDs are global, so include it **exactly once per page**: the
+  speaker wall owns it on the home page, and `sections/program.njk` adds it only
+  when `standalone` (otherwise `/program/`'s speaker names open nothing —
+  `tdc-speaker-modal.js` bails out when the dialog is missing).
+- The **live ("EPG") view** (`assets/js/components/tdc-program-live.js`, owned by
+  `TdcProgram`) follows the conference day in real time: finished time slots
+  collapse out of the grid and a playhead creeps down the current slot.
+  - It is **opt-out**: on by default while the day runs (±2h/1h either side),
+    off on every other date whatever is stored, and the toolbar toggle is
+    remembered in `localStorage`.
+  - A search suspends the collapse — a talk you search for must be findable
+    after it has been given.
+  - The playhead only **creeps** through a row on desktop, where the grid's
+    room columns mean row height is empty time. Below 1200px rooms stack as
+    cards instead, so the same height is "how many talks run at once" — the
+    line **snaps** to the row's top edge there instead of pointing into the
+    stack (see the `stacked` branch in `positionPlayhead()`).
+  - Preview it on any date with `?live=1`, and pick a moment with
+    `?now=2026-10-19T13:00:00+02:00` (the clock then ticks on from there). The
+    smoke tests use exactly this.
+  - Times are formatted in **Europe/Oslo**, not the reader's timezone — the
+    Trondheim clock against the Trondheim program.
+
+## 10. Partners
 
 - The partner logo wall renders **near the footer** (as in the old site), on every render of the page.
 - It is **data-driven** from `_data/partners.js` (`[{ name, url, logo }]`) — no hardcoded `<li>` list.
@@ -191,9 +219,17 @@ file.
 
 ---
 
-## 10. Learnings
+## 11. Learnings
 
 - CSS `@media` can't read `var()` → use literal px for breakpoints (see §5).
+- The UA's `[hidden] { display: none }` loses to any author `display` rule at
+  equal specificity (source order breaks the tie, and ours loads after the UA
+  sheet). Any element in `program-sessionize.css` that sets its own `display`
+  and is also toggled via `[hidden]` needs an explicit
+  `.foo[hidden] { display: none }` alongside it — bit us twice on the live view
+  (`.program-schedule__row` with `display: grid`, `.program-schedule__live-earlier`
+  with `display: inline-flex`). Test with `:visible`, not `:not([hidden])`, or
+  a passing test can hide this.
 - Dark is the default theme; light is the override (don't invert this).
 - `old/` is Jekyll and still production — never break it while iterating on `src/`.
 - Respect `ELEVENTY_PATH_PREFIX` for all internal links/assets, or preview deploys break.

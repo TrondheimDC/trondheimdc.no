@@ -125,3 +125,49 @@
   .program-schedule__filters { justify-content: flex-start; }
   .program-session-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
 }
+
+/* ---------------------------------------------------------------------------
+   Live ("EPG") view — driven by assets/js/components/tdc-program-live.js.
+   Every hook here is added by JS, so the static grid is unaffected without it.
+   --------------------------------------------------------------------------- */
+
+.program-schedule__live-toggle { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+.program-schedule__live-toggle[hidden] { display: none; }
+.program-schedule__live-dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: var(--radius-full); background: var(--color-fg-muted); }
+.program-schedule__live-toggle[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+.program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { background: currentColor; animation: program-live-pulse 2s var(--ease-default) infinite; }
+
+.program-schedule__live-earlier { display: inline-flex; margin-block-end: var(--spacing-5); }
+.program-schedule__live-earlier[hidden] { display: none; }
+
+/* The playhead: a zero-height rule across the grid, moved by JS. It sits in the
+   grid's positioning context, the same one the long-service overlay uses. */
+.program-schedule__now { position: absolute; z-index: 3; inset-inline-start: 0; width: 100%; min-width: calc(4.5rem + var(--program-room-count) * 10rem); height: 0; border-block-start: 2px dashed var(--color-fg-brand); pointer-events: none; transition: top var(--duration-slow) var(--ease-default); }
+.program-schedule__now[hidden] { display: none; }
+.program-schedule__now-time { position: absolute; inset-block-start: 0; inset-inline-start: 0; transform: translateY(-50%); padding: 0 var(--spacing-2); border-radius: var(--radius-full); background: var(--color-fg-brand); color: var(--color-fg-always-dark); font: var(--font-weight-semibold) var(--font-size-10) / 1.7 var(--font-family-mono); }
+
+/* Finished slots fade before they go; what is on right now is picked out. */
+.program-schedule__row.is-past .program-schedule__time { opacity: 0.5; }
+.program-session.is-past { opacity: 0.45; }
+.program-session.is-live { border-color: var(--color-fg-brand); box-shadow: 0 0 0 1px var(--color-fg-brand); }
+.program-session.is-collapsed { display: none; }
+/* .program-schedule__row sets `display: grid` (and `block` on narrow screens),
+   which would otherwise beat the UA's [hidden] rule and keep collapsed slots
+   on screen. */
+.program-schedule__row[hidden] { display: none; }
+
+@keyframes program-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .program-schedule__now { transition: none; }
+  .program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { animation: none; }
+}
+
+@media (max-width: 1199px) {
+  /* The grid is no longer a horizontally scrolling table here, so the playhead
+     tracks the container instead of the (wider) room columns. */
+  .program-schedule__now { min-width: 0; }
+}

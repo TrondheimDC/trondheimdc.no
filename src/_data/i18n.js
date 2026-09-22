@@ -73,6 +73,9 @@ export default {
       calendar_ics: "Apple og andre (.ics)",
       calendar_saved: "Legg lagrede i kalenderen",
       calendar_saved_name: "TDC 2026 – mine lagrede foredrag",
+      live_toggle: "Følg dagen",
+      live_show_earlier: "Vis det som har vært",
+      live_hide_earlier: "Skjul det som har vært",
       close: "Lukk",
     },
     tickets: {
@@ -248,6 +251,9 @@ export default {
       calendar_ics: "Apple and others (.ics)",
       calendar_saved: "Add saved to calendar",
       calendar_saved_name: "TDC 2026 – my saved talks",
+      live_toggle: "Follow the day",
+      live_show_earlier: "Show earlier talks",
+      live_hide_earlier: "Hide earlier talks",
       close: "Close",
     },
     tickets: {

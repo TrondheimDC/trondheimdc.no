@@ -26,6 +26,9 @@
       data-calendar-url="{{ site.url }}{{ page.url }}{% if not standalone %}#program{% endif %}"
       data-calendar-ics-base="{{ '/program/' | url }}"
       data-calendar-saved-name="{{ t.program.calendar_saved_name | escape }}"
+      data-live-show-earlier-label="{{ t.program.live_show_earlier | escape }}"
+      data-live-hide-earlier-label="{{ t.program.live_hide_earlier | escape }}"
+      data-live-storage-key="tdc-program-live-{{ sessionize.eventId }}"
     >
       {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
         <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
@@ -47,11 +50,24 @@
               <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
             </button>
             <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>{{ t.program.calendar_saved }}</button>
+            {# Revealed by tdc-program-live.js, which only offers the live view
+               while the conference day is actually running. #}
+            <button type="button" class="program-schedule__filter program-schedule__live-toggle" data-program-live-toggle aria-pressed="false" hidden>
+              <span class="program-schedule__live-dot" aria-hidden="true"></span>
+              {{ t.program.live_toggle }}
+            </button>
           </div>
         </div>
+
+        <button type="button" class="program-schedule__filter program-schedule__live-earlier" data-program-live-earlier aria-expanded="false" hidden></button>
+
         <p class="program-schedule__no-results" data-program-search-empty hidden>{{ t.program.no_results }}</p>
 
         <div class="program-schedule__grid" style="--program-room-count: {{ sessionize.schedule.rooms.length }}">
+          <div class="program-schedule__now" data-program-now hidden aria-hidden="true">
+            <span class="program-schedule__now-time" data-program-now-time></span>
+          </div>
+
           <div class="program-schedule__rooms" aria-hidden="true">
             <span></span>
             {% for room in sessionize.schedule.rooms %}
@@ -104,6 +120,9 @@
                               data-speaker-image="{{ speaker.profilePicture | escape }}"
                               data-speaker-tagline="{{ speaker.tagLine | escape }}"
                               data-speaker-bio="{{ speaker.bio | escape }}"
+                              data-speaker-twitter="{{ speaker.twitter | escape }}"
+                              data-speaker-linkedin="{{ speaker.linkedIn | escape }}"
+                              data-speaker-blog="{{ speaker.blog | escape }}"
                               data-speaker-talk-title="{{ session.title | escape }}"
                               data-speaker-talk-description="{{ session.description | escape }}"
                             >{{ speaker.firstName }} {{ speaker.lastName }}</button>
@@ -180,6 +199,13 @@
         </dialog>
 
         <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>
+
+        {# The speaker wall normally owns this dialog; off the home page the
+           schedule is the only thing rendering speaker buttons, so it must
+           carry the dialog those buttons open. #}
+        {% if standalone %}
+          {% include "partials/speaker-modal.njk" %}
+        {% endif %}
       {% else %}
         <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
       {% endif %}

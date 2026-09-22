@@ -45,6 +45,8 @@ function buildProgramSession(session, speakers, schedule) {
   article.dataset.sessionDescription = session.description;
   article.dataset.sessionStart = eventTime(session.startsAt);
   article.dataset.sessionEnd = eventTime(session.endsAt);
+  article.dataset.sessionStartAt = session.startsAt;
+  article.dataset.sessionEndAt = session.endsAt;
   article.dataset.sessionRoom = session.roomName;
   article.dataset.sessionService = String(Boolean(session.isService));
   article.dataset.sessionTopics = session.topics.join("|");
@@ -141,12 +143,11 @@ function replaceProgram(program, schedule, speakers) {
     overlay.classList.add("program-session--long-service-overlay");
     overlay.style.setProperty("--program-room-start", String(session.roomStart + 1));
     overlay.style.setProperty("--program-room-end", String(session.roomEnd + 2));
-    overlay.dataset.sessionStartAt = session.startsAt;
-    overlay.dataset.sessionEndAt = session.endsAt;
     overlay.dataset.sessionLongService = "true";
     newGrid.appendChild(overlay);
   }
   oldGrid.replaceWith(newGrid);
+  program._tdcProgram?.live?.rebind();
   program._tdcProgram?.positionLongService();
 
   const filter = program.querySelector("[data-program-topic-filter]");
