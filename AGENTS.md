@@ -182,7 +182,28 @@ file.
   labels around them live as constants in `calendar.js`, not in `i18n.js`.
 - The saved-talks export stays a Blob: favourites only exist in `localStorage`.
 
-## 9. Partners
+## 9. Session language
+
+Sessionize records the language a talk is held in as a category (`Language` ->
+`English` / `Norwegian`). It is surfaced as the language name — `Norsk` /
+`Engelsk` on the Norwegian page, `Norwegian` / `English` on the English page —
+on every talk card, in the talk dialog, on the speaker card and in the speaker
+dialog.
+
+- On the program card the name is a small pill and the last item in the card.
+  Cards in a row stretch to the same height, and `margin-top: auto` pins the
+  pill to the bottom, so the language lines up across the row and can be
+  scanned without reading the titles.
+- The badge markup has one source: the `sessionLanguage` macro in
+  `_includes/components/session-language.njk`. Nothing builds it in JS —
+  `tdc-program.js` and `tdc-speaker-modal.js` clone the badge already on the
+  card, and `tdc-speakers-refresh.js` clones from the
+  `<template data-language-badges>` each section renders.
+- `Language` and `Session format` are **excluded from the topic list**
+  (`getTopics` in `sessionize-client.js`): they are categories, but "English"
+  and "40 minutes" are not topics, and they used to pollute the topic filter.
+
+## 10. Partners
 
 - The partner logo wall renders **near the footer** (as in the old site), on every render of the page.
 - It is **data-driven** from `_data/partners.js` (`[{ name, url, logo }]`) — no hardcoded `<li>` list.
@@ -191,7 +212,7 @@ file.
 
 ---
 
-## 10. Learnings
+## 11. Learnings
 
 - CSS `@media` can't read `var()` → use literal px for breakpoints (see §5).
 - Dark is the default theme; light is the override (don't invert this).

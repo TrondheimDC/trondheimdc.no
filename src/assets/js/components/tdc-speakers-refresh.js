@@ -13,12 +13,15 @@
 // fetch) via sessionize-client.js so both stay in sync.
 
 import { fetchHtml, parseGridSchedule, parseSessions, parseSpeakers, sortSpeakers, mergeScheduleData } from "../sessionize-client.js";
+import { languageBadge } from "./session-language.js";
 
 const timeFormatter = new Intl.DateTimeFormat("nb-NO", {
   timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit", hour12: false,
 });
 
 // Same markup as the static star in sections/program.njk — keep the two in sync.
+// (The language badge avoids this: it is cloned from the <template> the section
+// renders — see components/session-language.js.)
 const FAVORITE_ICON =
   '<svg class="favorite-star" viewBox="0 0 24 24" width="20" height="20" ' +
   'stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">' +
@@ -96,6 +99,9 @@ function buildProgramSession(session, speakers, schedule) {
     }
     article.appendChild(speakerList);
   }
+
+  const language = session.isService ? null : languageBadge(schedule.root, session.language);
+  if (language) article.appendChild(language);
   return article;
 }
 
@@ -154,7 +160,7 @@ function replaceProgram(program, schedule, speakers) {
   }
 }
 
-function buildSpeakerCard(speaker, sessions, detailsLabel) {
+function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
   const li = document.createElement("li");
   li.className = "speaker-item";
   li.id = `speaker-${speaker.id}`;
@@ -195,6 +201,8 @@ function buildSpeakerCard(speaker, sessions, detailsLabel) {
     talkEl.className = "speaker-card__talk";
     talkEl.textContent = talk.title;
     button.appendChild(talkEl);
+    const language = languageBadge(wall, talk.language);
+    if (language) button.appendChild(language);
   }
 
   const moreEl = document.createElement("span");
@@ -246,7 +254,7 @@ async function refreshSpeakers() {
     newGrid.className = "speakers-grid";
     newGrid.setAttribute("role", "list");
     for (const speaker of speakers) {
-      newGrid.appendChild(buildSpeakerCard(speaker, sessions, detailsLabel));
+      newGrid.appendChild(buildSpeakerCard(speaker, sessions, detailsLabel, wall));
     }
 
     grid.replaceWith(newGrid);

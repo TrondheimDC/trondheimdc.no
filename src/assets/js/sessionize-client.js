@@ -46,6 +46,70 @@ export function normalizeApiTimestamp(value = "") {
 
 const invalidRoomNames = new Set(["fellesareal", "common area"]);
 
+// Sessionize models the talk language as a category ("Language" -> English /
+// Norwegian). Its items are not subject-matter topics — the language gets its
+// own code on the card instead — so they stay out of the topic list, as do the
+// "Session format" items ("20 minutes" / "40 minutes"), which are a duration.
+const languageCategoryName = "language";
+const nonTopicCategoryNames = new Set([languageCategoryName, "session format"]);
+const languageCodes = new Map([
+  ["english", "en"],
+  ["engelsk", "en"],
+  ["norwegian", "no"],
+  ["norsk", "no"],
+]);
+
+function categoryKey(name = "") {
+  return name.trim().toLocaleLowerCase();
+}
+
+// "" for a language we have no code for, so callers can just skip the badge.
+export function languageCode(name = "") {
+  return languageCodes.get(categoryKey(name)) ?? "";
+}
+
+/**
+ * Normalises a session's categories to `[{ category, name }]`.
+ *
+ * Sessionize hands them over in two shapes: the All Data API sends a flat
+ * `categoryItems` id list to resolve against the event's `categories`, while
+ * the public view endpoints nest the whole category inside each session.
+ */
+export function getSessionCategoryItems(session, itemsById = new Map()) {
+  const byId = (session.categoryItems ?? []).map((id) => itemsById.get(id)).filter(Boolean);
+  if (byId.length) return byId;
+
+  const categories = session.categories ?? session.topics ?? session.tags ?? [];
+  return (Array.isArray(categories) ? categories : []).flatMap((category) => {
+    if (typeof category === "string") return [{ category: "", name: category }];
+    if (!category || typeof category !== "object") return [];
+
+    const items = category.categoryItems ?? category.items;
+    if (Array.isArray(items)) {
+      return items
+        .map((item) => ({
+          category: apiValue(category.name, apiValue(category.title)),
+          name: typeof item === "string" ? item : apiValue(item?.name, apiValue(item?.title)),
+        }))
+        .filter((item) => item.name);
+    }
+
+    return category.title ? [{ category: apiValue(category.name), name: category.title }] : [];
+  });
+}
+
+export function getTopics(categoryItems) {
+  return categoryItems
+    .filter((item) => !nonTopicCategoryNames.has(categoryKey(item.category)))
+    .map((item) => item.name)
+    .filter((name, index, all) => all.indexOf(name) === index);
+}
+
+export function getLanguage(categoryItems) {
+  const item = categoryItems.find((entry) => categoryKey(entry.category) === languageCategoryName);
+  return item ? languageCode(item.name) : "";
+}
+
 function sessionsOverlap(first, second) {
   return first.startsAt < second.endsAt && first.endsAt > second.startsAt;
 }
@@ -112,8 +176,11 @@ function apiValue(value, fallback = "") {
 export function parseApiData(data) {
   const payload = Array.isArray(data) ? data[0] : data;
   if (!payload || !Array.isArray(payload.sessions) || !Array.isArray(payload.speakers)) return null;
-  const categoryNames = new Map((payload.categories ?? []).flatMap((category) =>
-    (category.items ?? []).map((item) => [item.id, item.name])
+  const categoryItemsById = new Map((payload.categories ?? []).flatMap((category) =>
+    (category.items ?? category.categoryItems ?? []).map((item) => [
+      item.id,
+      { category: apiValue(category.name, apiValue(category.title)), name: apiValue(item.name, apiValue(item.title)) },
+    ])
   ));
 
   const speakers = payload.speakers.map((speaker) => ({
@@ -133,23 +200,25 @@ export function parseApiData(data) {
     sessions: Array.isArray(speaker.sessions) ? speaker.sessions.map((session) => typeof session === "string" ? session : session.id).filter(Boolean) : [],
   }));
 
-  const sessions = payload.sessions.map((session) => ({
-    id: apiValue(session.id),
-    domId: apiValue(session.id),
-    className: "sz-session",
-    title: stripHtml(apiValue(session.title)),
-    description: stripHtml(apiValue(session.description)),
-    startsAt: normalizeApiTimestamp(apiValue(session.startsAt, apiValue(session.start))),
-    endsAt: normalizeApiTimestamp(apiValue(session.endsAt, apiValue(session.end))),
-    roomId: apiValue(session.roomId, session.room?.id),
-    roomName: stripHtml(apiValue(session.roomName, typeof session.room === "string" ? session.room : session.room?.name)),
-    speakers: (session.speakers ?? session.speakerIds ?? []).map((speaker) => typeof speaker === "string" ? speaker : speaker.id).filter(Boolean),
-    topics: (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean).length
-      ? (session.categoryItems ?? []).map((id) => categoryNames.get(id)).filter(Boolean)
-      : getApiTopics(session),
-    isService: Boolean(session.isService ?? session.isServiceSession),
-    isPlenum: Boolean(session.isPlenum ?? session.isPlenumSession),
-  })).filter((session) => session.id);
+  const sessions = payload.sessions.map((session) => {
+    const categoryItems = getSessionCategoryItems(session, categoryItemsById);
+    return {
+      id: apiValue(session.id),
+      domId: apiValue(session.id),
+      className: "sz-session",
+      title: stripHtml(apiValue(session.title)),
+      description: stripHtml(apiValue(session.description)),
+      startsAt: normalizeApiTimestamp(apiValue(session.startsAt, apiValue(session.start))),
+      endsAt: normalizeApiTimestamp(apiValue(session.endsAt, apiValue(session.end))),
+      roomId: apiValue(session.roomId, session.room?.id),
+      roomName: stripHtml(apiValue(session.roomName, typeof session.room === "string" ? session.room : session.room?.name)),
+      speakers: (session.speakers ?? session.speakerIds ?? []).map((speaker) => typeof speaker === "string" ? speaker : speaker.id).filter(Boolean),
+      topics: getTopics(categoryItems),
+      language: getLanguage(categoryItems),
+      isService: Boolean(session.isService ?? session.isServiceSession),
+      isPlenum: Boolean(session.isPlenum ?? session.isPlenumSession),
+    };
+  }).filter((session) => session.id);
 
   const allRooms = (Array.isArray(payload.rooms) ? payload.rooms : buildRooms(sessions))
     .map((room) => ({ id: apiValue(room.id), name: stripHtml(apiValue(room.name, room.title)) }))
@@ -194,19 +263,6 @@ export function parseApiData(data) {
   };
 }
 
-function getApiTopics(session) {
-  const categories = session.categories ?? session.topics ?? session.tags ?? [];
-  return (Array.isArray(categories) ? categories : [])
-    .flatMap((category) => {
-      if (typeof category === "string") return [category];
-      const items = category?.categoryItems ?? category?.items;
-      if (Array.isArray(items)) return items.map((item) => typeof item === "string" ? item : item?.title ?? item?.name);
-      return category?.title ? [category.title] : [];
-    })
-    .filter(Boolean)
-    .filter((topic, index, all) => all.indexOf(topic) === index);
-}
-
 export function parseSessions(html) {
   const sessions = [];
   const openingTagPattern = /<li\b[^>]*id="sz-session-([^"]+)"[^>]*data-sessionid="([^"]+)"[^>]*class="([^"]*sz-session[^"]*)"[^>]*>/gi;
@@ -230,9 +286,13 @@ export function parseSessions(html) {
       })
     );
 
-    const topics = [...body.matchAll(/<li\b[^>]*class="[^"]*sz-tag[^"]*"[^>]*data-categoryname="main_tag"[^>]*>([\s\S]*?)<\/li>/gi)]
-      .map((topicMatch) => stripHtml(topicMatch[1]))
-      .filter(Boolean);
+    // Every tag carries the category it came from, so one pass feeds both the
+    // topic list and the language code.
+    const tags = [...body.matchAll(/<li\b[^>]*class="[^"]*sz-tag[^"]*"[^>]*data-categoryname="([^"]*)"[^>]*>([\s\S]*?)<\/li>/gi)]
+      .map((tagMatch) => ({ category: tagMatch[1], name: stripHtml(tagMatch[2]) }))
+      .filter((tag) => tag.name);
+    const topics = tags.filter((tag) => tag.category === "main_tag").map((tag) => tag.name);
+    const language = languageCode(tags.find((tag) => tag.category === "language")?.name ?? "");
     sessions.push({
       id: sessionId || domId,
       domId,
@@ -245,6 +305,7 @@ export function parseSessions(html) {
       roomName: stripHtml(roomMatch?.[2] ?? ""),
       speakers: speakerIds.map((speaker) => speaker.id),
       topics,
+      language,
     });
   }
 
@@ -323,6 +384,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
   const roomIndex = new Map(rooms.map((room, index) => [room.id, index]));
   const fullWidthSessionTitles = new Set(options.fullWidthSessionTitles ?? []);
   const topicsBySession = options.topicsBySession ?? new Map();
+  const languageBySession = options.languageBySession ?? new Map();
   const mergedSessions = validScheduleSessions.map((session) => {
     const detail = details.get(session.id);
     const startIndex = roomIndex.get(session.roomStartId || session.roomId);
@@ -335,6 +397,7 @@ export function mergeScheduleData(schedule, sessions, options = {}) {
       description: detail?.description ?? "",
       speakers: detail?.speakers ?? session.speakerIds,
       topics: topicsBySession.get(session.id) ?? detail?.topics ?? [],
+      language: languageBySession.get(session.id) ?? detail?.language ?? "",
       roomName: isInvalidRoomName(session.roomName) ? "" : session.roomName || detail?.roomName || "",
       roomStart: longService ? Math.min(1, rooms.length - 1) : (isFullWidth ? 0 : (startIndex ?? 0)),
       roomEnd: isFullWidth ? rooms.length - 1 : (endIndex ?? rooms.length - 1),

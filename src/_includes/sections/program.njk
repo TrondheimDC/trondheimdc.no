@@ -1,3 +1,4 @@
+{% from "components/session-language.njk" import sessionLanguage %}
 <tdc-section>
 <section class="section" id="program" aria-labelledby="program-title">
   <div class="container container--wide stack">
@@ -110,6 +111,7 @@
                         {% endfor %}
                       </div>
                     {% endif %}
+                    {% if not session.isService %}{{ sessionLanguage(session.language, t) }}{% endif %}
                   </article>
                 {% endfor %}
               </div>
@@ -146,7 +148,10 @@
 
         <dialog class="program-session-modal" data-session-dialog aria-labelledby="program-session-modal-title">
           <button type="button" class="program-session-modal__close" data-session-close aria-label="{{ t.program.close }}" autofocus>✕</button>
-          <p class="program-session-modal__meta" data-session-modal-meta></p>
+          <p class="program-session-modal__meta">
+            <span data-session-modal-meta></span>
+            <span class="program-session-modal__language" data-session-modal-language></span>
+          </p>
           <h3 id="program-session-modal-title" data-session-modal-title></h3>
           <p class="program-session-modal__description" data-session-modal-description></p>
           <div class="program-session-modal__actions">
@@ -173,6 +178,10 @@
             </div>
           </div>
         </dialog>
+
+        {# The client-side refresh rebuilds these cards from scratch; it clones
+           the badges from here so the markup has one source. #}
+        <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>
       {% else %}
         <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
       {% endif %}
