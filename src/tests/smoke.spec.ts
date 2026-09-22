@@ -31,7 +31,7 @@ const SECTION_IDS = [
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'partner', 'faq', 'coc'];
+const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'faq', 'coc'];
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
