@@ -193,7 +193,16 @@ export function parseApiData(data) {
     linkedIn: apiValue(speaker.linkedIn, apiValue(speaker.linkedin)),
     blog: apiValue(speaker.blog),
     isTopSpeaker: Boolean(speaker.isTopSpeaker),
-    sessions: Array.isArray(speaker.sessions) ? speaker.sessions.map((session) => typeof session === "string" ? session : session.id).filter(Boolean) : [],
+    // The API gives a speaker's own session backlinks as { id: <number>, ... },
+    // but session ids everywhere else (including the sessions array built
+    // just below) are strings — sessionById()'s `===` never matched without
+    // coercing these, so every speaker.sessions[0] lookup silently failed.
+    sessions: Array.isArray(speaker.sessions)
+      ? speaker.sessions
+          .map((session) => (typeof session === "string" ? session : session?.id))
+          .filter((id) => id !== undefined && id !== null && id !== "")
+          .map((id) => String(id))
+      : [],
   }));
 
   const sessions = payload.sessions.map((session) => {

@@ -26,13 +26,22 @@
    below, which counts the time column as column 1, same as the header row). */
 .program-schedule__sessions { display: contents; }
 .program-session { grid-column: calc(var(--program-room-start) + 1) / calc(var(--program-room-end) + 1); min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-base); }
-.program-session--favoritable { position: relative; }
+/* -webkit-tap-highlight-color: transparent — without it, tapping the card on
+   mobile shows the browser's own default (blue-ish) flash on top of the
+   press feedback below. touch-action:manipulation drops the double-tap-zoom
+   delay so :active fires immediately on tap, not ~300ms late. */
+.program-session--favoritable { position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: border-color var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-spring); }
+.program-session--favoritable:hover { border-color: var(--color-fg-brand); }
+/* Feedback starts the instant you press down (mouse or touch) and eases back
+   on release — a transition, not a keyframe animation, so it holds correctly
+   for however long the card is actually pressed instead of playing to a
+   fixed length regardless. */
+.program-session--favoritable:active { transform: scale(0.98); transition-duration: 60ms; }
 .program-session--service { align-items: center; min-height: 0; padding-block: var(--spacing-2); text-align: center; }
 .program-session--service { border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .program-session--service, .program-session--plenum { background: color-mix(in srgb, var(--color-bg-surface) 78%, var(--color-bg-base)); }
 .program-session--long-service-in-row { display: none; }
 .program-session--long-service-overlay { display: flex; position: absolute; z-index: 2; pointer-events: none; justify-content: center; }
-.program-session--long-service-overlay .program-session__title { pointer-events: auto; }
 .program-schedule__row { position: relative; z-index: 1; }
 .program-session__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-2); color: var(--color-fg-muted); font-size: var(--font-size-10); }
 .program-session--service .program-session__meta, .program-session--service .program-session__heading { justify-content: center; }
@@ -40,8 +49,10 @@
 .program-session__duration { white-space: nowrap; }
 .program-session__heading { display: flex; align-items: flex-start; gap: var(--spacing-2); }
 .program-session__title { flex: 1; padding: 0; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
-.program-session--service .program-session__title { text-align: center; }
+/* Breaks etc. render this as a <span>, not a <button> — plain text, no pointer. */
+.program-session--service .program-session__title { text-align: center; cursor: default; }
 .program-session__title:hover, .program-session__title:focus-visible, .program-session__speaker:hover, .program-session__speaker:focus-visible { color: var(--color-fg-brand); }
+.program-session--service .program-session__title:hover { color: inherit; }
 .program-session__favorite { position: absolute; inset-block-start: var(--spacing-2); inset-inline-end: var(--spacing-2); display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
 .program-session__favorite:hover { transform: scale(1.1); }
 .program-session__favorite:active { transform: scale(0.88); transition-duration: 60ms; }
@@ -79,18 +90,52 @@
   100% { transform: scale(1); }
 }
 
+/* Same idea as the favorite star's burst, played on the card itself once a
+   click actually completes (the press feedback above already covers mouse
+   down/tap). .is-opening is added by tdc-program.js on a real click only, so
+   a session restored as "open" on load never replays this. */
+.program-session--favoritable::after { content: ""; position: absolute; inset: -1px; border: 2px solid var(--color-fg-brand); border-radius: inherit; opacity: 0; pointer-events: none; }
+.program-session--favoritable.is-opening::after { animation: session-open-burst var(--duration-normal) var(--ease-out); }
+
+@keyframes session-open-burst {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.03); }
+}
+
 .program-session--favoritable .program-session__meta, .program-session--favoritable .program-session__heading { padding-inline-end: calc(2rem + var(--spacing-2)); }
 .program-session__favorite[aria-pressed="true"], .program-session-modal__favorite[aria-pressed="true"] { color: var(--color-fg-brand); }
 .program-session__speakers { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-2); }
 .program-session__speaker { padding: 0; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font: inherit; font-size: var(--font-size-20); text-align: left; }
-.program-session-modal { width: min(720px, calc(100vw - 2rem)); max-width: min(720px, calc(100vw - 2rem)); max-height: min(85dvh, 800px); margin: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-6); background: var(--color-bg-surface); color: var(--color-fg-base); }
+.program-session-modal { width: min(720px, calc(100vw - 2rem)); max-width: min(720px, calc(100vw - 2rem)); max-height: min(85dvh, 800px); margin: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-surface); color: var(--color-fg-base); }
 .program-session-modal::backdrop { background: var(--color-overlay); }
-.program-session-modal__close { display: flex; align-items: center; justify-content: center; margin-inline-start: auto; width: 2rem; height: 2rem; padding: 0; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: transparent; color: var(--color-fg-base); line-height: 1; cursor: pointer; }
 .program-session-modal__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2); color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); }
+/* Sets its own `display` above, so [hidden] needs restating (see AGENTS.md's
+   "Setting your own display..." learning) — hidden for a speaker opened
+   without a resolvable session (nothing session-specific to show). */
+.program-session-modal__meta[hidden] { display: none; }
 .program-session-modal__language:empty { display: none; }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
-.program-session-modal__actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--spacing-2); margin-block-start: var(--spacing-5); }
+
+/* Speaker bios, merged into this dialog — built by TdcProgram.renderSpeakers()
+   from the session's own [data-speaker-open] buttons. */
+.program-session-modal__speakers-section { margin-block-start: var(--spacing-5); padding-block-start: var(--spacing-5); border-block-start: 1px solid var(--color-border); }
+.program-session-modal__speakers-section[hidden] { display: none; }
+.program-session-modal__speakers-title { margin: 0 0 var(--spacing-3); color: var(--color-fg-muted); font-size: var(--font-size-20); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
+.program-session-modal__speakers { display: flex; flex-direction: column; gap: var(--spacing-4); }
+/* A second (or third) speaker on the same talk gets its own divider rather
+   than running straight into the one above. */
+.session-speaker + .session-speaker { padding-block-start: var(--spacing-4); border-block-start: 1px solid var(--color-border); }
+.session-speaker__header { display: flex; align-items: center; gap: var(--spacing-3); }
+.session-speaker__avatar { flex: none; width: 3.5rem; height: 3.5rem; border-radius: 999px; object-fit: cover; border: 1px solid var(--color-border); background: var(--color-bg-base); }
+.session-speaker__heading { display: flex; flex-direction: column; gap: var(--spacing-1); min-width: 0; }
+.session-speaker__name { margin: 0; font-size: var(--font-size-40); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); color: var(--color-fg-base); }
+.session-speaker__tagline { margin: 0; color: var(--color-fg-muted); font-size: var(--font-size-20); font-weight: var(--font-weight-medium); }
+.session-speaker__bio { margin: var(--spacing-3) 0 0; white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
+.session-speaker__socials { display: flex; flex-wrap: wrap; gap: var(--spacing-2); margin-block-start: var(--spacing-3); }
+.social-link { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; min-height: 2rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-full); border: 1px solid var(--color-border); color: var(--color-fg-base); text-decoration: none; font-size: var(--font-size-12); font-weight: var(--font-weight-medium); }
+.social-link:hover, .social-link:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+
 /* Fixed, with top/left set by tdc-program.js so the menu is clamped into the
    viewport rather than clipped by the dialog's scroll box. The [popover]
    overrides undo the UA's centring styles. */
@@ -102,9 +147,12 @@
 .calendar-menu__icon { flex: none; color: var(--color-fg-muted); }
 .calendar-menu__item:hover .calendar-menu__icon, .calendar-menu__item:focus-visible .calendar-menu__icon { color: inherit; }
 .program-session-modal__favorite, .program-session-modal__calendar { padding: var(--spacing-2) var(--spacing-3); }
-/* Lines the star up with the label the same way the calendar menu items do. */
-.program-session-modal__favorite { display: flex; align-items: center; gap: var(--spacing-2); transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+/* Lines the icon up with the label, on both the favorite pill and the
+   calendar toggle. */
+.program-session-modal__favorite, .program-session-modal__calendar { display: flex; align-items: center; gap: var(--spacing-2); }
+.program-session-modal__favorite { transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
 .program-session-modal__favorite:active { transform: scale(0.96); transition-duration: 60ms; }
+.program-session-modal__calendar-icon { flex: none; }
 .program-schedule__filter:disabled { cursor: default; opacity: 0.45; }
 .program-schedule__filter:disabled:hover { border-color: var(--color-border); color: var(--color-fg-base); }
 .program-session[hidden] { display: none; }
@@ -123,7 +171,11 @@
 @media (max-width: 480px) {
   .program-schedule__toolbar { align-items: flex-start; flex-direction: column; }
   .program-schedule__filters { justify-content: flex-start; }
-  .program-session-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  /* Full width, but capped well short of the full viewport height — 100dvh
+     read as a wall of white with the backdrop gone entirely; leaving room
+     above and below (and rounding the corners back on) reads as a sheet,
+     not a takeover. */
+  .program-session-modal { width: 100vw; max-width: 100vw; height: fit-content; max-height: 85dvh; margin: auto 0; border-radius: var(--radius-lg); }
 }
 
 /* ---------------------------------------------------------------------------

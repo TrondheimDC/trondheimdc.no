@@ -9,6 +9,7 @@ class TdcProgram {
     this.key = root.dataset.favoritesKey;
     this.favorites = this.readFavorites();
     this.dialog = root.querySelector("[data-session-dialog]");
+    this.dialogScroll = this.dialog?.querySelector(".detail-modal__scroll");
     this.onlyFavorites = root.querySelector("[data-program-favorites-only]");
     this.topicFilter = root.querySelector("[data-program-topic-filter]");
     this.searchInput = root.querySelector("[data-program-search]");
@@ -26,7 +27,12 @@ class TdcProgram {
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
     this.meta = root.querySelector("[data-session-modal-meta]");
+    this.metaRow = root.querySelector("[data-session-modal-meta-row]");
     this.modalLanguage = root.querySelector("[data-session-modal-language]");
+    this.actions = root.querySelector(".detail-modal__actions");
+    this.speakersSection = root.querySelector("[data-session-modal-speakers-section]");
+    this.speakersTitle = root.querySelector("[data-session-modal-speakers-title]");
+    this.speakersList = root.querySelector("[data-session-modal-speakers]");
     this.activeSession = null;
     this.returnFocus = null;
 
@@ -37,13 +43,36 @@ class TdcProgram {
         return;
       }
 
-      const open = event.target.closest("[data-session-open]");
-      if (open) {
-        this.open(open.closest("[data-program-session]"));
+      if (event.target.closest("[data-session-close]")) {
+        this.closeDialog();
         return;
       }
 
-      if (event.target.closest("[data-session-close]")) this.dialog?.close();
+      // A speaker's name still gets its own Matomo event; the click still
+      // falls through to open the (single, merged) dialog below.
+      const speakerButton = event.target.closest("[data-speaker-open]");
+      if (speakerButton) this.trackSpeakerClick(speakerButton);
+
+      // The whole card opens the dialog now, not just its title — a bigger,
+      // more forgiving target, especially on mobile. .program-session--service
+      // (breaks, lunch, ...) never gets the --favoritable class, so those stay
+      // inert.
+      const session = event.target.closest(".program-session--favoritable");
+      if (session) {
+        this.playOpenAnimation(session);
+        this.open(session);
+      }
+    });
+
+    // The speaker wall (#speakers) sits in its own section, outside this root,
+    // so its [data-speaker-open] cards need a document-level listener. Clicks
+    // on speaker buttons inside the schedule are already handled above; skip
+    // those here rather than opening (and animating) the same session twice.
+    document.addEventListener("click", (event) => {
+      const speakerButton = event.target.closest("[data-speaker-open]");
+      if (!speakerButton || root.contains(speakerButton)) return;
+      this.trackSpeakerClick(speakerButton);
+      this.openFromSpeaker(speakerButton);
     });
 
     this.onlyFavorites?.addEventListener("click", () => {
@@ -101,7 +130,7 @@ class TdcProgram {
         rect.left <= event.clientX &&
         event.clientX <= rect.left + rect.width;
 
-      if (!insideDialog) this.dialog.close();
+      if (!insideDialog) this.closeDialog();
     });
     this.dialog?.addEventListener("close", () => {
       this.setCalendarMenu(false);
@@ -179,6 +208,15 @@ class TdcProgram {
     });
   }
 
+  // Same pop-and-fade idea as the favorite star, played on the card itself
+  // when it's opened.
+  playOpenAnimation(session) {
+    if (!session) return;
+    session.classList.remove("is-opening");
+    void session.offsetWidth; // reflow, so a second quick click restarts the animation
+    session.classList.add("is-opening");
+  }
+
   updateButtons() {
     this.root.querySelectorAll("[data-program-session]").forEach((session) => {
       const saved = this.favorites.has(session.dataset.sessionId);
@@ -249,6 +287,23 @@ class TdcProgram {
     downloadCalendar(calendarFilename(title), buildCalendar(events, options));
   }
 
+  // Wraps a synchronous DOM update (opening/closing the dialog) in a View
+  // Transition when the browser supports it and the reader hasn't asked for
+  // reduced motion — a smooth cross-fade instead of the dialog just
+  // appearing/disappearing instantly. Feature-detected and skipped
+  // otherwise; the update itself always runs either way.
+  withViewTransition(update) {
+    const supportsViewTransition = typeof document.startViewTransition === "function";
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (supportsViewTransition && !reducedMotion) document.startViewTransition(update);
+    else update();
+  }
+
+  closeDialog() {
+    if (!this.dialog?.open) return;
+    this.withViewTransition(() => this.dialog.close());
+  }
+
   setCalendarMenu(open) {
     if (!this.calendarToggle || !this.calendarList) return;
     if (open && !this.activeSession) return;
@@ -316,23 +371,193 @@ class TdcProgram {
     };
   }
 
-  open(session) {
+  // returnFocusTo overrides the default (the session's own title button) —
+  // needed when the click that opened this came from outside the grid
+  // entirely (openFromSpeaker below). Take it as a parameter here, applied
+  // inside the same withViewTransition callback, rather than having the
+  // caller set this.returnFocus right after calling open(): the callback can
+  // run as a deferred microtask, so anything the caller does "after" open()
+  // in the same synchronous turn can actually land *before* the callback
+  // does, and get clobbered when it finally runs.
+  open(session, returnFocusTo) {
     if (!session || !this.dialog) return;
-    this.activeSession = session;
-    // The pill is reused across sessions, so drop a stale .is-toggling before
-    // updateModalFavorite() flips aria-pressed and replays the pop on open.
-    this.modalFavorite?.classList.remove("is-toggling");
-    this.setCalendarMenu(false);
-    this.returnFocus = session.querySelector("[data-session-open]");
-    this.title.textContent = session.dataset.sessionTitle || "";
-    this.description.textContent = session.dataset.sessionDescription || "";
-    this.description.hidden = !this.description.textContent;
-    this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
-    setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
-    this.updateModalFavorite();
-    if (typeof this.dialog.showModal === "function") this.dialog.showModal();
-    else this.dialog.setAttribute("open", "");
-    lockModalScroll();
+    this.withViewTransition(() => {
+      this.activeSession = session;
+      // The pill is reused across sessions, so drop a stale .is-toggling before
+      // updateModalFavorite() flips aria-pressed and replays the pop on open.
+      this.modalFavorite?.classList.remove("is-toggling");
+      this.setCalendarMenu(false);
+      this.returnFocus = returnFocusTo ?? session.querySelector("[data-session-open]");
+      this.title.textContent = session.dataset.sessionTitle || "";
+      this.description.textContent = session.dataset.sessionDescription || "";
+      this.description.hidden = !this.description.textContent;
+      this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
+      // A previous open() may have been the no-session speaker fallback below,
+      // which hides all three — a real session always shows all three.
+      if (this.metaRow) this.metaRow.hidden = false;
+      if (this.actions) this.actions.hidden = false;
+      if (this.speakersTitle) this.speakersTitle.hidden = false;
+      setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
+      this.renderSpeakers(session);
+      this.updateModalFavorite();
+      if (typeof this.dialog.showModal === "function") this.dialog.showModal();
+      else this.dialog.setAttribute("open", "");
+      // A session reused from a previous open shouldn't reopen scrolled to
+      // wherever that visit left it. Has to come after showModal() — while
+      // the dialog is still closed (display: none), it has no layout box to
+      // scroll, so scrollTo() on it is a silent no-op.
+      this.dialogScroll?.scrollTo(0, 0);
+      lockModalScroll();
+    });
+  }
+
+  // Reached from the speakers wall (#speakers), which sits outside this
+  // instance's root and only knows which session its speaker belongs to
+  // (data-session-id) — the actual bio/social data comes from that session's
+  // own [data-speaker-open] buttons in the schedule, read by renderSpeakers().
+  openFromSpeaker(button) {
+    const sessionId = button.dataset.sessionId;
+    const session = sessionId
+      ? document.querySelector(`[data-program-session][data-session-id="${CSS.escape(sessionId)}"]`)
+      : null;
+    if (session) {
+      this.playOpenAnimation(session);
+      // open() defaults the return focus to the session's own title button;
+      // this click came from outside the grid, so send focus back there instead.
+      this.open(session, button);
+      return;
+    }
+    // A speaker can be announced before they're slotted into the schedule —
+    // data-session-id is then empty and there's nothing to resolve. Fall back
+    // to just their profile rather than doing nothing.
+    this.openSpeakerOnly(button);
+  }
+
+  // Same dialog, same speaker-block markup as a real session — just without
+  // the parts (meta, description, favorite/calendar) that need one.
+  openSpeakerOnly(button) {
+    if (!this.dialog) return;
+    this.withViewTransition(() => {
+      this.activeSession = null;
+      this.modalFavorite?.classList.remove("is-toggling");
+      this.setCalendarMenu(false);
+      this.returnFocus = button;
+      this.title.textContent = button.dataset.speakerName || "";
+      this.description.hidden = true;
+      if (this.metaRow) this.metaRow.hidden = true;
+      if (this.actions) this.actions.hidden = true;
+      setLanguageSlot(this.modalLanguage, null);
+      // The title above already names them — skip the redundant name line, but
+      // keep everything else (avatar, tagline, bio, socials) the block offers.
+      if (this.speakersList) this.speakersList.replaceChildren(this.buildSpeakerBlock(button, { showName: false }));
+      if (this.speakersSection) this.speakersSection.hidden = false;
+      if (this.speakersTitle) this.speakersTitle.hidden = true;
+      if (typeof this.dialog.showModal === "function") this.dialog.showModal();
+      else this.dialog.setAttribute("open", "");
+      // Has to come after showModal() — see the comment in open().
+      this.dialogScroll?.scrollTo(0, 0);
+      lockModalScroll();
+    });
+  }
+
+  // Records which speaker's profile got the click, the way the old standalone
+  // speaker dialog did — kept because it's opening the same dialog, not a
+  // point of navigation, so the event still needs to name the speaker.
+  trackSpeakerClick(button) {
+    const name = button.dataset.speakerName || button.textContent?.trim() || "";
+    if (!name) return;
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Speakers", "Click", name, 1]);
+  }
+
+  // Built from the session's own [data-speaker-open] buttons, so a session
+  // opened from the schedule, the speaker wall, or another speaker on the
+  // same talk all show the identical speaker list — one source of truth.
+  renderSpeakers(session) {
+    if (!this.speakersSection || !this.speakersList) return;
+    const buttons = [...session.querySelectorAll("[data-speaker-open]")];
+    this.speakersList.replaceChildren(...buttons.map((button) => this.buildSpeakerBlock(button)));
+    this.speakersSection.hidden = buttons.length === 0;
+    this.setSpeakersTitleCount(buttons.length);
+  }
+
+  // "Foredragsholder"/"Speaker" for one, "Foredragsholdere"/"Speakers" for
+  // more than one — 0 (hidden anyway) falls back to the plural.
+  setSpeakersTitleCount(count) {
+    if (!this.speakersTitle) return;
+    this.speakersTitle.textContent = count === 1
+      ? this.root.dataset.speakerSingularLabel
+      : this.root.dataset.speakerPluralLabel;
+  }
+
+  buildSpeakerBlock(button, { showName = true } = {}) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "session-speaker";
+
+    const header = document.createElement("div");
+    header.className = "session-speaker__header";
+    const image = button.dataset.speakerImage || "";
+    if (image) {
+      const avatar = document.createElement("img");
+      avatar.className = "session-speaker__avatar";
+      avatar.src = image;
+      avatar.alt = "";
+      header.appendChild(avatar);
+    }
+
+    const heading = document.createElement("div");
+    heading.className = "session-speaker__heading";
+    if (showName) {
+      const name = document.createElement("p");
+      name.className = "session-speaker__name";
+      name.textContent = button.dataset.speakerName || "";
+      heading.appendChild(name);
+    }
+    const tagline = button.dataset.speakerTagline || "";
+    if (tagline) {
+      const taglineEl = document.createElement("p");
+      taglineEl.className = "session-speaker__tagline";
+      taglineEl.textContent = tagline;
+      heading.appendChild(taglineEl);
+    }
+    header.appendChild(heading);
+    wrapper.appendChild(header);
+
+    const bio = button.dataset.speakerBio || "";
+    if (bio) {
+      const bioEl = document.createElement("p");
+      bioEl.className = "session-speaker__bio";
+      bioEl.textContent = bio;
+      wrapper.appendChild(bioEl);
+    }
+
+    const socials = this.buildSocialLinks(button.dataset.speakerTwitter, button.dataset.speakerLinkedin, button.dataset.speakerBlog);
+    if (socials.length) {
+      const socialsEl = document.createElement("div");
+      socialsEl.className = "session-speaker__socials";
+      socialsEl.append(...socials);
+      wrapper.appendChild(socialsEl);
+    }
+
+    return wrapper;
+  }
+
+  buildSocialLinks(twitter, linkedIn, blog) {
+    const links = [];
+    if (twitter) links.push(this.createSocialLink(`https://twitter.com/${twitter}`, "X (Twitter)"));
+    if (linkedIn) links.push(this.createSocialLink(linkedIn, "LinkedIn"));
+    if (blog) links.push(this.createSocialLink(blog, "Website"));
+    return links;
+  }
+
+  createSocialLink(href, label) {
+    const link = document.createElement("a");
+    link.href = href;
+    link.className = "social-link";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = label;
+    return link;
   }
 
   updateModalFavorite() {

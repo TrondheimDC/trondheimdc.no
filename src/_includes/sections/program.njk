@@ -26,6 +26,8 @@
       data-calendar-url="{{ site.url }}{{ page.url }}{% if not standalone %}#program{% endif %}"
       data-calendar-ics-base="{{ '/program/' | url }}"
       data-calendar-saved-name="{{ t.program.calendar_saved_name | escape }}"
+      data-speaker-singular-label="{{ t.program.speaker_singular | escape }}"
+      data-speaker-plural-label="{{ t.program.speaker_plural | escape }}"
       data-live-show-earlier-label="{{ t.program.live_show_earlier | escape }}"
       data-live-hide-earlier-label="{{ t.program.live_hide_earlier | escape }}"
       data-live-storage-key="tdc-program-live-{{ sessionize.eventId }}"
@@ -100,9 +102,14 @@
                       <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
                     </div>
                     <div class="program-session__heading">
-                      <button type="button" class="program-session__title" data-session-open>
-                        {{ session.title }}
-                      </button>
+                      {% if session.isService %}
+                        {# Breaks, lunch, registration, the party — nothing to open, so no button. #}
+                        <span class="program-session__title">{{ session.title }}</span>
+                      {% else %}
+                        <button type="button" class="program-session__title" data-session-open>
+                          {{ session.title }}
+                        </button>
+                      {% endif %}
                       {% if not session.isService %}
                         <button type="button" class="program-session__favorite" data-session-favorite aria-label="{{ t.program.star }}: {{ session.title | escape }}" aria-pressed="false"><svg class="favorite-star" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg></button>
                       {% endif %}
@@ -159,27 +166,46 @@
                 <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
               </div>
               <div class="program-session__heading">
-                <button type="button" class="program-session__title" data-session-open>{{ session.title }}</button>
+                {# Always a service session (the party, dinner, ...) — nothing to open. #}
+                <span class="program-session__title">{{ session.title }}</span>
               </div>
             </article>
           {% endfor %}
         </div>
 
-        <dialog class="program-session-modal" data-session-dialog aria-labelledby="program-session-modal-title">
-          <button type="button" class="program-session-modal__close" data-session-close aria-label="{{ t.program.close }}" autofocus>✕</button>
-          <p class="program-session-modal__meta">
-            <span data-session-modal-meta></span>
-            <span class="program-session-modal__language" data-session-modal-language></span>
-          </p>
-          <h3 id="program-session-modal-title" data-session-modal-title></h3>
-          <p class="program-session-modal__description" data-session-modal-description></p>
-          <div class="program-session-modal__actions">
+        <dialog class="detail-modal program-session-modal" data-session-dialog aria-labelledby="program-session-modal-title">
+          <div class="detail-modal__header">
+            <button type="button" class="detail-modal__close" data-session-close aria-label="{{ t.program.close }}" autofocus>
+              <svg class="detail-modal__close-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+          </div>
+          <div class="detail-modal__scroll">
+            <p class="program-session-modal__meta" data-session-modal-meta-row>
+              <span data-session-modal-meta></span>
+              <span class="program-session-modal__language" data-session-modal-language></span>
+            </p>
+            <h3 id="program-session-modal-title" data-session-modal-title></h3>
+            <p class="program-session-modal__description" data-session-modal-description></p>
+
+            {# Filled by TdcProgram from the session's own [data-speaker-open]
+               buttons — one dialog, not a separate speaker one to jump to. #}
+            <div class="program-session-modal__speakers-section" data-session-modal-speakers-section hidden>
+              {# JS swaps this for the singular label when there's only one speaker;
+                 the plural here is just the no-JS/pre-render fallback. #}
+              <h4 class="program-session-modal__speakers-title" data-session-modal-speakers-title>{{ t.speakers.title }}</h4>
+              <div class="program-session-modal__speakers" data-session-modal-speakers></div>
+            </div>
+          </div>
+          <div class="detail-modal__actions">
             <button type="button" class="program-session-modal__favorite" data-session-modal-favorite aria-pressed="false">
               <svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
               <span data-session-modal-favorite-label></span>
             </button>
             <div class="calendar-menu" data-calendar-menu>
-              <button type="button" class="program-session-modal__calendar" data-calendar-toggle aria-expanded="false" aria-controls="program-calendar-menu">{{ t.program.calendar_add }}</button>
+              <button type="button" class="program-session-modal__calendar" data-calendar-toggle aria-expanded="false" aria-controls="program-calendar-menu">
+                <svg class="program-session-modal__calendar-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+                {{ t.program.calendar_add }}
+              </button>
               <div class="calendar-menu__list" id="program-calendar-menu" data-calendar-list hidden>
                 <a class="calendar-menu__item" href="#" target="_blank" rel="noopener" data-calendar-link="google">
                   <svg class="calendar-menu__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
@@ -199,13 +225,6 @@
         </dialog>
 
         <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>
-
-        {# The speaker wall normally owns this dialog; off the home page the
-           schedule is the only thing rendering speaker buttons, so it must
-           carry the dialog those buttons open. #}
-        {% if standalone %}
-          {% include "partials/speaker-modal.njk" %}
-        {% endif %}
       {% else %}
         <p class="section__lead text-lead">{{ t.program.placeholder }}</p>
       {% endif %}

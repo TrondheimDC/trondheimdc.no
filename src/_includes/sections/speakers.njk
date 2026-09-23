@@ -31,6 +31,11 @@
                 {% set talk = sessionize.sessions | sessionById(speaker.sessions[0]) %}
                 data-speaker-talk-title="{{ talk.title | escape }}"
                 data-speaker-talk-description="{{ talk.description | escape }}"
+                {# Lets TdcProgram resolve which schedule session to open — the
+                   dialog itself lives in sections/program.njk and reads its
+                   speaker data straight off that session's own nested
+                   [data-speaker-open] buttons, not off this card. #}
+                data-session-id="{{ talk.id | escape }}"
               >
                 {% if speaker.profilePicture %}
                   <img
@@ -54,8 +59,6 @@
             </li>
           {% endfor %}
         </ul>
-
-        {% include "partials/speaker-modal.njk" %}
 
         {# Cloned by the client-side refresh when it rebuilds the grid. #}
         <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>

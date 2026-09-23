@@ -60,10 +60,13 @@ function buildProgramSession(session, speakers, schedule) {
 
   const heading = document.createElement("div");
   heading.className = "program-session__heading";
-  const title = document.createElement("button");
-  title.type = "button";
+  // Breaks, lunch, registration, the party — nothing to open, so no button.
+  const title = document.createElement(session.isService ? "span" : "button");
+  if (!session.isService) {
+    title.type = "button";
+    title.dataset.sessionOpen = "";
+  }
   title.className = "program-session__title";
-  title.dataset.sessionOpen = "";
   title.textContent = session.title;
   heading.appendChild(title);
   if (!session.isService) {
@@ -92,6 +95,9 @@ function buildProgramSession(session, speakers, schedule) {
       button.dataset.speakerImage = speaker.profilePicture;
       button.dataset.speakerTagline = speaker.tagLine;
       button.dataset.speakerBio = speaker.bio;
+      button.dataset.speakerTwitter = speaker.twitter || "";
+      button.dataset.speakerLinkedin = speaker.linkedIn || "";
+      button.dataset.speakerBlog = speaker.blog || "";
       button.dataset.speakerTalkTitle = session.title;
       button.dataset.speakerTalkDescription = session.description;
       button.textContent = button.dataset.speakerName;
@@ -181,6 +187,9 @@ function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
   button.setAttribute("data-speaker-blog", speaker.blog || "");
   button.setAttribute("data-speaker-talk-title", talk?.title || "");
   button.setAttribute("data-speaker-talk-description", talk?.description || "");
+  // Lets TdcProgram resolve which schedule session to open — see the same
+  // attribute in sections/speakers.njk.
+  button.setAttribute("data-session-id", talk?.id || "");
 
   if (speaker.profilePicture) {
     const img = document.createElement("img");

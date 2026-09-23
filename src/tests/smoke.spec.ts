@@ -76,6 +76,116 @@ test.describe('Program schedule', () => {
     await expect(page.locator('[data-session-modal-description]')).not.toBeEmpty();
   });
 
+  test('resets its scroll position each time it opens', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 500 });
+    await page.goto('/');
+
+    // Pick whichever session has the longest description, so there's
+    // somewhere to actually scroll to.
+    const sessions = page.locator('[data-program-session]:not([data-session-service="true"])');
+    const count = await sessions.count();
+    let longestIndex = 0, longestLength = 0;
+    for (let i = 0; i < count; i++) {
+      const description = await sessions.nth(i).getAttribute('data-session-description');
+      if (description && description.length > longestLength) {
+        longestLength = description.length;
+        longestIndex = i;
+      }
+    }
+    const session = sessions.nth(longestIndex);
+    const scroll = page.locator('[data-session-dialog] .detail-modal__scroll');
+
+    await session.locator('[data-session-open]').click();
+    await scroll.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await expect.poll(() => scroll.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+
+    await page.locator('[data-session-close]').click();
+    await session.locator('[data-session-open]').click();
+    await expect.poll(() => scroll.evaluate((el) => el.scrollTop)).toBe(0);
+  });
+
+  test('keeps the sticky nav out of the dialog\'s View Transition', async ({ page }) => {
+    // Regression guard: .site-nav is position: sticky and visible on every
+    // page. Left unnamed, it gets bundled into the *document-wide* "root"
+    // snapshot the dialog's View Transition still takes — captured at its
+    // natural, unstuck document position rather than its current on-screen
+    // one, which reads as the nav vanishing and snapping back once live
+    // rendering resumes. Naming it pulls it into its own, unaffected group.
+    await page.goto('/');
+    const viewTransitionName = await page.locator('.site-nav').evaluate((el) => getComputedStyle(el).viewTransitionName);
+    expect(viewTransitionName).toBe('site-nav');
+  });
+
+  test('labels the speakers section singular or plural to match the talk', async ({ page }) => {
+    await page.goto('/');
+    const heading = page.locator('[data-session-modal-speakers-title]');
+
+    const solo = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    await solo.locator('[data-session-open]').click();
+    await expect(page.locator('.session-speaker')).toHaveCount(1);
+    await expect(heading).toHaveText('Foredragsholder');
+    await page.locator('[data-session-close]').click();
+
+    const panel = page.locator('[data-program-session]').filter({ hasText: 'Kortslutning Live' }).first();
+    await panel.locator('[data-session-open]').click();
+    await expect(page.locator('.session-speaker').first()).toBeVisible();
+    await expect(page.locator('.session-speaker')).toHaveCount(2);
+    await expect(heading).toHaveText('Foredragsholdere');
+  });
+
+  test('never shows the browser\'s own tap highlight on a session card', async ({ page }) => {
+    // The whole card is the click target now (see "makes the card clickable"),
+    // so it needs the same tap-highlight reset the button-only version never
+    // needed to notice was missing.
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    await expect(session).toHaveCSS('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)');
+  });
+
+  test('never intercepts clicks while closed', async ({ page }) => {
+    // Regression guard: .detail-modal sets its own `display`, which silently
+    // beats the UA stylesheet's `dialog:not([open]) { display: none }` —
+    // author styles win over UA styles regardless of specificity — unless
+    // that closed state is restated explicitly (see detail-modal.css).
+    await page.goto('/');
+    await expect(page.locator('[data-session-dialog]')).toHaveCSS('display', 'none');
+    await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).locator('[data-session-open]').click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+  });
+
+  test('keeps the close button and actions reachable while a long description scrolls', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 420 });
+    await page.goto('/');
+
+    // Pick whichever session has the longest description, so the dialog is
+    // guaranteed to actually scroll regardless of what Sessionize returns.
+    const sessions = page.locator('[data-program-session]:not([data-session-service="true"])');
+    const count = await sessions.count();
+    let longestIndex = 0, longestLength = 0;
+    for (let i = 0; i < count; i++) {
+      const description = await sessions.nth(i).getAttribute('data-session-description');
+      if (description && description.length > longestLength) {
+        longestLength = description.length;
+        longestIndex = i;
+      }
+    }
+    await sessions.nth(longestIndex).locator('[data-session-open]').click();
+
+    const close = page.locator('[data-session-close]');
+    const favorite = page.locator('[data-session-modal-favorite]');
+    // Opening runs inside a View Transition; give its (browser-default-length)
+    // animation time to settle before measuring, or this reads an in-transit
+    // position rather than the dialog's actual, final one.
+    await page.waitForTimeout(350);
+    const closeBefore = await close.boundingBox();
+
+    await page.locator('[data-session-dialog] .detail-modal__scroll').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await expect(favorite).toBeVisible();
+    await expect(page.locator('[data-calendar-toggle]')).toBeVisible();
+    const closeAfter = await close.boundingBox();
+    expect(closeAfter?.y).toBeCloseTo(closeBefore?.y ?? 0, 0);
+  });
+
   test('stars a talk and persists it across reloads', async ({ page }) => {
     await page.goto('/');
     const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
@@ -303,6 +413,32 @@ test.describe('Program schedule', () => {
     await expect(lunch.locator('.program-session__room')).toHaveText(/Fellesområde & restaurant|Shared area & restaurant/);
   });
 
+  test('makes breaks and other service sessions non-clickable', async ({ page }) => {
+    await page.goto('/#program');
+
+    const services = page.locator('[data-program-session][data-session-service="true"]');
+    await expect(services.first()).toBeVisible();
+    const count = await services.count();
+    for (let i = 0; i < count; i++) {
+      await expect(services.nth(i).locator('[data-session-open]')).toHaveCount(0);
+      await expect(services.nth(i).locator('.program-session__title')).toHaveCount(1);
+    }
+
+    // The long-service overlay (the party) is itself always a service session.
+    const overlay = page.locator('.program-session--long-service-overlay');
+    await expect(overlay.locator('[data-session-open]')).toHaveCount(0);
+  });
+
+  test('shows a speaker\'s own talk title on their speakers-wall card', async ({ page }) => {
+    // Regression guard: speaker.sessions[0] (Sessionize's own backlink) comes
+    // back as a number while every other session id is a string, so the
+    // sessionById() `===` lookup silently matched nothing — this preview
+    // (and data-session-id, which the merged dialog depends on to resolve a
+    // wall click back to a real session) were empty for every speaker.
+    await page.goto('/');
+    await expect(page.locator('#speakers .speaker-card__talk').first()).not.toBeEmpty();
+  });
+
   test('labels every talk with the language it is held in', async ({ page }) => {
     await page.goto('/#program');
 
@@ -342,8 +478,6 @@ test.describe('Program schedule', () => {
     await expect(dialogFlag).toHaveAttribute('data-session-language', 'en');
 
     await page.locator('[data-session-close]').click();
-    await page.locator('[data-program-session][data-session-service="true"]').first().locator('[data-session-open]').click();
-    await expect(dialogFlag).toHaveCount(0);
   });
 
   test('keeps the language and session length out of the topic filter', async ({ page }) => {
@@ -403,23 +537,24 @@ test.describe('Standalone program page', () => {
       await context.close();
     });
 
-    test(`${path} opens a speaker from the schedule`, async ({ page }) => {
-      // The speaker dialog normally lives in the speaker wall, which this page
-      // does not render — it has to bring its own copy or the names are dead.
+    test(`${path} opens a speaker's session from the schedule`, async ({ page }) => {
+      // Speaker bios are merged into the session dialog now — this page has
+      // no separate speaker wall or dialog of its own to bring.
       await page.goto(path);
-      const modal = page.locator('#speaker-description-modal');
-      await expect(modal).toBeHidden();
+      const dialog = page.locator('[data-session-dialog]');
+      await expect(dialog).toBeHidden();
 
-      const speaker = page.locator('[data-program-session] [data-speaker-open]').first();
+      const session = page.locator('[data-program-session]').filter({ has: page.locator('[data-speaker-open]') }).first();
+      const speaker = session.locator('[data-speaker-open]').first();
       const name = (await speaker.textContent())?.trim() ?? '';
       expect(name).not.toBe('');
       await speaker.click();
 
-      await expect(modal).toBeVisible();
-      await expect(page.locator('#speaker-modal-name')).toHaveText(name);
-      await expect(page.locator('#speaker-modal-talk-title')).not.toBeEmpty();
-      await page.locator('[data-speaker-close]').click();
-      await expect(modal).toBeHidden();
+      await expect(dialog).toBeVisible();
+      await expect(dialog.locator('[data-session-modal-title]')).toHaveText(await session.getAttribute('data-session-title') ?? '');
+      await expect(dialog.locator('.session-speaker__name')).toContainText(name);
+      await page.locator('[data-session-close]').click();
+      await expect(dialog).toBeHidden();
     });
   }
 
@@ -880,13 +1015,107 @@ test.describe('Speaker analytics', () => {
     expect(event).toEqual(['trackEvent', 'Speakers', 'Click', name, 1]);
   });
 
-  test('locks page scroll while the speaker modal is open', async ({ page }) => {
+  test('locks page scroll while the session dialog is open', async ({ page }) => {
     await page.goto('/');
 
     await page.locator('[data-speaker-open]').first().click();
     await expect(page.locator('body')).toHaveClass(/modal-open/);
 
-    await page.locator('[data-speaker-close]').click();
+    await page.locator('[data-session-close]').click();
     await expect(page.locator('body')).not.toHaveClass(/modal-open/);
+  });
+
+  test('opens the right session from the speakers wall, with that speaker\'s bio', async ({ page }) => {
+    // tdc-speakers-refresh.js re-fetches Sessionize client-side; block it so
+    // this reads the server-rendered wall, not a live API response that may
+    // have moved on since the last build.
+    await page.route('**sessionize.com/**', (route) => route.abort());
+    await page.goto('/');
+
+    // The wall (#speakers) sits outside the schedule (#program) entirely, so
+    // this exercises the document-level listener that resolves data-session-id
+    // back to a real session in the grid, not the root-scoped one.
+    // Not every wall speaker has a session yet (see the fallback test below)
+    // — pick one that does.
+    const wallCard = page.locator('#speakers [data-speaker-open]:not([data-session-id=""])').first();
+    const name = await wallCard.getAttribute('data-speaker-name');
+    const sessionId = await wallCard.getAttribute('data-session-id');
+    const session = page.locator(`[data-program-session][data-session-id="${sessionId}"]`);
+    const expectedTitle = await session.getAttribute('data-session-title');
+
+    await wallCard.click();
+
+    const dialog = page.locator('[data-session-dialog]');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('[data-session-modal-title]')).toHaveText(expectedTitle ?? '');
+    await expect(dialog.locator('.session-speaker__name')).toContainText(name ?? '');
+    // Came from outside the grid — closing should return focus there, not
+    // into the schedule (open()'s own default).
+    await page.locator('[data-session-close]').click();
+    await expect(wallCard).toBeFocused();
+  });
+
+  test('falls back to a bio-only view for a speaker with no session yet', async ({ page }) => {
+    await page.route('**sessionize.com/**', (route) => route.abort());
+    await page.goto('/');
+
+    // A speaker can be announced before Sessionize has them on a session,
+    // which leaves data-session-id empty — seed that state rather than
+    // depending on it being true of some real speaker on any given day (see
+    // the topic-filter test above for the same "seed, don't rely on live
+    // data" reasoning).
+    const wallCard = page.locator('#speakers [data-speaker-open]').first();
+    const name = await wallCard.getAttribute('data-speaker-name');
+    await wallCard.evaluate((el) => { el.dataset.sessionId = ''; });
+
+    await wallCard.click();
+
+    const dialog = page.locator('[data-session-dialog]');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('[data-session-modal-title]')).toHaveText(name ?? '');
+    // Nothing session-specific to show or act on.
+    await expect(page.locator('[data-session-modal-meta-row]')).toBeHidden();
+    await expect(page.locator('.detail-modal__actions')).toBeHidden();
+    // The block still carries their bio — just without repeating the name
+    // the dialog title already gives.
+    await expect(dialog.locator('.session-speaker__name')).toHaveCount(0);
+    await expect(dialog.locator('.session-speaker__bio')).not.toBeEmpty();
+  });
+
+  test('keeps the close button and actions reachable while a long description scrolls, opened from the wall', async ({ page }) => {
+    await page.route('**sessionize.com/**', (route) => route.abort());
+    await page.setViewportSize({ width: 900, height: 420 });
+    await page.goto('/');
+
+    // Pick whichever wall speaker resolves to a session with the longest
+    // description, so the dialog is guaranteed to actually scroll.
+    const wallCards = page.locator('#speakers [data-speaker-open]');
+    const count = await wallCards.count();
+    let longestIndex = -1, longestLength = 0;
+    for (let i = 0; i < count; i++) {
+      const sessionId = await wallCards.nth(i).getAttribute('data-session-id');
+      if (!sessionId) continue;
+      const description = await page.locator(`[data-program-session][data-session-id="${sessionId}"]`).first().getAttribute('data-session-description');
+      if (description && description.length > longestLength) {
+        longestLength = description.length;
+        longestIndex = i;
+      }
+    }
+    expect(longestIndex).toBeGreaterThanOrEqual(0);
+    await wallCards.nth(longestIndex).click();
+
+    const close = page.locator('[data-session-close]');
+    const favorite = page.locator('[data-session-modal-favorite]');
+    // Opening runs inside a View Transition; give its (browser-default-length)
+    // animation time to settle before measuring, or this reads an in-transit
+    // position rather than the dialog's actual, final one.
+    await page.waitForTimeout(350);
+    const closeBefore = await close.boundingBox();
+
+    await page.locator('[data-session-dialog] .detail-modal__scroll').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await expect(favorite).toBeVisible();
+    await expect(page.locator('[data-calendar-toggle]')).toBeVisible();
+    const closeAfter = await close.boundingBox();
+    expect(closeAfter?.y).toBeCloseTo(closeBefore?.y ?? 0, 0);
   });
 });
