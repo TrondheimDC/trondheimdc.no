@@ -231,8 +231,16 @@
   display: none;
 }
 
-.speaker-modal__talk-title {
+/* The language code stays on the title's first baseline when the title wraps. */
+.speaker-modal__talk-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
   margin: 0 0 var(--spacing-2);
+}
+
+.speaker-modal__talk-title {
+  margin: 0;
   font-size: var(--font-size-40); /* 18px */
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-snug);

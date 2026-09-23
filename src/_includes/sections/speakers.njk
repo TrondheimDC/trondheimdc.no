@@ -1,3 +1,4 @@
+{% from "components/session-language.njk" import sessionLanguage %}
 <tdc-section>
 <section class="section section--surface" id="speakers" aria-labelledby="speakers-title">
   <div class="container container--wide stack">
@@ -45,6 +46,7 @@
 
                 {% if talk %}
                   <span class="speaker-card__talk">{{ talk.title }}</span>
+                  {{ sessionLanguage(talk.language, t) }}
                 {% endif %}
 
                 <span class="speaker-card__more">{{ t.speakers.details_cta }}</span>
@@ -69,13 +71,19 @@
             <p class="speaker-modal__bio" id="speaker-modal-bio"></p>
 
             <div class="speaker-modal__talk" id="speaker-modal-talk">
-              <h4 class="speaker-modal__talk-title" id="speaker-modal-talk-title"></h4>
+              <div class="speaker-modal__talk-heading">
+                <h4 class="speaker-modal__talk-title" id="speaker-modal-talk-title"></h4>
+                <span class="speaker-modal__talk-language" id="speaker-modal-talk-language"></span>
+              </div>
               <p class="speaker-modal__talk-description" id="speaker-modal-talk-description"></p>
             </div>
 
             <div class="speaker-modal__socials" id="speaker-modal-socials"></div>
           </div>
         </dialog>
+
+        {# Cloned by the client-side refresh when it rebuilds the grid. #}
+        <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>
       {% else %}
         <p class="section__lead text-lead">{{ t.speakers.placeholder }}</p>
       {% endif %}

@@ -1,4 +1,5 @@
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
+import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
 import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
 
 class TdcProgram {
@@ -24,6 +25,7 @@ class TdcProgram {
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
     this.meta = root.querySelector("[data-session-modal-meta]");
+    this.modalLanguage = root.querySelector("[data-session-modal-language]");
     this.activeSession = null;
     this.returnFocus = null;
 
@@ -321,6 +323,7 @@ class TdcProgram {
     this.description.textContent = session.dataset.sessionDescription || "";
     this.description.hidden = !this.description.textContent;
     this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
+    setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
     this.updateModalFavorite();
     if (typeof this.dialog.showModal === "function") this.dialog.showModal();
     else this.dialog.setAttribute("open", "");
