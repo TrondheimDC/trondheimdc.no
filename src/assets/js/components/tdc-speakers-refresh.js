@@ -45,6 +45,8 @@ function buildProgramSession(session, speakers, schedule) {
   article.dataset.sessionDescription = session.description;
   article.dataset.sessionStart = eventTime(session.startsAt);
   article.dataset.sessionEnd = eventTime(session.endsAt);
+  article.dataset.sessionStartAt = session.startsAt;
+  article.dataset.sessionEndAt = session.endsAt;
   article.dataset.sessionRoom = session.roomName;
   article.dataset.sessionService = String(Boolean(session.isService));
   article.dataset.sessionTopics = session.topics.join("|");
@@ -58,10 +60,13 @@ function buildProgramSession(session, speakers, schedule) {
 
   const heading = document.createElement("div");
   heading.className = "program-session__heading";
-  const title = document.createElement("button");
-  title.type = "button";
+  // Breaks, lunch, registration, the party — nothing to open, so no button.
+  const title = document.createElement(session.isService ? "span" : "button");
+  if (!session.isService) {
+    title.type = "button";
+    title.dataset.sessionOpen = "";
+  }
   title.className = "program-session__title";
-  title.dataset.sessionOpen = "";
   title.textContent = session.title;
   heading.appendChild(title);
   if (!session.isService) {
@@ -90,6 +95,9 @@ function buildProgramSession(session, speakers, schedule) {
       button.dataset.speakerImage = speaker.profilePicture;
       button.dataset.speakerTagline = speaker.tagLine;
       button.dataset.speakerBio = speaker.bio;
+      button.dataset.speakerTwitter = speaker.twitter || "";
+      button.dataset.speakerLinkedin = speaker.linkedIn || "";
+      button.dataset.speakerBlog = speaker.blog || "";
       button.dataset.speakerTalkTitle = session.title;
       button.dataset.speakerTalkDescription = session.description;
       button.textContent = button.dataset.speakerName;
@@ -141,12 +149,11 @@ function replaceProgram(program, schedule, speakers) {
     overlay.classList.add("program-session--long-service-overlay");
     overlay.style.setProperty("--program-room-start", String(session.roomStart + 1));
     overlay.style.setProperty("--program-room-end", String(session.roomEnd + 2));
-    overlay.dataset.sessionStartAt = session.startsAt;
-    overlay.dataset.sessionEndAt = session.endsAt;
     overlay.dataset.sessionLongService = "true";
     newGrid.appendChild(overlay);
   }
   oldGrid.replaceWith(newGrid);
+  program._tdcProgram?.live?.rebind();
   program._tdcProgram?.positionLongService();
 
   const filter = program.querySelector("[data-program-topic-filter]");
@@ -165,7 +172,9 @@ function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
 
   const fullName = `${speaker.firstName} ${speaker.lastName}`.trim();
   const talkId = speaker.sessions?.[0];
-  const talk = talkId ? sessions.find((session) => session.id === talkId) : null;
+  const talk = talkId
+    ? sessions.find((session) => String(session.id) === String(talkId))
+    : null;
 
   const button = document.createElement("button");
   button.type = "button";
@@ -180,6 +189,9 @@ function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
   button.setAttribute("data-speaker-blog", speaker.blog || "");
   button.setAttribute("data-speaker-talk-title", talk?.title || "");
   button.setAttribute("data-speaker-talk-description", talk?.description || "");
+  // Lets TdcProgram resolve which schedule session to open — see the same
+  // attribute in sections/speakers.njk.
+  button.setAttribute("data-session-id", talk?.id || "");
 
   if (speaker.profilePicture) {
     const img = document.createElement("img");

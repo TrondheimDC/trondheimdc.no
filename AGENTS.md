@@ -36,14 +36,16 @@ bun run clean          # rm -rf _site
 ELEVENTY_PATH_PREFIX=/staging/ bun run build
 ```
 
-E2E tests run from `tests/` using Playwright:
+E2E tests run from `src/tests/` using Playwright, against the built `src/_site`:
 
 ```bash
-# from tests/
+# from src/tests/
 npm install
-npx playwright test            # or: npm test
-npm run test:ci                # list reporter (CI)
+npx playwright test            # serves ../_site on :4000 itself
 ```
+
+CSS and JS are **passthrough-copied**, so rebuild (`bun run build`) before
+testing or screenshotting — editing a stylesheet alone leaves `_site` stale.
 
 **Always build and run the smoke tests before pushing.**
 
@@ -182,7 +184,145 @@ file.
   labels around them live as constants in `calendar.js`, not in `i18n.js`.
 - The saved-talks export stays a Blob: favourites only exist in `localStorage`.
 
-## 9. Partners
+## 9. Program: the merged session/speaker dialog, and the live view
+
+- There is **one** detail dialog (`[data-session-dialog]` in
+  `sections/program.njk`, owned by `TdcProgram`), not a separate speaker one —
+  it shows the session (meta, title, description, favorite, calendar) *and*
+  every speaker on it (avatar, tagline, bio, socials — built by
+  `renderSpeakers()`/`buildSpeakerBlock()` from that session's own
+  `[data-speaker-open]` buttons) in one scroll. `tdc-speaker-modal.js` and
+  `partials/speaker-modal.njk` are gone; don't recreate them.
+  - The section heading reads singular (`t.program.speaker_singular`,
+    "Foredragsholder"/"Speaker") for exactly one speaker and plural
+    (`t.program.speaker_plural`, reusing the existing "Foredragsholdere"/
+    "Speakers" wording) for more — `setSpeakersTitleCount()`, called from
+    `renderSpeakers()`. The heading text lives in JS, not the template; the
+    static Nunjucks text is only the no-JS/pre-render fallback.
+  - **Clicking anywhere on a non-service card opens it** (`event.target.closest(".program-session--favoritable")`
+    in `TdcProgram`'s root click handler), not just its title — the title
+    button (`[data-session-open]`) still exists and still works on its own,
+    it's just no longer the only way in. Service sessions never get
+    `--favoritable`, so breaks etc. stay inert.
+  - The **speakers wall** (`#speakers`, a separate section from `#program`)
+    opens the *same* dialog via `openFromSpeaker()`, reached by a
+    **document-level** click listener (the wall sits outside `TdcProgram`'s
+    root-scoped one). Each wall card carries `data-session-id` (the id of
+    `speaker.sessions[0]`) so it can be resolved to a real
+    `[data-program-session]` in the grid; the wall card's own bio/social
+    attributes are otherwise unused once that resolves — the dialog always
+    reads speaker data from the *session's* nested buttons, so it's identical
+    regardless of whether you opened it from the schedule or the wall.
+  - **A speaker can be announced before Sessionize has them on a session** —
+    `data-session-id` is then empty, and `openSpeakerOnly()` falls back to a
+    bio-only view (name as the dialog title, no meta/description/favorite/
+    calendar, one speaker block with the name line skipped since the title
+    already gives it). Not hypothetical — real data hits this whenever
+    Sessionize hasn't slotted someone in yet.
+  - **`sessionById()`'s `speaker.sessions[0]` lookup was silently broken for
+    every speaker** until fixed in `sessionize-client.js`. Two shapes show up
+    in the wild: the Speakers embed gives `{ id: <number>, ... }`, and the
+    All API CI uses gives bare numbers (`[1177297]`). Session ids everywhere
+    else are strings, so a strict `===` never matched — and treating a bare
+    number as an object (`session?.id`) dropped every backlink entirely.
+    Accept string / number / `{id}`, then coerce to `String(...)`. Don't trust
+    `apiValue()` to do it; it passes values through as-is. The Nunjucks
+    `sessionById` filter and the client-side wall builder compare with
+    `String(...)` on both sides for the same reason.
+  - The dialog wears `.detail-modal` (`assets/css/04-components/detail-modal.css`):
+    a sticky header that keeps the close button reachable, a scrolling body,
+    and a sticky footer (favorite + calendar) that stays reachable too, so a
+    long description or bio never buries them below the fold. Give a new
+    dialog this shell by adding `detail-modal` to its own class list and
+    wrapping content in `.detail-modal__header` / `.detail-modal__scroll` /
+    `.detail-modal__actions`.
+    - **`.detail-modal` sets its own `display: flex`, which silently
+      overrides the UA stylesheet's `dialog:not([open]) { display: none }`**
+      — author styles beat UA styles regardless of specificity.
+      `detail-modal.css` restates `.detail-modal:not([open]) { display: none }`
+      to compensate; any new dialog using this shell needs that same rule, or
+      it stays in normal flow and intercepts clicks on whatever renders after
+      it while "closed". The same gotcha applies to anything *inside* the
+      dialog that's conditionally hidden and sets its own `display` (see
+      `.program-session-modal__meta[hidden]` / `.detail-modal__actions[hidden]`,
+      both needed for the bio-only fallback above).
+  - On phones the dialog caps at `85dvh` (`max-height`, `height: fit-content`),
+    not `100dvh` — full height read as a wall of white with the backdrop gone
+    entirely; leaving room above/below (and rounding the corners back on)
+    reads as a sheet, not a takeover.
+  - **Press feedback starts on mouse down/tap, not on click** — a plain CSS
+    `:active` scale on `.program-session--favoritable` (a `transition`, not a
+    `@keyframes` animation, so it holds correctly for however long the card
+    is actually pressed rather than playing to a fixed length regardless).
+    The star is its own control, so
+    `.program-session--favoritable:has(.program-session__favorite:active)`
+    cancels that scale while the favorite is the press target — otherwise
+    starring a talk would squash the whole card under the star's own pop.
+    `-webkit-tap-highlight-color: transparent` is required alongside it: the
+    card is the primary click target now (not just its title button), and
+    without it mobile Chrome shows its own default flash *on top of* the
+    custom feedback. `.program-schedule__row` clips horizontal paint
+    (`overflow-x: clip`): a keynote already fills the row, so the press
+    scale otherwise paints a pixel past it and the grid flashes a
+    horizontal scrollbar until the transform ends.
+  - **Opening/closing the dialog runs inside a View Transition**
+    (`TdcProgram.withViewTransition()`), feature-detected
+    (`document.startViewTransition`) and skipped under
+    `prefers-reduced-motion: reduce`, so it's always safe to call — cross-
+    fades the dialog + backdrop in/out instead of them just appearing.
+    `.detail-modal`/`.detail-modal::backdrop` carry their own
+    `view-transition-name`, and `::view-transition-old(root)` /
+    `::view-transition-new(root)` are turned off (`animation: none`), so only
+    the dialog itself visibly transitions — without that, the *entire page*
+    (including the schedule behind it) would cross-fade as one group by
+    default.
+    - **The callback passed to `startViewTransition()` can run as a deferred
+      microtask, not synchronously within the same call** — code the caller
+      runs "after" `open()` in the same synchronous turn can execute *before*
+      the callback does, and then get silently overwritten once the callback
+      finally runs. `open()` takes its `returnFocusTo` override as a second
+      argument for exactly this reason, applied *inside* the callback,
+      instead of the caller setting `this.returnFocus` right after calling
+      `open()` — that raced the transition and lost. Tests that read layout
+      (`boundingBox()`) right after opening/closing need a short wait first,
+      for the same reason: they can read an in-transit position otherwise.
+    - **`.site-nav` (sticky, visible on every page) needs its own
+      `view-transition-name` too** (`nav.css`), or it gets bundled into the
+      document-wide "root" snapshot the dialog's transition still takes —
+      captured at its natural, *unstuck* document position rather than its
+      current on-screen one, which reads as the nav vanishing and snapping
+      back the instant live rendering resumes. Any other always-visible
+      sticky/fixed element added later needs the same treatment; things only
+      visible *within* the dialog (its own sticky header/actions) don't,
+      since they're already part of the dialog's own named, bounded snapshot.
+    - **Reset the dialog's own scroll position (`.detail-modal__scroll`) on
+      every open** — it's the same reused DOM node across sessions, so
+      without this a session opened after a long one you'd scrolled through
+      reopens partway down. Do it *after* `showModal()`, not before:
+      `scrollTo()` on a still-`display: none` element (i.e. before it's
+      shown) has no layout box to scroll and is a silent no-op.
+- The **live ("EPG") view** (`assets/js/components/tdc-program-live.js`, owned by
+  `TdcProgram`) follows the conference day in real time: finished time slots
+  collapse out of the grid and a playhead creeps down the current slot.
+  - It is **opt-out**: on by default while the day runs (±2h/1h either side),
+    off on every other date whatever is stored, and the toolbar toggle is
+    remembered in `localStorage`.
+  - A search suspends the collapse — a talk you search for must be findable
+    after it has been given.
+  - The playhead only **creeps** through a row on the wide grid (from 1200px,
+    where rooms are columns and row height is empty time). It is repositioned
+    every frame there, so it keeps moving with the clock between the slower
+    collapse refreshes — a 30s tick left it looking stuck. Below 1200px rooms
+    stack as cards, so the same height is "how many talks run at once" — the
+    line **snaps** to the row's top edge there instead of pointing into the
+    stack (see the `stacked` branch in `positionPlayhead()`).
+  - Preview it on any date with `?live=1`, and pick a moment with
+    `?now=2026-10-19T13:00:00+02:00` (the clock then ticks on from there). The
+    smoke tests use exactly this.
+  - Times are formatted in **Europe/Oslo**, not the reader's timezone — the
+    Trondheim clock against the Trondheim program.
+
+## 10. Partners
 
 - The partner logo wall renders **near the footer** (as in the old site), on every render of the page.
 - It is **data-driven** from `_data/partners.js` (`[{ name, url, logo }]`) — no hardcoded `<li>` list.
@@ -191,9 +331,39 @@ file.
 
 ---
 
-## 10. Learnings
+## 11. Learnings
 
 - CSS `@media` can't read `var()` → use literal px for breakpoints (see §5).
+- **Setting your own `display` on an element that has a UA "hidden" state
+  silently defeats that state — restate it explicitly, every time.** Two
+  different mechanisms, same fix:
+  - The UA's `[hidden] { display: none }` loses to any author `display` rule
+    at equal specificity (source order breaks the tie, and ours loads after
+    the UA sheet). Bit us twice on the live view (`.program-schedule__row`
+    with `display: grid`, `.program-schedule__live-earlier` with
+    `display: inline-flex`) — each needed an explicit
+    `.foo[hidden] { display: none }` alongside it. Test with `:visible`, not
+    `:not([hidden])`, or a passing test can hide this.
+  - The UA's `dialog:not([open]) { display: none }` loses outright — author
+    styles beat UA styles regardless of specificity. `.detail-modal`
+    (`detail-modal.css`) sets `display: flex`, so it needs
+    `.detail-modal:not([open]) { display: none }` right alongside it, or the
+    closed dialog stays in normal flow and intercepts clicks on whatever
+    renders after it.
+- **Sessionize's public embed endpoints now return JSON, not the HTML
+  fragments `sessionize-client.js`'s own comments describe** — confirmed by
+  fetching `.../view/Sessions` and `.../view/Speakers` directly. Build time
+  (`_data/sessionize.js`) copes: it tries `JSON.parse()` first and only falls
+  back to the regex fragment parsers (`parseSessions`/`parseSpeakers`) if that
+  fails, so `parseApiData()` is what's actually live. **The client-side
+  refresh (`tdc-speakers-refresh.js`) does not** — it calls the regex parsers
+  directly against what is now JSON text, which matches nothing, so
+  `refreshSpeakers()`/`refreshProgram()` silently no-op (their own "got
+  nothing usable" guards catch it) on every real page load. The
+  re-fetch-on-load feature this file's top comment describes has likely been
+  fully inert for a while. Not fixed here — porting the client refresh to
+  JSON parsing is a separate, larger job than whatever prompted you to read
+  this — but don't be surprised when it doesn't do anything.
 - Dark is the default theme; light is the override (don't invert this).
 - `old/` is Jekyll and still production — never break it while iterating on `src/`.
 - Respect `ELEVENTY_PATH_PREFIX` for all internal links/assets, or preview deploys break.

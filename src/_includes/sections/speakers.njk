@@ -31,6 +31,11 @@
                 {% set talk = sessionize.sessions | sessionById(speaker.sessions[0]) %}
                 data-speaker-talk-title="{{ talk.title | escape }}"
                 data-speaker-talk-description="{{ talk.description | escape }}"
+                {# Lets TdcProgram resolve which schedule session to open — the
+                   dialog itself lives in sections/program.njk and reads its
+                   speaker data straight off that session's own nested
+                   [data-speaker-open] buttons, not off this card. #}
+                data-session-id="{{ talk.id | escape }}"
               >
                 {% if speaker.profilePicture %}
                   <img
@@ -54,33 +59,6 @@
             </li>
           {% endfor %}
         </ul>
-
-        <dialog class="speaker-modal" id="speaker-description-modal" aria-labelledby="speaker-modal-name">
-          <div class="speaker-modal__header">
-            <button type="button" class="speaker-modal__close" data-speaker-close aria-label="{{ t.program.close }}" autofocus>✕</button>
-          </div>
-          <div class="speaker-modal__content">
-            <div class="speaker-modal__header-info">
-              <img class="speaker-modal__avatar" id="speaker-modal-avatar" src="" alt="" />
-              <div class="speaker-modal__heading">
-                <h3 class="speaker-modal__name" id="speaker-modal-name"></h3>
-                <p class="speaker-modal__tagline" id="speaker-modal-tagline"></p>
-              </div>
-            </div>
-
-            <p class="speaker-modal__bio" id="speaker-modal-bio"></p>
-
-            <div class="speaker-modal__talk" id="speaker-modal-talk">
-              <div class="speaker-modal__talk-heading">
-                <h4 class="speaker-modal__talk-title" id="speaker-modal-talk-title"></h4>
-                <span class="speaker-modal__talk-language" id="speaker-modal-talk-language"></span>
-              </div>
-              <p class="speaker-modal__talk-description" id="speaker-modal-talk-description"></p>
-            </div>
-
-            <div class="speaker-modal__socials" id="speaker-modal-socials"></div>
-          </div>
-        </dialog>
 
         {# Cloned by the client-side refresh when it rebuilds the grid. #}
         <template data-language-badges>{{ sessionLanguage("en", t) }}{{ sessionLanguage("no", t) }}</template>

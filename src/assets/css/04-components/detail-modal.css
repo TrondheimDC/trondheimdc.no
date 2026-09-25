@@ -1,0 +1,125 @@
+/* =====================================================================
+   Dialog shell — .program-session-modal (program-sessionize.css) wears this
+   on top of its own sizing/content rules: a sticky header that keeps the
+   close button reachable, a scrolling body, and a sticky footer that keeps
+   the favorite/calendar actions reachable too, so a long description (or a
+   speaker's bio — the dialog shows both, see AGENTS.md) never buries them
+   below the fold. Kept as its own component rather than folded into
+   program-sessionize.css in case a second dialog needs the same shell later.
+   ===================================================================== */
+
+.detail-modal {
+  display: flex;
+  flex-direction: column;
+  /* Overrides each dialog's own padding — the header/scroll/actions regions
+     below own their own instead, so the sticky ones can paint edge-to-edge. */
+  padding: 0;
+  overflow: hidden; /* clip children to the dialog's own rounded corners */
+}
+
+/* Author styles beat the UA stylesheet regardless of specificity, so setting
+   our own `display` above silently undoes the browser's default
+   `dialog:not([open]) { display: none }` — the closed dialog would otherwise
+   stay in normal flow and intercept clicks on whatever renders after it. */
+.detail-modal:not([open]) {
+  display: none;
+}
+
+.detail-modal__header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-3) var(--spacing-3) 0;
+  background: var(--color-bg-surface);
+}
+
+.detail-modal__close {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-base);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-spring);
+}
+
+.detail-modal__close:hover,
+.detail-modal__close:focus-visible {
+  border-color: var(--color-fg-brand);
+  color: var(--color-fg-brand);
+}
+
+.detail-modal__close:active {
+  transform: scale(0.9);
+  transition-duration: 60ms;
+}
+
+.detail-modal__close-icon {
+  display: block;
+}
+
+.detail-modal__scroll {
+  flex: 1 1 auto;
+  min-height: 0; /* let the flex child actually shrink and scroll */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-2) var(--spacing-6) var(--spacing-6);
+}
+
+.detail-modal__actions {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-block-start: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+}
+
+/* Sets its own `display` above, so [hidden] needs restating (see AGENTS.md's
+   "Setting your own display..." learning) — hidden when a speaker is opened
+   without a resolvable session (no favorite/calendar target to act on). */
+.detail-modal__actions[hidden] {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .detail-modal__scroll,
+  .detail-modal__actions {
+    padding-inline: var(--spacing-5);
+  }
+}
+
+/* View Transition (TdcProgram.withViewTransition) — feature-detected and
+   skipped under prefers-reduced-motion in JS, so this only ever runs where
+   it's wanted. Named so the dialog and its backdrop cross-fade as their own
+   group; ::view-transition-old/new(root) covers everything else on the page
+   (i.e. the schedule behind it) and is switched off below so only the
+   dialog itself visibly transitions, not the whole document. */
+.detail-modal {
+  view-transition-name: detail-modal;
+}
+
+.detail-modal::backdrop {
+  view-transition-name: detail-modal-backdrop;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
