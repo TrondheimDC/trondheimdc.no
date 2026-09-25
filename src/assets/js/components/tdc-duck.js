@@ -443,6 +443,9 @@ export class TdcDuck extends HTMLElement {
 
   startDrag(e) {
     // Only start drag if held for a bit (distinguish from click)
+    // Mouse-only: prevent touch/pen from hijacking scroll gestures
+    if (e.pointerType !== 'mouse') return;
+
     this._dragStartTime = Date.now();
     this._dragStartX = e.clientX;
     this._dragStartY = e.clientY;
@@ -452,6 +455,8 @@ export class TdcDuck extends HTMLElement {
 
   onDrag(e) {
     if (!this._potentialDrag) return;
+    // Mouse-only: prevent touch/pen from hijacking scroll gestures
+    if (e.pointerType !== 'mouse') return;
 
     const dx = e.clientX - this._dragStartX;
     const dy = e.clientY - this._dragStartY;
