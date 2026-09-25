@@ -37,12 +37,20 @@
    for however long the card is actually pressed instead of playing to a
    fixed length regardless. */
 .program-session--favoritable:active { transform: scale(0.98); transition-duration: 60ms; }
+/* The star is its own control — pressing it shouldn't also squash the whole
+   card. :has() keeps the card's :active scale off while the favorite is the
+   actual press target. */
+.program-session--favoritable:has(.program-session__favorite:active) { transform: none; }
 .program-session--service { align-items: center; min-height: 0; padding-block: var(--spacing-2); text-align: center; }
 .program-session--service { border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .program-session--service, .program-session--plenum { background: color-mix(in srgb, var(--color-bg-surface) 78%, var(--color-bg-base)); }
 .program-session--long-service-in-row { display: none; }
 .program-session--long-service-overlay { display: flex; position: absolute; z-index: 2; pointer-events: none; justify-content: center; }
-.program-schedule__row { position: relative; z-index: 1; }
+/* Clip horizontal paint to the row. A keynote already fills the row, and the
+   press scale on that card paints a pixel past it — the grid then grows a
+   horizontal scrollbar for as long as the transform lasts, and drops it on
+   release. overflow-x: clip does not turn the row into a scroll container. */
+.program-schedule__row { position: relative; z-index: 1; overflow-x: clip; }
 .program-session__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-2); color: var(--color-fg-muted); font-size: var(--font-size-10); }
 .program-session--service .program-session__meta, .program-session--service .program-session__heading { justify-content: center; }
 .program-session__room { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
@@ -90,22 +98,10 @@
   100% { transform: scale(1); }
 }
 
-/* Same idea as the favorite star's burst, played on the card itself once a
-   click actually completes (the press feedback above already covers mouse
-   down/tap). .is-opening is added by tdc-program.js on a real click only, so
-   a session restored as "open" on load never replays this. */
-.program-session--favoritable::after { content: ""; position: absolute; inset: -1px; border: 2px solid var(--color-fg-brand); border-radius: inherit; opacity: 0; pointer-events: none; }
-.program-session--favoritable.is-opening::after { animation: session-open-burst var(--duration-normal) var(--ease-out); }
-
-@keyframes session-open-burst {
-  0% { opacity: 0.5; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.03); }
-}
-
 .program-session--favoritable .program-session__meta, .program-session--favoritable .program-session__heading { padding-inline-end: calc(2rem + var(--spacing-2)); }
 .program-session__favorite[aria-pressed="true"], .program-session-modal__favorite[aria-pressed="true"] { color: var(--color-fg-brand); }
 .program-session__speakers { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-2); }
-.program-session__speaker { padding: 0; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font: inherit; font-size: var(--font-size-20); text-align: left; }
+.program-session__speaker { padding: 0; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font: inherit; font-size: var(--font-size-20); text-align: left; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .program-session-modal { width: min(720px, calc(100vw - 2rem)); max-width: min(720px, calc(100vw - 2rem)); max-height: min(85dvh, 800px); margin: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-surface); color: var(--color-fg-base); }
 .program-session-modal::backdrop { background: var(--color-overlay); }
 .program-session-modal__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2); color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); }

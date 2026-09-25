@@ -48,6 +48,11 @@
   color: inherit;
   cursor: pointer;
   text-align: center;
+  /* Same as .program-session--favoritable: without this, mobile Chrome paints
+     its default blue flash over the card on tap. touch-action:manipulation
+     drops the double-tap-zoom delay so :hover/:active fire immediately. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   /* Accent colour for the hover border + "Les mer" label: green on dark,
      red on light — mirrors the "Kjøp billetter" primary CTA (see
      .btn--primary in button.css) so both use the same brand flip. */

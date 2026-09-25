@@ -1,6 +1,8 @@
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
 import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
 import { ProgramLive } from "./tdc-program-live.js";
+import { withViewTransition } from "./view-transition.js";
+import { buildSocialLinks } from "./social-links.js";
 import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
 
 class TdcProgram {
@@ -59,7 +61,6 @@ class TdcProgram {
       // inert.
       const session = event.target.closest(".program-session--favoritable");
       if (session) {
-        this.playOpenAnimation(session);
         this.open(session);
       }
     });
@@ -208,15 +209,6 @@ class TdcProgram {
     });
   }
 
-  // Same pop-and-fade idea as the favorite star, played on the card itself
-  // when it's opened.
-  playOpenAnimation(session) {
-    if (!session) return;
-    session.classList.remove("is-opening");
-    void session.offsetWidth; // reflow, so a second quick click restarts the animation
-    session.classList.add("is-opening");
-  }
-
   updateButtons() {
     this.root.querySelectorAll("[data-program-session]").forEach((session) => {
       const saved = this.favorites.has(session.dataset.sessionId);
@@ -287,21 +279,9 @@ class TdcProgram {
     downloadCalendar(calendarFilename(title), buildCalendar(events, options));
   }
 
-  // Wraps a synchronous DOM update (opening/closing the dialog) in a View
-  // Transition when the browser supports it and the reader hasn't asked for
-  // reduced motion — a smooth cross-fade instead of the dialog just
-  // appearing/disappearing instantly. Feature-detected and skipped
-  // otherwise; the update itself always runs either way.
-  withViewTransition(update) {
-    const supportsViewTransition = typeof document.startViewTransition === "function";
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (supportsViewTransition && !reducedMotion) document.startViewTransition(update);
-    else update();
-  }
-
   closeDialog() {
     if (!this.dialog?.open) return;
-    this.withViewTransition(() => this.dialog.close());
+    withViewTransition(() => this.dialog.close());
   }
 
   setCalendarMenu(open) {
@@ -381,7 +361,7 @@ class TdcProgram {
   // does, and get clobbered when it finally runs.
   open(session, returnFocusTo) {
     if (!session || !this.dialog) return;
-    this.withViewTransition(() => {
+    withViewTransition(() => {
       this.activeSession = session;
       // The pill is reused across sessions, so drop a stale .is-toggling before
       // updateModalFavorite() flips aria-pressed and replays the pop on open.
@@ -421,7 +401,6 @@ class TdcProgram {
       ? document.querySelector(`[data-program-session][data-session-id="${CSS.escape(sessionId)}"]`)
       : null;
     if (session) {
-      this.playOpenAnimation(session);
       // open() defaults the return focus to the session's own title button;
       // this click came from outside the grid, so send focus back there instead.
       this.open(session, button);
@@ -437,7 +416,7 @@ class TdcProgram {
   // the parts (meta, description, favorite/calendar) that need one.
   openSpeakerOnly(button) {
     if (!this.dialog) return;
-    this.withViewTransition(() => {
+    withViewTransition(() => {
       this.activeSession = null;
       this.modalFavorite?.classList.remove("is-toggling");
       this.setCalendarMenu(false);
@@ -531,7 +510,7 @@ class TdcProgram {
       wrapper.appendChild(bioEl);
     }
 
-    const socials = this.buildSocialLinks(button.dataset.speakerTwitter, button.dataset.speakerLinkedin, button.dataset.speakerBlog);
+    const socials = buildSocialLinks(button.dataset.speakerTwitter, button.dataset.speakerLinkedin, button.dataset.speakerBlog);
     if (socials.length) {
       const socialsEl = document.createElement("div");
       socialsEl.className = "session-speaker__socials";
@@ -540,24 +519,6 @@ class TdcProgram {
     }
 
     return wrapper;
-  }
-
-  buildSocialLinks(twitter, linkedIn, blog) {
-    const links = [];
-    if (twitter) links.push(this.createSocialLink(`https://twitter.com/${twitter}`, "X (Twitter)"));
-    if (linkedIn) links.push(this.createSocialLink(linkedIn, "LinkedIn"));
-    if (blog) links.push(this.createSocialLink(blog, "Website"));
-    return links;
-  }
-
-  createSocialLink(href, label) {
-    const link = document.createElement("a");
-    link.href = href;
-    link.className = "social-link";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = label;
-    return link;
   }
 
   updateModalFavorite() {

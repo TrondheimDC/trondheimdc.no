@@ -92,15 +92,25 @@ test.describe('Program schedule', () => {
         longestIndex = i;
       }
     }
+    expect(longestLength).toBeGreaterThan(200);
     const session = sessions.nth(longestIndex);
-    const scroll = page.locator('[data-session-dialog] .detail-modal__scroll');
+    const dialog = page.locator('[data-session-dialog]');
+    const scroll = dialog.locator('.detail-modal__scroll');
 
     await session.locator('[data-session-open]').click();
+    await expect(dialog).toBeVisible();
+    // Opening runs inside a View Transition; wait until the scroll box has
+    // real overflow before measuring, or scrollTo(0, scrollHeight) is a no-op
+    // on an in-transit / still-fitting layout and scrollTop stays 0.
+    await expect.poll(async () => {
+      return scroll.evaluate((el) => el.scrollHeight - el.clientHeight);
+    }).toBeGreaterThan(0);
     await scroll.evaluate((el) => el.scrollTo(0, el.scrollHeight));
     await expect.poll(() => scroll.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
 
     await page.locator('[data-session-close]').click();
     await session.locator('[data-session-open]').click();
+    await expect(dialog).toBeVisible();
     await expect.poll(() => scroll.evaluate((el) => el.scrollTop)).toBe(0);
   });
 
@@ -430,11 +440,11 @@ test.describe('Program schedule', () => {
   });
 
   test('shows a speaker\'s own talk title on their speakers-wall card', async ({ page }) => {
-    // Regression guard: speaker.sessions[0] (Sessionize's own backlink) comes
-    // back as a number while every other session id is a string, so the
-    // sessionById() `===` lookup silently matched nothing — this preview
-    // (and data-session-id, which the merged dialog depends on to resolve a
-    // wall click back to a real session) were empty for every speaker.
+    // Regression guard: speaker.sessions backlinks arrive as either
+    // { id: <number> } (Speakers embed) or bare numbers (All API, which CI
+    // builds with). Treating a bare number as an object dropped every
+    // backlink, so this preview (and data-session-id) were empty for every
+    // speaker and wall clicks couldn't resolve to a session.
     await page.goto('/');
     await expect(page.locator('#speakers .speaker-card__talk').first()).not.toBeEmpty();
   });
@@ -488,6 +498,39 @@ test.describe('Program schedule', () => {
     expect(topics).not.toContain('Norwegian');
     expect(topics.filter((topic) => /minutes$/.test(topic))).toEqual([]);
   });
+
+  test('opening a keynote does not flash a horizontal scrollbar on the schedule', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/program/');
+
+    const overflow = page.evaluate(() => new Promise<number>((resolve) => {
+      const grid = document.querySelector('.program-schedule__grid');
+      if (!grid) {
+        resolve(-1);
+        return;
+      }
+      let max = 0;
+      const id = setInterval(() => {
+        max = Math.max(max, grid.scrollWidth - grid.clientWidth);
+      }, 8);
+      setTimeout(() => {
+        clearInterval(id);
+        resolve(max);
+      }, 700);
+    }));
+
+    // A keynote fills the row. Holding the press is what used to widen the
+    // grid: the card's :active scale paints a pixel past the row.
+    const keynote = page.locator('.program-session--plenum.program-session--favoritable').first();
+    const box = await keynote.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.move(box!.x + 40, box!.y + 30);
+    await page.mouse.down();
+    await page.waitForTimeout(80);
+    await page.mouse.up();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    expect(await overflow).toBe(0);
+  });
 });
 
 test.describe('Standalone program page', () => {
@@ -496,7 +539,7 @@ test.describe('Standalone program page', () => {
   // are deliberately unlisted — nothing on the site links to them.
   const PAGES = [
     { path: '/program/', home: '/', heading: 'Program' },
-    { path: '/en/program/', home: '/en/', heading: 'Agenda' },
+    { path: '/en/program/', home: '/en/', heading: 'Program' },
   ];
 
   for (const { path, home, heading } of PAGES) {
@@ -613,6 +656,35 @@ test.describe('Live program view', () => {
     expect(Math.abs(lineTop - rowTop)).toBeLessThan(2);
   });
 
+  test('creeps through the current row while the schedule is wide', async ({ page }) => {
+    await page.setViewportSize({ width: 1400, height: 900 });
+    // Twelve minutes into the twenty-minute 13:20 slot: the line should sit
+    // well inside the row, then keep moving as the clock does.
+    await page.goto('/program/?now=2026-10-19T13:32:00%2B02:00');
+
+    const currentRow = visibleRows(page).first();
+    await expect(currentRow.locator('.program-schedule__time')).toHaveText('13:20');
+
+    const fraction = () => page.evaluate(() => {
+      const row = document.querySelector('.program-schedule__row:not([hidden])');
+      const playhead = document.querySelector('[data-program-now]');
+      const rowBox = row.getBoundingClientRect();
+      const lineBox = playhead.getBoundingClientRect();
+      return (lineBox.top - rowBox.top) / rowBox.height;
+    });
+
+    const at1332 = await fraction();
+    expect(at1332).toBeGreaterThan(0.45);
+    expect(at1332).toBeLessThan(0.75);
+
+    await page.evaluate(() => {
+      document.querySelector('.program-schedule')._tdcProgram.live.clockOffset += 5 * 60 * 1000;
+    });
+    // Five more minutes is a quarter of the slot. The frame loop has to pick
+    // that up on its own — nothing here calls positionPlayhead again.
+    await expect.poll(fraction, { timeout: 1000 }).toBeGreaterThan(at1332 + 0.15);
+  });
+
   test('can bring the earlier slots back', async ({ page }) => {
     await page.goto(DURING_THE_DAY);
     const total = await rows(page).count();
@@ -627,6 +699,26 @@ test.describe('Live program view', () => {
 
     await earlier.click();
     await expect(visibleRows(page)).toHaveCount(total - 8);
+  });
+
+  test('puts the party block back when live view is switched off', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(DURING_THE_DAY);
+
+    const party = page.locator('.program-session--long-service-overlay');
+    const startRow = page.locator('[data-program-time$="T18:00:00+02:00"]');
+    const collapsedTop = (await party.boundingBox())?.y ?? 0;
+
+    await page.locator('[data-program-live-toggle]').click();
+    await expect(startRow).toBeVisible();
+
+    const [partyBox, startBox] = await Promise.all([party.boundingBox(), startRow.boundingBox()]);
+    expect(partyBox).not.toBeNull();
+    expect(startBox).not.toBeNull();
+    // Morning rows coming back push 18:00 down. The overlay has to follow,
+    // not stay at the offset it had while those rows were collapsed.
+    expect(partyBox!.y).toBeGreaterThan(collapsedTop + 40);
+    expect(Math.abs(partyBox!.y - startBox!.y)).toBeLessThan(4);
   });
 
   test('can be switched off, and stays off', async ({ page }) => {

@@ -192,7 +192,7 @@ export default {
     nav: {
       about: "About TDC",
       cfp: "CFP",
-      program: "Agenda",
+      program: "Program",
       speakers: "Speakers",
       tickets: "Tickets",
       partners: "Partners",
@@ -229,8 +229,8 @@ export default {
       title: "Speaker Info",
     },
     program: {
-      title: "Agenda",
-      placeholder: "The agenda will be published soon!",
+      title: "Program",
+      placeholder: "The program will be published soon!",
       favorite_hint: "Save talks you want to remember",
       show_favorites: "Show saved",
       star: "Save talk",
@@ -238,7 +238,7 @@ export default {
       show_all: "Show all talks",
       topic: "Topic",
       all_topics: "All topics",
-      search_label: "Search the agenda",
+      search_label: "Search the program",
       search_placeholder: "Search title, speaker, topic ...",
       no_results: "No talks match your search.",
       shared_session: "Shared area",

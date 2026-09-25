@@ -193,13 +193,15 @@ export function parseApiData(data) {
     linkedIn: apiValue(speaker.linkedIn, apiValue(speaker.linkedin)),
     blog: apiValue(speaker.blog),
     isTopSpeaker: Boolean(speaker.isTopSpeaker),
-    // The API gives a speaker's own session backlinks as { id: <number>, ... },
-    // but session ids everywhere else (including the sessions array built
-    // just below) are strings — sessionById()'s `===` never matched without
-    // coercing these, so every speaker.sessions[0] lookup silently failed.
+    // The Speakers embed gives backlinks as `{ id: <number>, ... }`; the All
+    // API gives bare numbers (`[1177297]`). Session ids everywhere else are
+    // strings — coerce both shapes to String so sessionById()'s `===` matches.
     sessions: Array.isArray(speaker.sessions)
       ? speaker.sessions
-          .map((session) => (typeof session === "string" ? session : session?.id))
+          .map((session) => {
+            if (typeof session === "string" || typeof session === "number") return session;
+            return session?.id;
+          })
           .filter((id) => id !== undefined && id !== null && id !== "")
           .map((id) => String(id))
       : [],

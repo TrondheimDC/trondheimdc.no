@@ -172,7 +172,9 @@ function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
 
   const fullName = `${speaker.firstName} ${speaker.lastName}`.trim();
   const talkId = speaker.sessions?.[0];
-  const talk = talkId ? sessions.find((session) => session.id === talkId) : null;
+  const talk = talkId
+    ? sessions.find((session) => String(session.id) === String(talkId))
+    : null;
 
   const button = document.createElement("button");
   button.type = "button";

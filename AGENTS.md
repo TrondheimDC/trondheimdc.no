@@ -220,11 +220,15 @@ file.
     already gives it). Not hypothetical — real data hits this whenever
     Sessionize hasn't slotted someone in yet.
   - **`sessionById()`'s `speaker.sessions[0]` lookup was silently broken for
-    every speaker** until fixed in `sessionize-client.js`: Sessionize's API
-    gives a speaker's own session backlinks as `{ id: <number>, ... }`, but
-    session ids everywhere else are strings, so the `===` comparison never
-    matched. Coerce to `String(...)` — don't trust `apiValue()` to do it,
-    it passes values through as-is.
+    every speaker** until fixed in `sessionize-client.js`. Two shapes show up
+    in the wild: the Speakers embed gives `{ id: <number>, ... }`, and the
+    All API CI uses gives bare numbers (`[1177297]`). Session ids everywhere
+    else are strings, so a strict `===` never matched — and treating a bare
+    number as an object (`session?.id`) dropped every backlink entirely.
+    Accept string / number / `{id}`, then coerce to `String(...)`. Don't trust
+    `apiValue()` to do it; it passes values through as-is. The Nunjucks
+    `sessionById` filter and the client-side wall builder compare with
+    `String(...)` on both sides for the same reason.
   - The dialog wears `.detail-modal` (`assets/css/04-components/detail-modal.css`):
     a sticky header that keeps the close button reachable, a scrolling body,
     and a sticky footer (favorite + calendar) that stays reachable too, so a
@@ -250,15 +254,17 @@ file.
     `:active` scale on `.program-session--favoritable` (a `transition`, not a
     `@keyframes` animation, so it holds correctly for however long the card
     is actually pressed rather than playing to a fixed length regardless).
+    The star is its own control, so
+    `.program-session--favoritable:has(.program-session__favorite:active)`
+    cancels that scale while the favorite is the press target — otherwise
+    starring a talk would squash the whole card under the star's own pop.
     `-webkit-tap-highlight-color: transparent` is required alongside it: the
     card is the primary click target now (not just its title button), and
     without it mobile Chrome shows its own default flash *on top of* the
-    custom feedback. The burst-ring confirmation
-    (`.program-session--favoritable.is-opening`, played by
-    `TdcProgram.playOpenAnimation()` — the same pop-and-fade idea as the
-    favorite star's `.is-toggling`) still plays on actual click completion,
-    since a "here's what just happened" cue only makes sense once the click
-    has genuinely gone through, not the moment you press down.
+    custom feedback. `.program-schedule__row` clips horizontal paint
+    (`overflow-x: clip`): a keynote already fills the row, so the press
+    scale otherwise paints a pixel past it and the grid flashes a
+    horizontal scrollbar until the transform ends.
   - **Opening/closing the dialog runs inside a View Transition**
     (`TdcProgram.withViewTransition()`), feature-detected
     (`document.startViewTransition`) and skipped under
@@ -303,9 +309,11 @@ file.
     remembered in `localStorage`.
   - A search suspends the collapse — a talk you search for must be findable
     after it has been given.
-  - The playhead only **creeps** through a row on desktop, where the grid's
-    room columns mean row height is empty time. Below 1200px rooms stack as
-    cards instead, so the same height is "how many talks run at once" — the
+  - The playhead only **creeps** through a row on the wide grid (from 1200px,
+    where rooms are columns and row height is empty time). It is repositioned
+    every frame there, so it keeps moving with the clock between the slower
+    collapse refreshes — a 30s tick left it looking stuck. Below 1200px rooms
+    stack as cards, so the same height is "how many talks run at once" — the
     line **snaps** to the row's top edge there instead of pointing into the
     stack (see the `stacked` branch in `positionPlayhead()`).
   - Preview it on any date with `?live=1`, and pick a moment with

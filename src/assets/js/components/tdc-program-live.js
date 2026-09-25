@@ -2,8 +2,9 @@
 //
 // While the conference day is running the schedule can follow along the way a
 // TV guide does: finished time slots collapse out of the grid so the current
-// slot sits at the top, and a playhead creeps down it. Everything updates on a
-// timer, without a reload.
+// slot sits at the top, and a playhead creeps down it. Finished slots collapse
+// on a timer; the playhead itself keeps moving with the clock between those
+// refreshes, so the line on the wide grid doesn't sit still.
 //
 // It is opt-out, not mandatory — the toolbar toggle is remembered in
 // localStorage — and it is completely inert outside the conference day, so the
@@ -49,6 +50,7 @@ export class ProgramLive {
     this.preference = this.readPreference();
     this.showEarlier = false;
     this.available = false;
+    this.playheadFrame = 0;
 
     this.readSchedule();
     if (!this.rows.length) {
@@ -72,7 +74,8 @@ export class ProgramLive {
     window.addEventListener("resize", () => this.positionPlayhead());
     // A laptop that slept through two talks should catch up the moment it wakes.
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) this.render();
+      if (document.hidden) this.stopPlayheadLoop();
+      else this.render();
     });
     window.setInterval(() => this.render(), TICK_MS);
 
@@ -201,16 +204,21 @@ export class ProgramLive {
 
   // Interpolates between the visible rows so the line creeps rather than jumps:
   // where it sits between two slots is the "how far into the day are we" signal.
+  // On the wide grid that position changes continuously, so a frame loop keeps
+  // it moving between the slower collapse refreshes. The stacked layout snaps
+  // to the row and doesn't need the loop.
   positionPlayhead(now = this.now()) {
     if (!this.ready || !this.playhead) return;
     if (!this.active || now > this.dayEnd) {
       this.playhead.hidden = true;
+      this.stopPlayheadLoop();
       return;
     }
 
     const visible = this.rows.filter((row) => !row.element.hidden);
     if (!visible.length) {
       this.playhead.hidden = true;
+      this.stopPlayheadLoop();
       return;
     }
 
@@ -236,17 +244,46 @@ export class ProgramLive {
       // exactly on its top edge as that slot begins.
       const until = next ? next.start : Math.max(current.end, current.start + 1);
       const height = next ? next.element.getBoundingClientRect().top - box.top : box.height;
-      const ratio = Math.min(1, Math.max(0, (now - current.start) / (until - current.start)));
+      const span = until - current.start;
+      const ratio = span > 0 ? Math.min(1, Math.max(0, (now - current.start) / span)) : 0;
       top = box.top - gridTop + ratio * height;
     }
 
+    // A CSS transition on `top` would lag a per-frame update and leave the
+    // line chasing the clock. The stacked snap still uses the stylesheet one.
+    const creeping = !stacked && current && now >= this.dayStart;
+    this.playhead.style.transition = creeping ? "none" : "";
     this.playhead.hidden = false;
-    this.playhead.style.top = `${Math.round(top)}px`;
-    if (this.playheadTime) this.playheadTime.textContent = clock.format(now);
+    this.playhead.style.top = `${top}px`;
+    if (this.playheadTime) {
+      const label = clock.format(now);
+      if (this.playheadTime.textContent !== label) this.playheadTime.textContent = label;
+    }
+
+    if (creeping && !document.hidden) this.startPlayheadLoop();
+    else this.stopPlayheadLoop();
+  }
+
+  startPlayheadLoop() {
+    if (this.playheadFrame) return;
+    const step = () => {
+      this.playheadFrame = 0;
+      if (!this.active || document.hidden) return;
+      this.positionPlayhead();
+    };
+    this.playheadFrame = window.requestAnimationFrame(step);
+  }
+
+  stopPlayheadLoop() {
+    if (!this.playheadFrame) return;
+    window.cancelAnimationFrame(this.playheadFrame);
+    this.playheadFrame = 0;
   }
 
   reset() {
+    this.stopPlayheadLoop();
     this.playhead.hidden = true;
+    this.playhead.style.transition = "";
     if (this.earlierButton) this.earlierButton.hidden = true;
     for (const row of this.rows) {
       row.element.hidden = false;
@@ -254,5 +291,8 @@ export class ProgramLive {
       for (const session of row.sessions) session.classList.remove("is-past", "is-live", "is-collapsed");
     }
     for (const overlay of this.overlays) overlay.classList.remove("is-past", "is-live", "is-collapsed");
+    // The party overlay's top and height were measured against the collapsed
+    // grid. Restoring the earlier rows moves its anchor, so measure again.
+    this.program.positionLongService();
   }
 }
