@@ -76,6 +76,10 @@ export default {
       speaker_singular: "Foredragsholder",
       speaker_plural: "Foredragsholdere",
       live_toggle: "Følg dagen",
+      live_description:
+        "«Følg dagen» skjuler foredrag som er ferdige og markerer det som pågår nå.",
+      live_now: "Pågår nå",
+      live_past: "Ferdig",
       live_show_earlier: "Vis det som har vært",
       live_hide_earlier: "Skjul det som har vært",
       close: "Lukk",
@@ -256,6 +260,10 @@ export default {
       speaker_singular: "Speaker",
       speaker_plural: "Speakers",
       live_toggle: "Follow the day",
+      live_description:
+        "“Follow the day” hides talks that have finished and marks what's on now.",
+      live_now: "On now",
+      live_past: "Finished",
       live_show_earlier: "Show earlier talks",
       live_hide_earlier: "Hide earlier talks",
       close: "Close",

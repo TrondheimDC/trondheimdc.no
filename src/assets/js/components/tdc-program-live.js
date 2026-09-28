@@ -17,10 +17,14 @@
 //                                  keeps ticking forward in real time
 
 const TICK_MS = 30_000;
-// The view is offered a little either side of the program itself: people are in
-// the building before the keynote and still around after the last session.
+// How often the playhead is re-placed while it creeps. A slot is a few hundred
+// pixels tall over twenty-odd minutes, so the line moves well under a pixel a
+// second — twice a second is smooth, and far cheaper than every frame all day.
+const CREEP_MS = 500;
+// The view is offered from a while before the keynote, while people are
+// arriving. It stops with the last session: past that there is nothing left to
+// follow, and a pressed toggle that does nothing is just noise.
 const LEAD_IN_MS = 2 * 60 * 60 * 1000;
-const LEAD_OUT_MS = 60 * 60 * 1000;
 
 // The schedule is written in the event's timezone, not the reader's — a remote
 // viewer should still see the Trondheim clock against the Trondheim program.
@@ -35,6 +39,7 @@ export class ProgramLive {
     this.grid = this.root.querySelector(".program-schedule__grid");
     this.toggleButton = this.root.querySelector("[data-program-live-toggle]");
     this.earlierButton = this.root.querySelector("[data-program-live-earlier]");
+    this.bar = this.root.querySelector("[data-program-live-bar]");
     this.playhead = this.root.querySelector("[data-program-now]");
     this.playheadTime = this.root.querySelector("[data-program-now-time]");
 
@@ -50,7 +55,7 @@ export class ProgramLive {
     this.preference = this.readPreference();
     this.showEarlier = false;
     this.available = false;
-    this.playheadFrame = 0;
+    this.creepTimer = 0;
 
     this.readSchedule();
     if (!this.rows.length) {
@@ -74,7 +79,7 @@ export class ProgramLive {
     window.addEventListener("resize", () => this.positionPlayhead());
     // A laptop that slept through two talks should catch up the moment it wakes.
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) this.stopPlayheadLoop();
+      if (document.hidden) this.stopCreep();
       else this.render();
     });
     window.setInterval(() => this.render(), TICK_MS);
@@ -146,8 +151,14 @@ export class ProgramLive {
     if (!this.ready) return;
 
     const now = this.now();
-    this.available = this.forced || (now >= this.dayStart - LEAD_IN_MS && now <= this.dayEnd + LEAD_OUT_MS);
+    this.available = this.forced || (now >= this.dayStart - LEAD_IN_MS && now <= this.dayEnd);
     this.toggleButton.hidden = !this.available;
+    if (this.bar) this.bar.hidden = !this.available;
+    // A toggle keeps one label and lets aria-pressed carry the state: a label
+    // that flipped to "show the full day" would read as "show the full day,
+    // pressed" to a screen reader, and would be wrong before the first slot,
+    // when the full day is exactly what is showing. The description
+    // (aria-describedby + title) says what pressing it does.
     this.toggleButton.setAttribute("aria-pressed", String(this.active));
     this.root.classList.toggle("program-schedule--live", this.active);
 
@@ -185,10 +196,31 @@ export class ProgramLive {
   markSession(session, now, running, collapse) {
     const start = Date.parse(session.dataset.sessionStartAt);
     const end = Date.parse(session.dataset.sessionEndAt);
-    const past = end <= now;
-    session.classList.toggle("is-past", running && past);
-    session.classList.toggle("is-live", running && start <= now && !past);
+    const past = running && end <= now;
+    const live = running && start <= now && end > now;
+    session.classList.toggle("is-past", past);
+    session.classList.toggle("is-live", live);
     session.classList.toggle("is-collapsed", collapse && past);
+    this.setStatus(session, live ? "now" : past ? "past" : null);
+  }
+
+  // "On now" / "Finished" in words, next to the room and time. The border and
+  // the fade say the same thing, but colour and opacity alone don't reach a
+  // screen reader or someone who can't tell the brand red apart.
+  setStatus(session, status) {
+    let badge = session.querySelector("[data-program-live-status]");
+    if (!status) {
+      badge?.remove();
+      return;
+    }
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.dataset.programLiveStatus = "";
+      session.querySelector(".program-session__meta")?.prepend(badge);
+    }
+    badge.className = `program-session__status program-session__status--${status}`;
+    const label = status === "now" ? this.root.dataset.liveNowLabel : this.root.dataset.livePastLabel;
+    if (badge.textContent !== label) badge.textContent = label;
   }
 
   renderEarlier(finished, offer) {
@@ -204,21 +236,21 @@ export class ProgramLive {
 
   // Interpolates between the visible rows so the line creeps rather than jumps:
   // where it sits between two slots is the "how far into the day are we" signal.
-  // On the wide grid that position changes continuously, so a frame loop keeps
+  // On the wide grid that position changes continuously, so a short timer keeps
   // it moving between the slower collapse refreshes. The stacked layout snaps
-  // to the row and doesn't need the loop.
+  // to the row and doesn't need it.
   positionPlayhead(now = this.now()) {
     if (!this.ready || !this.playhead) return;
     if (!this.active || now > this.dayEnd) {
       this.playhead.hidden = true;
-      this.stopPlayheadLoop();
+      this.stopCreep();
       return;
     }
 
     const visible = this.rows.filter((row) => !row.element.hidden);
     if (!visible.length) {
       this.playhead.hidden = true;
-      this.stopPlayheadLoop();
+      this.stopCreep();
       return;
     }
 
@@ -249,8 +281,9 @@ export class ProgramLive {
       top = box.top - gridTop + ratio * height;
     }
 
-    // A CSS transition on `top` would lag a per-frame update and leave the
-    // line chasing the clock. The stacked snap still uses the stylesheet one.
+    // The stylesheet's slow `top` transition is for the snaps (a slot starting,
+    // rows collapsing); on a creep step it would leave the line chasing the
+    // clock, so it is switched off there.
     const creeping = !stacked && current && now >= this.dayStart;
     this.playhead.style.transition = creeping ? "none" : "";
     this.playhead.hidden = false;
@@ -260,37 +293,37 @@ export class ProgramLive {
       if (this.playheadTime.textContent !== label) this.playheadTime.textContent = label;
     }
 
-    if (creeping && !document.hidden) this.startPlayheadLoop();
-    else this.stopPlayheadLoop();
+    if (creeping && !document.hidden) this.startCreep();
+    else this.stopCreep();
   }
 
-  startPlayheadLoop() {
-    if (this.playheadFrame) return;
-    const step = () => {
-      this.playheadFrame = 0;
-      if (!this.active || document.hidden) return;
-      this.positionPlayhead();
-    };
-    this.playheadFrame = window.requestAnimationFrame(step);
+  startCreep() {
+    if (this.creepTimer) return;
+    this.creepTimer = window.setTimeout(() => {
+      this.creepTimer = 0;
+      if (this.active && !document.hidden) this.positionPlayhead();
+    }, CREEP_MS);
   }
 
-  stopPlayheadLoop() {
-    if (!this.playheadFrame) return;
-    window.cancelAnimationFrame(this.playheadFrame);
-    this.playheadFrame = 0;
+  stopCreep() {
+    if (!this.creepTimer) return;
+    window.clearTimeout(this.creepTimer);
+    this.creepTimer = 0;
   }
 
   reset() {
-    this.stopPlayheadLoop();
+    this.stopCreep();
     this.playhead.hidden = true;
     this.playhead.style.transition = "";
     if (this.earlierButton) this.earlierButton.hidden = true;
     for (const row of this.rows) {
       row.element.hidden = false;
       row.element.classList.remove("is-past");
-      for (const session of row.sessions) session.classList.remove("is-past", "is-live", "is-collapsed");
     }
-    for (const overlay of this.overlays) overlay.classList.remove("is-past", "is-live", "is-collapsed");
+    for (const session of [...this.rows.flatMap((row) => row.sessions), ...this.overlays]) {
+      session.classList.remove("is-past", "is-live", "is-collapsed");
+      this.setStatus(session, null);
+    }
     // The party overlay's top and height were measured against the collapsed
     // grid. Restoring the earlier rows moves its anchor, so measure again.
     this.program.positionLongService();

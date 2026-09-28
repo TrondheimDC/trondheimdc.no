@@ -277,11 +277,19 @@ test.describe('Program schedule', () => {
     await expect(menu).toBeHidden();
 
     await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).locator('[data-session-open]').click();
-    await page.locator('[data-calendar-toggle]').click();
+    const calendarToggle = page.locator('[data-calendar-toggle]');
+    // A disclosure: aria-expanded, not aria-haspopup (that promises a menu widget).
+    await expect(calendarToggle).not.toHaveAttribute('aria-haspopup');
+    await expect(menu).toHaveAttribute('role', 'group');
+    await expect(menu).toHaveAttribute('aria-label', /kalender|calendar/i);
+    await calendarToggle.click();
     await expect(menu).toBeVisible();
-    await expect(page.locator('[data-calendar-toggle]')).toHaveAttribute('aria-expanded', 'true');
+    await expect(calendarToggle).toHaveAttribute('aria-expanded', 'true');
     // A disclosure, not a menu widget: plain links, reachable with Tab.
     await expect(page.locator('[data-calendar-list] [role]')).toHaveCount(0);
+    // Google/Outlook leave the site — announce that for assistive tech.
+    await expect(page.locator('[data-calendar-link="google"] .visually-hidden')).toBeAttached();
+    await expect(page.locator('[data-calendar-link="outlook"] .visually-hidden')).toBeAttached();
 
     const google = new URL(await page.locator('[data-calendar-link="google"]').getAttribute('href') ?? '');
     expect(google.hostname).toBe('calendar.google.com');
@@ -622,6 +630,7 @@ test.describe('Live program view', () => {
   test('stays out of the way on any other day', async ({ page }) => {
     await page.goto('/program/');
     await expect(page.locator('[data-program-live-toggle]')).toBeHidden();
+    await expect(page.locator('#program-live-desc')).toBeHidden();
     await expect(page.locator('[data-program-live-earlier]')).toBeHidden();
     await expect(page.locator('[data-program-now]')).toBeHidden();
     await expect(visibleRows(page)).toHaveCount(await rows(page).count());
@@ -630,14 +639,27 @@ test.describe('Live program view', () => {
   test('collapses finished slots and tracks the current time', async ({ page }) => {
     await page.goto(DURING_THE_DAY);
     const total = await rows(page).count();
+    const liveToggle = page.locator('[data-program-live-toggle]');
 
-    await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(liveToggle).toHaveAttribute('aria-pressed', 'true');
+    // One label, state on aria-pressed, and a description of what pressing it
+    // does (stiasta's UU note on the live button) — visible, not just for
+    // screen readers, since a tooltip never shows on a phone.
+    await expect(liveToggle).toHaveText(/Følg dagen|Follow the day/);
+    await expect(liveToggle).toHaveAttribute('aria-describedby', 'program-live-desc');
+    await expect(page.locator('#program-live-desc')).toBeVisible();
+    await expect(page.locator('#program-live-desc')).toContainText('Følg dagen');
     await expect(page.locator('[data-program-now]')).toBeVisible();
     await expect(page.locator('[data-program-now-time]')).toHaveText('13:00');
 
     await expect(visibleRows(page)).toHaveCount(total - 8);
     await expect(visibleRows(page).first().locator('.program-schedule__time')).toHaveText('13:00');
-    await expect(page.locator('.program-session.is-live').first()).toBeVisible();
+    // What's on now is said in words, not only with the border colour.
+    const live = page.locator('.program-session.is-live');
+    await expect(live.first()).toBeVisible();
+    await expect(live.first().locator('.program-session__status')).toHaveText('Pågår nå');
+    // Finished slots are collapsed, so their labels are out of sight with them.
+    await expect(page.locator('.program-session__status:visible')).toHaveCount(await live.count());
   });
 
   test('snaps to the row on narrow screens instead of pointing into the stack', async ({ page }) => {
@@ -680,9 +702,18 @@ test.describe('Live program view', () => {
     await page.evaluate(() => {
       document.querySelector('.program-schedule')._tdcProgram.live.clockOffset += 5 * 60 * 1000;
     });
-    // Five more minutes is a quarter of the slot. The frame loop has to pick
+    // Five more minutes is a quarter of the slot. The creep timer has to pick
     // that up on its own — nothing here calls positionPlayhead again.
-    await expect.poll(fraction, { timeout: 1000 }).toBeGreaterThan(at1332 + 0.15);
+    await expect.poll(fraction, { timeout: 2000 }).toBeGreaterThan(at1332 + 0.15);
+  });
+
+  test('is not offered once the last session is over', async ({ page }) => {
+    // After the party there is nothing left to follow — a pressed toggle that
+    // changes nothing would only confuse.
+    await page.goto('/program/?now=2026-10-19T23:30:00%2B02:00');
+    await expect(page.locator('[data-program-live-toggle]')).toBeHidden();
+    await expect(page.locator('[data-program-now]')).toBeHidden();
+    await expect(visibleRows(page)).toHaveCount(await rows(page).count());
   });
 
   test('can bring the earlier slots back', async ({ page }) => {
@@ -694,8 +725,9 @@ test.describe('Live program view', () => {
     await earlier.click();
     await expect(earlier).toHaveAttribute('aria-expanded', 'true');
     await expect(visibleRows(page)).toHaveCount(total);
-    // Back in view, but clearly done with.
+    // Back in view, but clearly done with — faded, and labelled as such.
     await expect(page.locator('.program-schedule__row.is-past')).toHaveCount(8);
+    await expect(page.locator('.program-session.is-past:visible').first().locator('.program-session__status')).toHaveText('Ferdig');
 
     await earlier.click();
     await expect(visibleRows(page)).toHaveCount(total - 8);
@@ -724,13 +756,18 @@ test.describe('Live program view', () => {
   test('can be switched off, and stays off', async ({ page }) => {
     await page.goto(DURING_THE_DAY);
     const total = await rows(page).count();
+    const liveToggle = page.locator('[data-program-live-toggle]');
 
-    await page.locator('[data-program-live-toggle]').click();
-    await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'false');
+    await liveToggle.click();
+    await expect(liveToggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(liveToggle).toHaveText(/Følg dagen|Follow the day/);
     await expect(page.locator('[data-program-live-earlier]')).toBeHidden();
     await expect(page.locator('[data-program-now]')).toBeHidden();
     await expect(visibleRows(page)).toHaveCount(total);
     await expect(page.locator('.program-session.is-past')).toHaveCount(0);
+    await expect(page.locator('.program-session__status')).toHaveCount(0);
+    // The toggle is still offered, so the line explaining it stays too.
+    await expect(page.locator('#program-live-desc')).toBeVisible();
 
     await page.goto(DURING_THE_DAY);
     await expect(page.locator('[data-program-live-toggle]')).toHaveAttribute('aria-pressed', 'false');

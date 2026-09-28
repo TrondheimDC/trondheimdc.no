@@ -65,6 +65,7 @@ function buildProgramSession(session, speakers, schedule) {
   if (!session.isService) {
     title.type = "button";
     title.dataset.sessionOpen = "";
+    title.setAttribute("aria-haspopup", "dialog");
   }
   title.className = "program-session__title";
   title.textContent = session.title;
@@ -91,6 +92,7 @@ function buildProgramSession(session, speakers, schedule) {
       button.type = "button";
       button.className = "program-session__speaker";
       button.dataset.speakerOpen = "";
+      button.setAttribute("aria-haspopup", "dialog");
       button.dataset.speakerName = `${speaker.firstName} ${speaker.lastName}`.trim();
       button.dataset.speakerImage = speaker.profilePicture;
       button.dataset.speakerTagline = speaker.tagLine;
@@ -180,6 +182,7 @@ function buildSpeakerCard(speaker, sessions, detailsLabel, wall) {
   button.type = "button";
   button.className = "speaker-card";
   button.setAttribute("data-speaker-open", "");
+  button.setAttribute("aria-haspopup", "dialog");
   button.setAttribute("data-speaker-name", fullName);
   button.setAttribute("data-speaker-image", speaker.profilePicture || "");
   button.setAttribute("data-speaker-tagline", speaker.tagLine || "");

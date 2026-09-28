@@ -2,7 +2,9 @@
 .program-schedule__grid { position: relative; }
 .program-schedule__date { margin: 0 0 var(--spacing-6); color: var(--color-fg-base); font-size: var(--font-size-70); }
 .program-schedule__toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); margin-block-end: var(--spacing-6); }
-.program-schedule__hint { margin: 0; color: var(--color-fg-muted); }
+/* flex: none — with the live toggle in, the filters fill the row and would
+   otherwise squeeze the hint into a narrow two-line column; let them wrap instead. */
+.program-schedule__hint { flex: none; margin: 0; color: var(--color-fg-muted); }
 .program-schedule__filters { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: var(--spacing-2); }
 .program-schedule__search-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
 .program-schedule__search { min-width: min(18rem, 100%); padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
@@ -148,7 +150,11 @@
 .program-session-modal__favorite, .program-session-modal__calendar { display: flex; align-items: center; gap: var(--spacing-2); }
 .program-session-modal__favorite { transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
 .program-session-modal__favorite:active { transform: scale(0.96); transition-duration: 60ms; }
-.program-session-modal__calendar-icon { flex: none; }
+.program-session-modal__calendar-icon, .program-session-modal__calendar-chevron { flex: none; }
+/* Points at where the chooser opens (it prefers to open upwards), and turns
+   over once it is open. */
+.program-session-modal__calendar-chevron { transition: transform var(--duration-fast) var(--ease-default); }
+.program-session-modal__calendar[aria-expanded="true"] .program-session-modal__calendar-chevron { transform: rotate(180deg); }
 .program-schedule__filter:disabled { cursor: default; opacity: 0.45; }
 .program-schedule__filter:disabled:hover { border-color: var(--color-border); color: var(--color-fg-base); }
 .program-session[hidden] { display: none; }
@@ -185,7 +191,10 @@
 .program-schedule__live-toggle[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { background: currentColor; animation: program-live-pulse 2s var(--ease-default) infinite; }
 
-.program-schedule__live-earlier { display: inline-flex; margin-block-end: var(--spacing-5); }
+.program-schedule__live-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-3) var(--spacing-4); margin-block-end: var(--spacing-5); }
+.program-schedule__live-bar[hidden] { display: none; }
+.program-schedule__live-hint { margin: 0; color: var(--color-fg-muted); font-size: var(--font-size-20); }
+.program-schedule__live-earlier { display: inline-flex; }
 .program-schedule__live-earlier[hidden] { display: none; }
 
 /* The playhead: a zero-height rule across the grid, moved by JS. It sits in the
@@ -196,7 +205,11 @@
 
 /* Finished slots fade before they go; what is on right now is picked out. */
 .program-schedule__row.is-past .program-schedule__time { opacity: 0.5; }
-.program-session.is-past { opacity: 0.45; }
+.program-session.is-past { opacity: 0.6; }
+/* The words behind the border and the fade — added by tdc-program-live.js. */
+.program-session__status { padding: 0 var(--spacing-2); border-radius: var(--radius-full); font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.program-session__status--now { background: var(--color-fg-brand); color: var(--color-fg-always-dark); }
+.program-session__status--past { border: 1px solid var(--color-border); color: var(--color-fg-muted); }
 .program-session.is-live { border-color: var(--color-fg-brand); box-shadow: 0 0 0 1px var(--color-fg-brand); }
 .program-session.is-collapsed { display: none; }
 /* .program-schedule__row sets `display: grid` (and `block` on narrow screens),
@@ -210,7 +223,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .program-schedule__now { transition: none; }
+  .program-schedule__now, .program-session-modal__calendar-chevron { transition: none; }
   .program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { animation: none; }
 }
 

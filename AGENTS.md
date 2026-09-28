@@ -304,15 +304,37 @@ file.
 - The **live ("EPG") view** (`assets/js/components/tdc-program-live.js`, owned by
   `TdcProgram`) follows the conference day in real time: finished time slots
   collapse out of the grid and a playhead creeps down the current slot.
-  - It is **opt-out**: on by default while the day runs (±2h/1h either side),
-    off on every other date whatever is stored, and the toolbar toggle is
-    remembered in `localStorage`.
+  - It is **opt-out**: on by default from 2h before the first slot until the
+    last one ends, off on every other date (and after the party) whatever is
+    stored, and the toolbar toggle is remembered in `localStorage`. It is not
+    offered after the last slot: there is nothing left to follow, and a pressed
+    toggle that changes nothing only confuses.
+  - The toggle is a plain **`aria-pressed` toggle with one fixed label**
+    ("Følg dagen"/"Follow the day"). Don't flip the label to the off-action
+    ("Vis hele dagen"): combined with `aria-pressed` that reads as "show the
+    full day, pressed", and it's plainly wrong before the first slot, when the
+    full day is what's showing. What pressing it does lives in
+    `t.program.live_description`: a **visible** line under the toolbar
+    (`[data-program-live-bar]`, shown with the toggle), which is also the
+    toggle's `aria-describedby`. Keep it visible — the PR review (stiasta, UU)
+    asked "what happens if I press this", and a `title` tooltip or a
+    screen-reader-only line never reaches someone on a phone at the venue.
+  - Live and finished sessions say so **in words** ("Pågår nå"/"Ferdig",
+    `setStatus()` → `.program-session__status`), not only with the brand border
+    and the fade, so the state isn't carried by colour/opacity alone (WCAG
+    1.4.1) and reaches screen readers.
+  - The dialog's "Legg til i kalenderen" opens a chooser, not an immediate
+    add: it's a **disclosure** (`aria-expanded` + a chevron that turns over),
+    not a menu — no `aria-haspopup`, which promises arrow-key menu navigation
+    the plain-link list doesn't have.
   - A search suspends the collapse — a talk you search for must be findable
     after it has been given.
   - The playhead only **creeps** through a row on the wide grid (from 1200px,
     where rooms are columns and row height is empty time). It is repositioned
-    every frame there, so it keeps moving with the clock between the slower
-    collapse refreshes — a 30s tick left it looking stuck. Below 1200px rooms
+    every 500ms there (`CREEP_MS`), so it keeps moving with the clock between
+    the slower collapse refreshes — a 30s tick left it looking stuck, and a
+    per-frame loop was 60 layout reads a second, all day, for a line that
+    moves well under a pixel a second. Below 1200px rooms
     stack as cards, so the same height is "how many talks run at once" — the
     line **snaps** to the row's top edge there instead of pointing into the
     stack (see the `stacked` branch in `positionPlayhead()`).
