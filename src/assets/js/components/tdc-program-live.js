@@ -231,6 +231,11 @@ export class ProgramLive {
     this.earlierButton.textContent = this.showEarlier
       ? this.root.dataset.liveHideEarlierLabel
       : this.root.dataset.liveShowEarlierLabel;
+    // Visibly just "Vis"/"Skjul", after "Skjuler ferdige foredrag"; the name
+    // says what on its own, and starts with the visible word (label-in-name).
+    this.earlierButton.setAttribute("aria-label", this.showEarlier
+      ? this.root.dataset.liveHideEarlierName
+      : this.root.dataset.liveShowEarlierName);
     this.earlierButton.setAttribute("aria-expanded", String(this.showEarlier));
   }
 
@@ -247,7 +252,9 @@ export class ProgramLive {
       return;
     }
 
-    const visible = this.rows.filter((row) => !row.element.hidden);
+    // Filtered-empty rows are display: none in the stacked layout, with no box
+    // to measure — which would pin the line to the top of the grid.
+    const visible = this.rows.filter((row) => !row.element.hidden && row.element.offsetParent !== null);
     if (!visible.length) {
       this.playhead.hidden = true;
       this.stopCreep();

@@ -20,6 +20,9 @@
       data-unstar-label="{{ t.program.unstar }}"
       data-all-topics-label="{{ t.program.all_topics }}"
       data-topic-label="{{ t.program.topic }}"
+      data-filter-count-label="{{ t.program.filter_count | escape }}"
+      data-no-results-label="{{ t.program.no_results | escape }}"
+      data-favorite-hint-label="{{ t.program.favorite_hint | escape }}"
       data-shared-session-label="{{ t.program.shared_session }}"
       data-calendar-url="{{ site.url }}{{ page.url }}{% if not standalone %}#program{% endif %}"
       data-calendar-ics-base="{{ '/program/' | url }}"
@@ -30,51 +33,73 @@
       data-live-past-label="{{ t.program.live_past | escape }}"
       data-live-show-earlier-label="{{ t.program.live_show_earlier | escape }}"
       data-live-hide-earlier-label="{{ t.program.live_hide_earlier | escape }}"
+      data-live-show-earlier-name="{{ t.program.live_show_earlier_name | escape }}"
+      data-live-hide-earlier-name="{{ t.program.live_hide_earlier_name | escape }}"
       data-live-storage-key="tdc-program-live-{{ sessionize.eventId }}"
     >
       {% if sessionize.schedule.rows and sessionize.schedule.rows.length > 0 %}
         <h3 class="program-schedule__date">{{ sessionize.schedule.date | date(lang) }}</h3>
-        <div class="program-schedule__toolbar">
-          <p class="program-schedule__hint">{{ t.program.favorite_hint }}</p>
-          <div class="program-schedule__filters">
-            <label class="program-schedule__search-label" for="program-search">{{ t.program.search_label }}</label>
-            <input class="program-schedule__search" id="program-search" type="search" data-program-search placeholder="{{ t.program.search_placeholder | escape }}" autocomplete="off" />
-            <div class="program-schedule__topic-control">
-              <label class="program-schedule__topic-label" for="program-topic-filter">{{ t.program.topic }}</label>
-              <select class="program-schedule__topic" id="program-topic-filter" data-program-topic-filter>
-                <option value="">{{ t.program.all_topics }}</option>
-                {% for topic in sessionize.schedule.topics %}
-                  <option value="{{ topic | escape }}">{{ topic }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            {# One label; aria-pressed carries the state and the star fills with
-               it (same .favorite-star rule as the cards). Flipping the label to
-               "Vis alle foredrag" would read "show all talks, pressed". #}
-            <button type="button" class="program-schedule__filter program-schedule__favorites-only" data-program-favorites-only aria-pressed="false">
-              <svg class="favorite-star" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
-              {{ t.program.show_favorites }}
-            </button>
-            <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>{{ t.program.calendar_saved }}</button>
-            {# Revealed by tdc-program-live.js, which only offers the live view
-               while the conference day is actually running. The label stays put
-               and aria-pressed carries the state; the visible line below the
-               toolbar (also its aria-describedby) says what pressing it does. #}
-            <button type="button" class="program-schedule__filter program-schedule__live-toggle" data-program-live-toggle aria-pressed="false" aria-describedby="program-live-desc" hidden>
-              <span class="program-schedule__live-dot" aria-hidden="true"></span>
-              {{ t.program.live_toggle }}
+
+        {# One line: search, topic, and the saved-talks pair. The search and
+           topic labels are visually hidden but real, and the topic pill shows
+           its own "Tema" prefix, so the chosen value never reads without it. #}
+        <div class="program-filters">
+          <label class="visually-hidden" for="program-search">{{ t.program.search_label }}</label>
+          <div class="program-filters__search">
+            <svg class="program-filters__search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="program-filters__search-input" id="program-search" type="search" data-program-search placeholder="{{ t.program.search_placeholder | escape }}" autocomplete="off" enterkeyhint="search" />
+            <button type="button" class="program-filters__search-clear" data-program-search-clear aria-label="{{ t.program.search_clear }}" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </button>
           </div>
-        </div>
-        {# Shown with the toggle. Visible on purpose, not just for screen readers:
-           "what happens if I press this" is a question for everyone, and a
-           tooltip never shows on the phones people carry around the venue. #}
-        <div class="program-schedule__live-bar" data-program-live-bar hidden>
-          <p class="program-schedule__live-hint" id="program-live-desc">{{ t.program.live_description }}</p>
-          <button type="button" class="program-schedule__filter program-schedule__live-earlier" data-program-live-earlier aria-expanded="false" hidden></button>
+          <label class="program-filters__topic">
+            <span class="program-filters__topic-prefix">{{ t.program.topic }}</span>
+            <select class="program-filters__topic-select" data-program-topic-filter>
+              <option value="">{{ t.program.all_topics }}</option>
+              {% for topic in sessionize.schedule.topics %}
+                <option value="{{ topic | escape }}">{{ topic }}</option>
+              {% endfor %}
+            </select>
+            <svg class="program-filters__topic-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          {# One label; aria-pressed carries the state and the star fills with
+             it (same .favorite-star rule as the cards). Flipping the label to
+             "Vis alle foredrag" would read "show all talks, pressed". #}
+          <button type="button" class="program-schedule__filter program-schedule__favorites-only" data-program-favorites-only aria-pressed="false">
+            <svg class="favorite-star" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
+            {{ t.program.show_favorites }}
+            <span class="program-filters__count" data-program-favorites-count hidden></span>
+          </button>
+          <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+            {{ t.program.calendar_saved }}
+          </button>
         </div>
 
-        <p class="program-schedule__no-results" data-program-search-empty hidden>{{ t.program.no_results }}</p>
+        {# One muted line under the bar: how to save a talk until you have,
+           then "showing 4 of 45" once a filter narrows the grid, with a way
+           back — and, on the day, the live toggle at its end. The text is a
+           polite live region that stays in the DOM (a region revealed as it
+           changes is often not announced). #}
+        <div class="program-filters__status" data-program-filter-status>
+          <p class="program-filters__status-text" data-program-filter-count aria-live="polite">{{ t.program.favorite_hint }}</p>
+          <button type="button" class="program-filters__reset" data-program-filter-reset hidden>{{ t.program.filter_reset }}</button>
+          {# The live view's controls ride on the same line, pushed right —
+             no row of their own. Revealed by tdc-program-live.js only while
+             the conference day is running. The toggle keeps one label and
+             aria-pressed carries the state (drawn as a switch); the short line
+             beside it is visible on purpose and is also its aria-describedby:
+             "what happens if I press this" is a question for everyone, and a
+             tooltip never shows on a phone. #}
+          <div class="program-live" data-program-live-bar hidden>
+            <button type="button" class="program-live__toggle program-schedule__live-toggle" data-program-live-toggle aria-pressed="false" aria-describedby="program-live-desc">
+              <span class="program-live__switch" aria-hidden="true"></span>
+              {{ t.program.live_toggle }}
+            </button>
+            <span class="program-live__hint" id="program-live-desc">{{ t.program.live_description }}</span>
+            <button type="button" class="program-live__earlier program-schedule__live-earlier" data-program-live-earlier aria-expanded="false" hidden></button>
+          </div>
+        </div>
 
         <div class="program-schedule__grid" style="--program-room-count: {{ sessionize.schedule.rooms.length }}">
           <div class="program-schedule__now" data-program-now hidden aria-hidden="true">

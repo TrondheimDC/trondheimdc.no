@@ -1,23 +1,71 @@
 .program-schedule { display: block; }
 .program-schedule__grid { position: relative; }
-.program-schedule__date { margin: 0 0 var(--spacing-6); color: var(--color-fg-base); font-size: var(--font-size-70); }
-.program-schedule__toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); margin-block-end: var(--spacing-6); }
-/* flex: none — with the live toggle in, the filters fill the row and would
-   otherwise squeeze the hint into a narrow two-line column; let them wrap instead. */
-.program-schedule__hint { flex: none; margin: 0; color: var(--color-fg-muted); }
-.program-schedule__filters { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: var(--spacing-2); }
-.program-schedule__search-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
-.program-schedule__search { min-width: min(18rem, 100%); padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
-.program-schedule__search:hover, .program-schedule__search:focus-visible { border-color: var(--color-fg-brand); outline-color: var(--color-fg-brand); }
-.program-schedule__no-results { margin: 0 0 var(--spacing-4); color: var(--color-fg-muted); }
-.program-schedule__topic-control { display: flex; align-items: center; gap: var(--spacing-2); }
-.program-schedule__topic-label { color: var(--color-fg-muted); font-size: var(--font-size-20); }
-.program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
+.program-schedule__date { margin: 0 0 var(--spacing-5); color: var(--color-fg-base); font-size: var(--font-size-70); }
+/* ---------------------------------------------------------------------------
+   Filters — one bar: search, topic, and the saved-talks pair, all the same
+   height. The search takes its own line on phones and shares from 768px.
+   --------------------------------------------------------------------------- */
+
+.program-filters { --program-filters-control: 2.75rem; display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2); margin-block-end: var(--spacing-2); }
+/* Phones: search, then topic and "Vis lagrede" sharing a line, then the
+   calendar export. The topic pill grows into whatever the toggle leaves; its
+   basis is 0 because a select's natural width is its longest option. */
+.program-filters > * { flex: 1 1 100%; }
+.program-filters__topic { flex: 1 1 0; min-width: 10rem; }
+.program-filters .program-schedule__favorites-only { flex: none; }
+
+.program-filters__search { position: relative; flex-basis: 100%; min-width: 0; }
+.program-filters__search-icon { position: absolute; inset-block-start: 50%; inset-inline-start: var(--spacing-4); translate: 0 -50%; color: var(--color-fg-muted); pointer-events: none; transition: color var(--duration-fast) var(--ease-default); }
+.program-filters__search:focus-within .program-filters__search-icon { color: var(--color-fg-brand); }
+/* 1rem, not smaller: iOS zooms the page into any field under 16px. */
+.program-filters__search-input { width: 100%; min-height: var(--program-filters-control); padding: var(--spacing-2) var(--spacing-10); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; font-size: var(--font-size-30); transition: border-color var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default); }
+.program-filters__search-input::placeholder { color: var(--color-fg-muted); opacity: 1; }
+.program-filters__search-input:hover { border-color: var(--color-border-strong); }
+.program-filters__search-input:focus-visible { border-color: var(--color-fg-brand); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-fg-brand) 35%, transparent); }
+/* Our own clear button replaces the UA one, which ignores the theme. */
+.program-filters__search-input::-webkit-search-cancel-button, .program-filters__search-input::-webkit-search-decoration { appearance: none; }
+.program-filters__search-clear { position: absolute; inset-block-start: 50%; inset-inline-end: var(--spacing-2); translate: 0 -50%; display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--color-fg-muted); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+.program-filters__search-clear:hover { background: var(--color-border); color: var(--color-fg-base); }
+.program-filters__search-clear[hidden] { display: none; }
+
+/* The select is the whole pill (so a tap anywhere opens the native picker);
+   the "Tema" prefix and the chevron are painted over it, click-through. */
+.program-filters__topic { --program-topic-prefix: 2.75rem; position: relative; display: flex; min-width: 0; color: var(--color-fg-base); }
+.program-filters__topic-prefix { position: absolute; inset-block: 0; inset-inline-start: var(--spacing-4); display: flex; align-items: center; color: var(--color-fg-muted); font-size: var(--font-size-20); pointer-events: none; }
+.program-filters__topic-select { width: 100%; min-height: var(--program-filters-control); padding: 0 var(--spacing-10) 0 calc(var(--spacing-4) + var(--program-topic-prefix)); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: inherit; font: inherit; text-overflow: ellipsis; cursor: pointer; appearance: none; -webkit-tap-highlight-color: transparent; transition: border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+.program-filters__topic-select option { background: var(--color-bg-surface); color: var(--color-fg-base); }
+.program-filters__topic-chevron { position: absolute; inset-block-start: 50%; inset-inline-end: var(--spacing-4); translate: 0 -50%; pointer-events: none; }
+.program-filters__topic:hover { color: var(--color-fg-brand); }
+.program-filters__topic:hover .program-filters__topic-select, .program-filters__topic-select:focus-visible { border-color: var(--color-fg-brand); }
+/* A topic picked reads like a pressed toggle, the same as "Vis lagrede". */
+.program-filters__topic:has(option:checked:not([value=""])) { color: var(--color-fg-brand); }
+.program-filters__topic:has(option:checked:not([value=""])) .program-filters__topic-select { border-color: var(--color-fg-brand); }
+
+.program-filters .program-schedule__filter { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); min-height: var(--program-filters-control); white-space: nowrap; }
+.program-filters__count { min-width: 1.5rem; padding: 0 var(--spacing-2); border-radius: var(--radius-full); background: var(--color-fg-base); color: var(--color-bg-base); font: var(--font-weight-bold) var(--font-size-10) / 1.5rem var(--font-family-mono); text-align: center; }
+.program-filters__count[hidden] { display: none; }
+
+/* One line, always held open (it is a live region, and the text comes and
+   goes), so saving a first talk or clearing a filter never shifts the grid. */
+.program-filters__status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1) var(--spacing-3); min-block-size: 1.5em; margin-block-end: var(--spacing-4); font-size: var(--font-size-20); }
+.program-filters__status-text { margin: 0; color: var(--color-fg-muted); }
+.program-filters__status.is-empty .program-filters__status-text { color: var(--color-fg-base); }
+.program-filters__reset { padding: 0; border: 0; background: none; color: var(--color-fg-brand); font: inherit; font-weight: var(--font-weight-semibold); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.program-filters__reset:hover { text-decoration-thickness: 2px; }
+.program-filters__reset[hidden] { display: none; }
+
+@media (min-width: 768px) {
+  .program-filters > *, .program-filters__topic, .program-filters .program-schedule__favorites-only { flex: 0 1 auto; min-width: 0; }
+  .program-filters__search { flex: 1 1 16rem; }
+  /* Sized to the topic showing, where supported, rather than the longest. */
+  .program-filters__topic-select { field-sizing: content; }
+}
+
 .program-schedule__filter, .program-session__favorite, .program-session-modal__favorite, .program-session-modal__calendar { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-.program-schedule__filter { padding: var(--spacing-2) var(--spacing-3); }
+.program-schedule__filter { padding: var(--spacing-2) var(--spacing-4); }
 .program-schedule__favorites-only { display: inline-flex; align-items: center; gap: var(--spacing-2); }
 .program-schedule__favorites-only[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
-.program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible, .program-session-modal__calendar:hover, .program-session-modal__calendar:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+.program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible, .program-session-modal__calendar:hover, .program-session-modal__calendar:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
 .program-schedule__rooms, .program-schedule__row { display: grid; grid-template-columns: 4.5rem repeat(var(--program-room-count), minmax(10rem, 1fr)); gap: var(--spacing-2); min-width: calc(4.5rem + var(--program-room-count) * 10rem); }
 .program-schedule__rooms { margin-block-end: var(--spacing-2); }
@@ -170,11 +218,12 @@
   .program-session { grid-column: auto; }
   .program-session--long-service-in-row { display: flex; }
   .program-session--long-service-overlay { display: none; }
+  /* Set by the filters. Only here: on the wide grid the rows are the time
+     axis the long-service overlay is measured against, so they stay. */
+  .program-schedule__row.is-filtered-empty { display: none; }
 }
 
 @media (max-width: 480px) {
-  .program-schedule__toolbar { align-items: flex-start; flex-direction: column; }
-  .program-schedule__filters { justify-content: flex-start; }
   /* Full width, but capped well short of the full viewport height — 100dvh
      read as a wall of white with the backdrop gone entirely; leaving room
      above and below (and rounding the corners back on) reads as a sheet,
@@ -187,17 +236,37 @@
    Every hook here is added by JS, so the static grid is unaffected without it.
    --------------------------------------------------------------------------- */
 
-.program-schedule__live-toggle { display: inline-flex; align-items: center; gap: var(--spacing-2); }
-.program-schedule__live-toggle[hidden] { display: none; }
-.program-schedule__live-dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: var(--radius-full); background: var(--color-fg-muted); }
-.program-schedule__live-toggle[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
-.program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { background: currentColor; animation: program-live-pulse 2s var(--ease-default) infinite; }
+/* Rides at the end of the status line under the filter bar: switch, what it
+   does, and (once slots have collapsed) the way back to them. No box and no
+   row of its own; on phones it wraps under the status text. */
+.program-live { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--spacing-2); }
+.program-live[hidden] { display: none; }
+/* Pushed to the end of the line once there is room to share it. */
+@media (min-width: 768px) {
+  .program-live { margin-inline-start: auto; }
+}
+.program-live__toggle { display: inline-flex; align-items: center; gap: var(--spacing-2); min-height: 2rem; padding: 0; border: 0; background: none; color: var(--color-fg-base); font: inherit; font-weight: var(--font-weight-semibold); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+.program-live__toggle[hidden] { display: none; }
+/* Drawn as a switch; still a toggle button with aria-pressed underneath. */
+.program-live__switch { position: relative; flex: none; width: 2rem; height: 1.125rem; border-radius: var(--radius-full); background: var(--color-border-strong); transition: background-color var(--duration-fast) var(--ease-default); }
+.program-live__switch::after { content: ""; position: absolute; inset-block-start: 0.125rem; inset-inline-start: 0.125rem; width: 0.875rem; height: 0.875rem; border-radius: var(--radius-full); background: var(--color-fg-base); transition: translate var(--duration-fast) var(--ease-spring), background-color var(--duration-fast) var(--ease-default); }
+.program-live__toggle[aria-pressed="true"] .program-live__switch { background: var(--color-fg-brand); }
+.program-live__toggle[aria-pressed="true"] .program-live__switch::after { translate: 0.875rem 0; background: var(--color-bg-base); }
+/* Hover only where there is one; on touch it sticks after the tap. */
+@media (hover: hover) {
+  .program-live__toggle:hover .program-live__switch { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-fg-brand) 25%, transparent); }
+}
+.program-live__hint { color: var(--color-fg-muted); }
 
-.program-schedule__live-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-3) var(--spacing-4); margin-block-end: var(--spacing-5); }
-.program-schedule__live-bar[hidden] { display: none; }
-.program-schedule__live-hint { margin: 0; color: var(--color-fg-muted); font-size: var(--font-size-20); }
-.program-schedule__live-earlier { display: inline-flex; }
-.program-schedule__live-earlier[hidden] { display: none; }
+.program-live__earlier { padding: 0; border: 0; background: none; color: var(--color-fg-brand); font: inherit; font-weight: var(--font-weight-semibold); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.program-live__earlier:hover { text-decoration-thickness: 2px; }
+/* Never display: none. The link and its dot keep their room while there is
+   nothing to reveal, and "Vis" and "Skjul" share one width, so nothing beside
+   them moves when the switch is flipped. visibility: hidden also takes it out
+   of the tab order and the accessibility tree. */
+.program-live__earlier { min-width: 4.25rem; text-align: start; }
+.program-live__earlier::before { content: "·"; display: inline-block; margin-inline-end: var(--spacing-2); color: var(--color-fg-muted); text-decoration: none; }
+.program-live__earlier[hidden] { display: inline; visibility: hidden; }
 
 /* The playhead: a zero-height rule across the grid, moved by JS. It sits in the
    grid's positioning context, the same one the long-service overlay uses. */
@@ -219,14 +288,9 @@
    on screen. */
 .program-schedule__row[hidden] { display: none; }
 
-@keyframes program-live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.25; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .program-schedule__now, .program-session-modal__calendar-chevron { transition: none; }
-  .program-schedule__live-toggle[aria-pressed="true"] .program-schedule__live-dot { animation: none; }
+  .program-live__switch, .program-live__switch::after { transition: none; }
 }
 
 @media (max-width: 1199px) {

@@ -223,6 +223,7 @@ test.describe('Program schedule', () => {
     await topicFilter.selectOption('Test topic');
     await expect(firstSession).toBeVisible();
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+    await expect(page.locator('[data-program-filter-count]')).toHaveText(/^(Viser|Showing) 1 (av|of) \d+/);
 
     await firstSession.locator('[data-session-favorite]').click();
     const onlyFavorites = page.locator('[data-program-favorites-only]');
@@ -245,7 +246,60 @@ test.describe('Program schedule', () => {
 
     await search.fill('this text cannot match any talk');
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(0);
-    await expect(page.locator('[data-program-search-empty]')).toBeVisible();
+    await expect(page.locator('[data-program-filter-count]')).toHaveText(/Ingen foredrag|No talks/);
+  });
+
+  test('clears the search and every filter at once', async ({ page }) => {
+    await page.goto('/');
+    const search = page.locator('[data-program-search]');
+    const clear = page.locator('[data-program-search-clear]');
+    const reset = page.locator('[data-program-filter-reset]');
+    const all = page.locator('[data-program-session]:visible');
+    const total = await all.count();
+
+    // Nothing narrowed or saved yet: the line says how to save, no reset.
+    await expect(clear).toBeHidden();
+    await expect(reset).toBeHidden();
+    await expect(page.locator('[data-program-filter-count]')).toHaveText(/stjernen|star/);
+
+    await search.fill('After the AI Hype');
+    await expect(clear).toBeVisible();
+    await clear.click();
+    await expect(search).toHaveValue('');
+    await expect(search).toBeFocused();
+    await expect(all).toHaveCount(total);
+
+    await search.fill('this text cannot match any talk');
+    await page.locator('[data-program-topic-filter]').selectOption({ index: 1 });
+    await page.locator('[data-program-favorites-only]').click();
+    await reset.click();
+    await expect(search).toHaveValue('');
+    await expect(page.locator('[data-program-favorites-only]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-program-topic-filter]')).toHaveValue('');
+    await expect(reset).toBeHidden();
+    // The reset button hides itself, so focus goes back to the search field.
+    await expect(search).toBeFocused();
+    await expect(all).toHaveCount(total);
+  });
+
+  test('drops time slots a filter leaves empty on phones', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.locator('[data-program-search]').fill('After the AI Hype');
+    await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
+    await expect(page.locator('.program-schedule__row:visible')).toHaveCount(1);
+  });
+
+  test('counts saved talks on the saved-talks toggle', async ({ page }) => {
+    await page.goto('/');
+    const count = page.locator('[data-program-favorites-count]');
+    await expect(count).toBeHidden();
+    const saved = page.locator('[data-program-session]').filter({ has: page.locator('[data-session-favorite]') });
+    await saved.nth(0).locator('[data-session-favorite]').click();
+    await saved.nth(1).locator('[data-session-favorite]').click();
+    await expect(count).toHaveText('2');
+    await saved.nth(0).locator('[data-session-favorite]').click();
+    await expect(count).toHaveText('1');
   });
 
   test('serves a single talk as an .ics file', async ({ page }) => {
@@ -652,7 +706,7 @@ test.describe('Live program view', () => {
     await expect(liveToggle).toHaveText(/Følg dagen|Follow the day/);
     await expect(liveToggle).toHaveAttribute('aria-describedby', 'program-live-desc');
     await expect(page.locator('#program-live-desc')).toBeVisible();
-    await expect(page.locator('#program-live-desc')).toContainText('Følg dagen');
+    await expect(page.locator('#program-live-desc')).toContainText(/ferdige|finished/);
     await expect(page.locator('[data-program-now]')).toBeVisible();
     await expect(page.locator('[data-program-now-time]')).toHaveText('13:00');
 
@@ -726,6 +780,8 @@ test.describe('Live program view', () => {
     const earlier = page.locator('[data-program-live-earlier]');
 
     await expect(earlier).toBeVisible();
+    // Visibly a bare "Vis"; the accessible name carries the rest.
+    await expect(earlier).toHaveAccessibleName(/^(Vis|Show) (ferdige|finished)/);
     await earlier.click();
     await expect(earlier).toHaveAttribute('aria-expanded', 'true');
     await expect(visibleRows(page)).toHaveCount(total);

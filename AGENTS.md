@@ -314,9 +314,15 @@ file.
     ("Vis hele dagen"): combined with `aria-pressed` that reads as "show the
     full day, pressed", and it's plainly wrong before the first slot, when the
     full day is what's showing. What pressing it does lives in
-    `t.program.live_description`: a **visible** line under the toolbar
-    (`[data-program-live-bar]`, shown with the toggle), which is also the
-    toggle's `aria-describedby`. Keep it visible — the PR review (stiasta, UU)
+    `t.program.live_description`: a **visible** line right beside it, which
+    is also the toggle's `aria-describedby`. Toggle, description ("Skjuler
+    ferdige foredrag") and the "Vis"/"Skjul" link for collapsed slots share
+    `.program-live` (`[data-program-live-bar]`), which rides at the **end of
+    the status line under the filter bar** — no box, no row of its own on
+    desktop, one short line on phones. The toggle is drawn as a small switch
+    but stays an `aria-pressed` button. The link is visibly one word; its
+    `aria-label` ("Vis ferdige foredrag") starts with that word
+    (label-in-name) and is set by `renderEarlier()`. Keep it visible — the PR review (stiasta, UU)
     asked "what happens if I press this", and a `title` tooltip or a
     screen-reader-only line never reaches someone on a phone at the venue.
   - Live and finished sessions say so **in words** ("Pågår nå"/"Ferdig",
@@ -329,6 +335,23 @@ file.
     the plain-link list doesn't have.
   - A search suspends the collapse — a talk you search for must be findable
     after it has been given.
+- The **filter bar** (`.program-filters`) is deliberately **one line** on
+  desktop: search, a styled native `<select>` for topic, "Vis lagrede" (with
+  a saved-count badge) and the calendar export. A labelled multi-row panel
+  with topic chips was tried and rejected as far too tall; don't bring it
+  back. The select stays native for the phone picker; its "Tema" prefix is
+  painted over it (click-through) so the chosen value never reads without it.
+  - The muted line under it (`[data-program-filter-count]`) is a polite live
+    region that **stays in the DOM** and holds its height: the saving hint
+    while nothing is saved, "Viser 4 av 45 foredrag" + "Nullstill filtre"
+    once a filter is on, the no-results message at zero.
+  - Below 1200px, time slots a filter leaves empty get `.is-filtered-empty`
+    (`display: none`); on the wide grid they stay, since the long-service
+    overlay is measured against them. The live playhead skips rows with no
+    box for that reason.
+  - "Følg dagen" lives on that status line (see above). Tried and rejected:
+    a pill beside the date heading and a boxed strip above the grid — both
+    read as out of place and cost a row.
   - The playhead only **creeps** through a row on the wide grid (from 1200px,
     where rooms are columns and row height is empty time). It is repositioned
     every 500ms there (`CREEP_MS`), so it keeps moving with the clock between

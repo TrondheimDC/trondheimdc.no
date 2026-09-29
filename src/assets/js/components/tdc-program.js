@@ -15,7 +15,11 @@ class TdcProgram {
     this.onlyFavorites = root.querySelector("[data-program-favorites-only]");
     this.topicFilter = root.querySelector("[data-program-topic-filter]");
     this.searchInput = root.querySelector("[data-program-search]");
-    this.searchEmpty = root.querySelector("[data-program-search-empty]");
+    this.searchClear = root.querySelector("[data-program-search-clear]");
+    this.favoritesCount = root.querySelector("[data-program-favorites-count]");
+    this.filterStatus = root.querySelector("[data-program-filter-status]");
+    this.filterCount = root.querySelector("[data-program-filter-count]");
+    this.filterReset = root.querySelector("[data-program-filter-reset]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
     this.modalFavoriteLabel = root.querySelector("[data-session-modal-favorite-label]");
     this.calendarMenu = root.querySelector("[data-calendar-menu]");
@@ -87,6 +91,23 @@ class TdcProgram {
 
     this.topicFilter?.addEventListener("change", () => this.applyFilter());
     this.searchInput?.addEventListener("input", () => this.applyFilter());
+    // Not every browser clears a search field on Escape; make it the same everywhere.
+    this.searchInput?.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !this.searchInput.value) return;
+      event.preventDefault();
+      this.clearSearch();
+    });
+    this.searchClear?.addEventListener("click", () => this.clearSearch());
+
+    // Both hide themselves once they have done their job, so hand focus to the
+    // search field rather than letting it fall back to <body>.
+    this.filterReset?.addEventListener("click", () => {
+      if (this.searchInput) this.searchInput.value = "";
+      if (this.topicFilter) this.topicFilter.value = "";
+      this.onlyFavorites?.setAttribute("aria-pressed", "false");
+      this.applyFilter();
+      this.searchInput?.focus();
+    });
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
 
@@ -225,6 +246,18 @@ class TdcProgram {
       session.hidden = this.isFilteredOut(session);
     });
     if (this.calendarExport) this.calendarExport.disabled = this.favorites.size === 0;
+    if (this.favoritesCount) {
+      this.favoritesCount.textContent = String(this.favorites.size);
+      this.favoritesCount.hidden = this.favorites.size === 0;
+    }
+    this.updateFilterStatus();
+  }
+
+  clearSearch() {
+    if (!this.searchInput) return;
+    this.searchInput.value = "";
+    this.searchInput.focus();
+    this.applyFilter();
   }
 
   isFilteredOut(session) {
@@ -254,11 +287,46 @@ class TdcProgram {
     sessions.forEach((session) => {
       session.hidden = this.isFilteredOut(session);
     });
-    if (this.searchEmpty) {
-      this.searchEmpty.hidden = !this.searchInput?.value.trim() || sessions.some((session) => !session.hidden);
-    }
+    this.updateFilterStatus();
     // Searching suspends the live view's collapse, so it has to re-run here.
     this.live?.refresh();
+  }
+
+  // The line under the filter bar: how to save a talk until one is saved, then
+  // "Showing 4 of 52 talks" once any filter is on. Counts talks, not breaks,
+  // and each talk once (the long service sessions render twice).
+  updateFilterStatus() {
+    const hasSearch = Boolean(this.searchInput?.value.trim());
+    if (this.searchClear) this.searchClear.hidden = !this.searchInput?.value;
+
+    const filtering = hasSearch ||
+      Boolean(this.topicFilter?.value) ||
+      this.onlyFavorites?.getAttribute("aria-pressed") === "true";
+    const total = new Set();
+    const shown = new Set();
+    this.root.querySelectorAll(".program-session--favoritable[data-program-session]").forEach((session) => {
+      total.add(session.dataset.sessionId);
+      if (!session.hidden) shown.add(session.dataset.sessionId);
+    });
+
+    // A time slot left with nothing in it is just a heading; the stacked
+    // layout drops those (see .is-filtered-empty) so a filtered phone view
+    // isn't a column of empty times.
+    this.root.querySelectorAll(".program-schedule__row").forEach((row) => {
+      row.classList.toggle("is-filtered-empty", filtering && !row.querySelector("[data-program-session]:not([hidden])"));
+    });
+
+    if (!this.filterStatus) return;
+    const hint = this.favorites.size === 0 ? this.root.dataset.favoriteHintLabel : "";
+    const text = !filtering ? hint : shown.size === 0
+      ? this.root.dataset.noResultsLabel
+      : this.root.dataset.filterCountLabel
+        .replace("{shown}", String(shown.size))
+        .replace("{total}", String(total.size));
+    // Only touch the live region when the words change, or it re-announces.
+    if (this.filterCount && this.filterCount.textContent !== text) this.filterCount.textContent = text;
+    this.filterStatus.classList.toggle("is-empty", filtering && shown.size === 0);
+    if (this.filterReset) this.filterReset.hidden = !filtering;
   }
 
   normalize(value) {
