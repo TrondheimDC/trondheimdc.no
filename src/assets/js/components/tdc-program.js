@@ -61,6 +61,9 @@ class TdcProgram {
       // inert.
       const session = event.target.closest(".program-session--favoritable");
       if (session) {
+        // A speaker click already has its own event; counting it here too
+        // would inflate the session numbers.
+        if (!speakerButton) this.trackSessionClick(session);
         this.open(session);
       }
     });
@@ -185,12 +188,18 @@ class TdcProgram {
 
   toggle(id) {
     if (!id) return;
-    if (this.favorites.has(id)) this.favorites.delete(id);
-    else this.favorites.add(id);
+    const adding = !this.favorites.has(id);
+    if (adding) this.favorites.add(id);
+    else this.favorites.delete(id);
     this.writeFavorites();
     this.updateButtons();
     if (this.activeSession?.dataset.sessionId === id) this.updateModalFavorite();
     this.playStarAnimation(id);
+
+    // Favorite counts per session double as a popularity signal in Matomo.
+    const session = this.root.querySelector(`[data-program-session][data-session-id="${CSS.escape(id)}"]`);
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Sessions", adding ? "Favorite" : "Unfavorite", session?.dataset.sessionTitle || id, 1]);
   }
 
   // Runs on a real toggle only, and after aria-pressed is settled on both
@@ -444,6 +453,13 @@ class TdcProgram {
     if (!name) return;
     const tracker = window._paq = window._paq || [];
     tracker.push(["trackEvent", "Speakers", "Click", name, 1]);
+  }
+
+  // Card clicks only: speaker clicks are tracked as Speakers, so Sessions/Click
+  // stays comparable across talks.
+  trackSessionClick(session) {
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Sessions", "Click", session.dataset.sessionTitle || "", 1]);
   }
 
   // Built from the session's own [data-speaker-open] buttons, so a session
