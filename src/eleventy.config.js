@@ -62,8 +62,9 @@ export default function (eleventyConfig) {
   });
 
   eleventyConfig.addFilter("sessionById", function (sessions, id) {
-    if (!Array.isArray(sessions) || !id) return null;
-    return sessions.find((session) => session.id === id) ?? null;
+    if (!Array.isArray(sessions) || id === undefined || id === null || id === "") return null;
+    const needle = String(id);
+    return sessions.find((session) => String(session.id) === needle) ?? null;
   });
 
   // Serialize a value to JSON, e.g. for embedding in a data-* attribute.

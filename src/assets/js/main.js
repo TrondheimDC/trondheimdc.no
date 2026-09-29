@@ -2,7 +2,8 @@
 import "./components/tdc-nav.js";
 import "./components/tdc-section.js";
 import "./components/tdc-theme-toggle.js";
-import "./components/tdc-speaker-modal.js";
+// The session dialog also renders speaker bios (merged, no separate modal) —
+// see the "Program: the merged session/speaker dialog" note in AGENTS.md.
 import "./components/tdc-program.js";
 import "./components/tdc-faq.js";
 // Clickable 8-bit duck mascot + easter eggs (lazy-loads the duck-mate engine).
