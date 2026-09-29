@@ -225,7 +225,11 @@ test.describe('Program schedule', () => {
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
 
     await firstSession.locator('[data-session-favorite]').click();
-    await page.locator('[data-program-favorites-only]').click();
+    const onlyFavorites = page.locator('[data-program-favorites-only]');
+    await onlyFavorites.click();
+    // A toggle keeps its label; aria-pressed carries the state.
+    await expect(onlyFavorites).toHaveAttribute('aria-pressed', 'true');
+    await expect(onlyFavorites).toHaveText(/Vis lagrede|Show saved/);
     await expect(firstSession).toBeVisible();
     await expect(page.locator('[data-program-session]:visible')).toHaveCount(1);
   });

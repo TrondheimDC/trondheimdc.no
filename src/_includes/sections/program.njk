@@ -18,8 +18,6 @@
       data-favorites-key="tdc-favorites-{{ sessionize.eventId }}"
       data-star-label="{{ t.program.star }}"
       data-unstar-label="{{ t.program.unstar }}"
-      data-show-favorites-label="{{ t.program.show_favorites }}"
-      data-show-all-label="{{ t.program.show_all }}"
       data-all-topics-label="{{ t.program.all_topics }}"
       data-topic-label="{{ t.program.topic }}"
       data-shared-session-label="{{ t.program.shared_session }}"
@@ -50,8 +48,12 @@
                 {% endfor %}
               </select>
             </div>
-            <button type="button" class="program-schedule__filter" data-program-favorites-only aria-pressed="false">
-              <span aria-hidden="true">☆</span> {{ t.program.show_favorites }}
+            {# One label; aria-pressed carries the state and the star fills with
+               it (same .favorite-star rule as the cards). Flipping the label to
+               "Vis alle foredrag" would read "show all talks, pressed". #}
+            <button type="button" class="program-schedule__filter program-schedule__favorites-only" data-program-favorites-only aria-pressed="false">
+              <svg class="favorite-star" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
+              {{ t.program.show_favorites }}
             </button>
             <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>{{ t.program.calendar_saved }}</button>
             {# Revealed by tdc-program-live.js, which only offers the live view

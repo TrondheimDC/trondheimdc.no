@@ -15,6 +15,8 @@
 .program-schedule__topic { min-width: 10rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; }
 .program-schedule__filter, .program-session__favorite, .program-session-modal__favorite, .program-session-modal__calendar { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
 .program-schedule__filter { padding: var(--spacing-2) var(--spacing-3); }
+.program-schedule__favorites-only { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+.program-schedule__favorites-only[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__topic:hover, .program-schedule__topic:focus-visible, .program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible, .program-session-modal__calendar:hover, .program-session-modal__calendar:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
 .program-schedule__rooms, .program-schedule__row { display: grid; grid-template-columns: 4.5rem repeat(var(--program-room-count), minmax(10rem, 1fr)); gap: var(--spacing-2); min-width: calc(4.5rem + var(--program-room-count) * 10rem); }

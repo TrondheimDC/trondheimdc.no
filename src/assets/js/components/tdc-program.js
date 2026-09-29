@@ -79,9 +79,6 @@ class TdcProgram {
     this.onlyFavorites?.addEventListener("click", () => {
       const active = this.onlyFavorites.getAttribute("aria-pressed") === "true";
       this.onlyFavorites.setAttribute("aria-pressed", String(!active));
-      this.onlyFavorites.textContent = active
-        ? `☆ ${this.root.dataset.showFavoritesLabel}`
-        : `★ ${this.root.dataset.showAllLabel}`;
       this.applyFilter();
     });
 
