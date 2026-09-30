@@ -10,4 +10,4 @@ Hvis en deltaker deltar i trakasserende atferd, vil arrangørene følge opp den 
 
 Si ifra. Vi kan ikke være overalt hele tiden. Hvis du blir trakassert, eller legger merke til at noen andre blir det, si ifra hvis du føler det er trygt, og kontakt en av oss fra programkomitéen umiddelbart. Selv om situasjonen allerede er håndtert, vil dette hjelpe oss å holde øye med ytterligere problemer.
 
-Usikker på hvem du skal kontakte? Alle arrangører er iført hvite og oransje TDC-t-skjorter. Du finner oss også på INFO-standen.
+Usikker på hvem du skal kontakte? Alle arrangører er iført hvite og oransje TDC t-skjorter. Du finner oss også på INFO-standen.
