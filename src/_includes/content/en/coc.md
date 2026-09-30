@@ -12,7 +12,7 @@ If a participant engages in harassing behaviour, the organisers will take approp
 
 Please speak up. We can't be everywhere at once. If you are being harassed, or notice someone else being harassed, say something if you feel safe to do so, and contact one of the organisers immediately. Even if the situation has already been addressed, reporting it helps us monitor for further issues.
 
-Not sure who to contact? All organisers will be wearing t-shirts with CREW printed on the back.
+Not sure who to contact? All organisers will be wearing white and orange TDC t-shirts. You can also find us at the INFO stand.
 
 #### Our values
 

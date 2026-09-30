@@ -128,7 +128,7 @@ At the end of the conference, a party will be held at the conference hotel — a
 
 All participants, speakers, partners, staff, and volunteers at the conference are required to follow the Code of Conduct. TDC strives to be a welcoming and inclusive conference for all attendees, without exception. We do not tolerate physical or digital harassment of our participants or staff in any form.
 
-Not sure who to contact if something happens? All organisers will be wearing t-shirts with CREW printed on the back — please speak up, we can't be everywhere at once.
+Not sure who to contact if something happens? All organisers will be wearing white and orange TDC t-shirts, and you can find us at the INFO stand — please speak up, we can't be everywhere at once.
 
 Read the full [Code of Conduct]({{ '/en/' | url }}#coc).
 
