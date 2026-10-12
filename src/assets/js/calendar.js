@@ -163,7 +163,7 @@ export function calendarFilename(value) {
     .slice(0, 60)
     .replace(/-+$/, "");
 
-  return `${slug || "tdc-2026"}.ics`;
+  return `${slug || "tdc-2027"}.ics`;
 }
 
 export function downloadCalendar(filename, calendar) {

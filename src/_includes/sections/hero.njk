@@ -1,6 +1,6 @@
 {% from "components/button.njk" import button %}
 
-<section class="section section--hero" id="hero" aria-label="TDC 2026">
+<section class="section section--hero" id="hero" aria-label="TDC 2027">
   <div class="container hero__inner">
     <p class="hero__date text-display">{{ t.hero.date_full }}</p>
 
@@ -10,8 +10,10 @@
 
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
 
+    {% if site.featureFlags.tickets %}
     <div class="hero__actions cluster" style="--cluster-justify: center;">
       {{ button(t.hero.cta_tickets, site.ticketUrl, "primary", "lg", null, true, "ticket-click") }}
     </div>
+    {% endif %}
   </div>
 </section>

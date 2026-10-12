@@ -71,7 +71,7 @@
     {{ content | safe }}
   </main>
 
-  {% include "partials/partner-wall.njk" %}
+  {% if site.featureFlags.partners %}{% include "partials/partner-wall.njk" %}{% endif %}
   {% include "partials/footer.njk" %}
 
   <script type="module" src="{{ '/assets/js/main.js' | url }}"></script>

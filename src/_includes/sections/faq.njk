@@ -6,6 +6,7 @@
     </header>
     <div class="faq">
       {% for item in t.faq.items %}
+        {% if not item.flag or site.featureFlags[item.flag] %}
         <details class="faq__item">
           <summary class="faq__q">
             <span class="faq__icon" aria-hidden="true"></span>
@@ -15,6 +16,7 @@
             <p>{{ item.a | safe }}</p>
           </div>
         </details>
+        {% endif %}
       {% endfor %}
     </div>
   </div>

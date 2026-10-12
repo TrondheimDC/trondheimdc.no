@@ -9,7 +9,7 @@ async function readDownload(download: Download) {
 }
 
 /**
- * Smoke tests for the rebuilt TDC 2026 site.
+ * Smoke tests for the rebuilt TDC 2027 site.
  *
  * The site is now a single page per language — Norwegian at "/" and English
  * at "/en/" — where the old standalone pages (about, info, partner, CoC, …)
@@ -18,18 +18,29 @@ async function readDownload(download: Download) {
  * that the parked easter eggs never load.
  */
 
+// Mirrors site.featureFlags in src/_data/site.js. Hidden features stay in the
+// code but are not rendered, so tests for them are skipped while their flag is off.
+const FLAGS: { tickets: boolean; program: boolean; speakers: boolean; partners: boolean } = {
+  tickets: false,
+  program: false,
+  speakers: false,
+  partners: false,
+};
+
 // Sections rendered on the single-page layout (home.njk). The program embed is
 // placed immediately before the speaker area.
 const SECTION_IDS = [
   'about',
-  'tickets',
-  'program',
-  'speakers',
+  ...(FLAGS.tickets ? ['tickets'] : []),
+  ...(FLAGS.program ? ['program'] : []),
+  ...(FLAGS.speakers ? ['speakers'] : []),
   'faq',
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'faq', 'coc'];
+const NAV_SECTIONS = SECTION_IDS;
+
+const HIDDEN_SECTIONS = ['tickets', 'program', 'speakers'].filter((id) => !FLAGS[id as keyof typeof FLAGS]);
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
@@ -44,6 +55,7 @@ test.describe('Pages load', () => {
     });
 
     test(`${path} renders the custom program schedule`, async ({ page }) => {
+      test.skip(!FLAGS.program, 'Program is hidden for 2027');
       await page.goto(path);
       await expect(page.locator('#program .program-schedule')).toBeVisible();
       await expect.poll(() => page.locator('#program .program-schedule__room-label').count()).toBeGreaterThanOrEqual(6);
@@ -54,6 +66,7 @@ test.describe('Pages load', () => {
     });
 
     test(`${path} places the program directly before speakers`, async ({ page }) => {
+      test.skip(!FLAGS.program, 'Program is hidden for 2027');
       await page.goto(path);
       const order = await page.locator('main > tdc-section > section').evaluateAll((sections) =>
         sections.map((section) => section.id),
@@ -66,6 +79,8 @@ test.describe('Pages load', () => {
 });
 
 test.describe('Program schedule', () => {
+  test.skip(!FLAGS.program, 'Program is hidden for 2027');
+
   test('opens a talk detail dialog', async ({ page }) => {
     await page.goto('/');
     const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
@@ -599,6 +614,7 @@ test.describe('Program schedule', () => {
 });
 
 test.describe('Standalone program page', () => {
+  test.skip(!FLAGS.program, 'Program is hidden for 2027');
   // /program/ and /en/program/ render the same section as the home page, on
   // their own, for anyone who would rather not scroll the single page. They
   // are deliberately unlisted — nothing on the site links to them.
@@ -666,15 +682,37 @@ test.describe('Standalone program page', () => {
     });
   }
 
+});
+
+test.describe('Hidden for 2027', () => {
+  // Negative checks: features switched off in FLAGS must not appear on the page.
   for (const path of ['/', '/en/']) {
+    test(`${path} leaves hidden sections and their nav links out`, async ({ page }) => {
+      await page.goto(path);
+      for (const id of HIDDEN_SECTIONS) {
+        await expect(page.locator(`section#${id}`)).toHaveCount(0);
+        await expect(page.locator(`.site-nav a[href="#${id}"]`)).toHaveCount(0);
+      }
+      if (!FLAGS.partners) await expect(page.locator('.partner-wall')).toHaveCount(0);
+    });
+
     test(`${path} does not link to the standalone program page`, async ({ page }) => {
       await page.goto(path);
       await expect(page.locator('a[href$="/program/"]')).toHaveCount(0);
     });
   }
+
+  test('does not build the standalone program pages', async ({ request }) => {
+    test.skip(FLAGS.program, 'Program is on for this build');
+    for (const path of ['/program/', '/en/program/']) {
+      const res = await request.get(path);
+      expect(res.status()).toBe(404);
+    }
+  });
 });
 
 test.describe('Live program view', () => {
+  test.skip(!FLAGS.program, 'Program is hidden for 2027');
   // EPG-style "follow the day": finished slots collapse out of the grid while
   // the conference is running. ?now= fakes the clock so this is testable on any
   // date; 13:00 falls on a slot boundary with eight slots already finished.
@@ -866,15 +904,25 @@ test.describe('Single-page sections', () => {
 });
 
 test.describe('Hero', () => {
-  test('Norwegian hero shows venue and ticket CTA', async ({ page }) => {
+  test('Norwegian hero shows venue', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
-    await expect(page.locator('#hero a', { hasText: 'Kjøp billetter' })).toBeVisible();
   });
 
-  test('English hero shows ticket CTA', async ({ page }) => {
+  test('ticket CTA is shown in both languages while tickets are on', async ({ page }) => {
+    test.skip(!FLAGS.tickets, 'Tickets are hidden for 2027');
+    await page.goto('/');
+    await expect(page.locator('#hero a', { hasText: 'Kjøp billetter' })).toBeVisible();
     await page.goto('/en/');
     await expect(page.locator('#hero a', { hasText: 'Buy tickets' })).toBeVisible();
+  });
+
+  test('ticket CTA is absent in both languages while tickets are off', async ({ page }) => {
+    test.skip(FLAGS.tickets, 'Tickets are on');
+    await page.goto('/');
+    await expect(page.locator('#hero a', { hasText: 'Kjøp billetter' })).toHaveCount(0);
+    await page.goto('/en/');
+    await expect(page.locator('#hero a', { hasText: 'Buy tickets' })).toHaveCount(0);
   });
 });
 
@@ -921,6 +969,8 @@ test.describe('Theme toggle', () => {
 });
 
 test.describe('Partners', () => {
+  test.skip(!FLAGS.partners, 'Partners are hidden for 2027');
+
   test('partner wall renders between the main content and the footer', async ({ page }) => {
     await page.goto('/');
 
@@ -1180,6 +1230,8 @@ test.describe('Duck mascot', () => {
 });
 
 test.describe('Speaker analytics', () => {
+  test.skip(!FLAGS.speakers, 'Speakers are hidden for 2027');
+
   test('tracks the clicked speaker by name', async ({ page }) => {
     await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
     await page.goto('/');

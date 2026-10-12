@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_PATH: /var/www/sites/2026.trondheimdc.no/public
+  DEPLOY_PATH: /var/www/sites/2027.trondheimdc.no/public
 
 jobs:
   build:
@@ -109,7 +109,7 @@ jobs:
     needs: [build, e2e-new]
     environment:
       name: production
-      url: https://trondheimdc.no
+      url: https://2027.trondheimdc.no
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -155,4 +155,4 @@ jobs:
           echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://trondheimdc.no" >> $GITHUB_STEP_SUMMARY
+echo "- **URL:** https://2027.trondheimdc.no" >> $GITHUB_STEP_SUMMARY
