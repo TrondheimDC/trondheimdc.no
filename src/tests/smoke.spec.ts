@@ -26,7 +26,6 @@ const SECTION_IDS = [
   'program',
   'speakers',
   'faq',
-  'volunteer',
   'coc',
 ];
 

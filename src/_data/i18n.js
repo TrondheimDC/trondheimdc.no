@@ -171,7 +171,7 @@ export default {
         },
         {
           q: "Kan jeg bli frivillig?",
-          a: 'Ja! Vi setter stor pris på frivillige. Har du spørsmål, kontakt oss på <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
+          a: 'Vi tar dessverre ikke inn flere frivillige i år. Ønsker du å stå på venteliste til neste år, send en e-post til <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
         },
       ],
     },
