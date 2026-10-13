@@ -32,8 +32,9 @@ import {
   mergeScheduleData,
   sortSpeakers,
 } from "../assets/js/sessionize-client.js";
+import site from "./site.js";
 
-const eventId = "1diujeu9";
+const eventId = site.sessionizeEventId;
 
 const sessionsUrl = `https://sessionize.com/api/v2/${eventId}/view/Sessions?under=True`;
 const speakersUrl = `https://sessionize.com/api/v2/${eventId}/view/Speakers?under=True`;
@@ -87,7 +88,23 @@ async function fetchSessionMetadata() {
   }
 }
 
+function emptyProgram() {
+  return {
+    eventId,
+    sessions: [],
+    speakers: [],
+    rooms: [],
+    schedule: { date: "", dateLabel: "", rooms: [], sessions: [], rows: [], topics: [], overlays: [] },
+    topSpeakerIds: [],
+  };
+}
+
 export default async function () {
+  if (!eventId) {
+    console.log("  ℹ️  sessionizeEventId not set in site.js — skipping Sessionize program fetch.");
+    return emptyProgram();
+  }
+
   const apiUrl = process.env.SESSIONIZE_API_URL;
   let apiAttempted = false;
   if (apiUrl) {

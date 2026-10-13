@@ -280,6 +280,7 @@ async function refreshProgram() {
   const program = document.querySelector(".program-schedule[data-sessionize-event-id]");
   if (!program) return;
   const eventId = program.dataset.sessionizeEventId;
+  if (!eventId) return;
   const base = `https://sessionize.com/api/v2/${eventId}/view`;
   try {
     const [sessionsHtml, speakersHtml, gridHtml] = await Promise.all([
