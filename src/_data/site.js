@@ -1,7 +1,5 @@
 const ticketUrl = "";
 const sessionizeEventId = "";
-// Manual on/off per feature. The data check below can still hide a section.
-const show = { tickets: false, program: false, speakers: false, partners: false };
 
 export default {
   title: "TDC 2027",
@@ -29,14 +27,13 @@ export default {
     partners: "30+",
     since: 2012,
   },
-  // Sections hidden until their content is ready. Hidden code is kept, not
-  // deleted: flip a flag to true to bring the feature back. Gated in
-  // home.njk, nav.njk, hero.njk, default.njk, faq.njk and eleventy.config.js.
-  // A section also needs its data: no ticketUrl or sessionizeEventId, no section.
+  // Sections appear once their data is set. Gated in home.njk, nav.njk,
+  // hero.njk, default.njk, faq.njk and eleventy.config.js.
   featureFlags: {
-    tickets: Boolean(ticketUrl) && show.tickets,
-    program: Boolean(sessionizeEventId) && show.program,
-    speakers: Boolean(sessionizeEventId) && show.speakers,
-    partners: show.partners,
+    tickets: Boolean(ticketUrl),
+    program: Boolean(sessionizeEventId),
+    speakers: Boolean(sessionizeEventId),
+    // No 2027 partner data yet; partners.js still lists 2026 partners.
+    partners: false,
   },
 };
