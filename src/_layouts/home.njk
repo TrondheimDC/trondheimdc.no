@@ -6,9 +6,9 @@ layout: default.njk
 {% set t = i18n[lang] %}
 
 {% include "sections/hero.njk" %}
-{% include "sections/tickets.njk" %}
-{% include "sections/program.njk" %}
-{% include "sections/speakers.njk" %}
+{% if site.featureFlags.tickets %}{% include "sections/tickets.njk" %}{% endif %}
+{% if site.featureFlags.program %}{% include "sections/program.njk" %}{% endif %}
+{% if site.featureFlags.speakers %}{% include "sections/speakers.njk" %}{% endif %}
 {% include "sections/about.njk" %}
 {% include "sections/faq.njk" %}
 {# 

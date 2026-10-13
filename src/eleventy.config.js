@@ -1,4 +1,5 @@
 import { RenderPlugin } from "@11ty/eleventy";
+import site from "./_data/site.js";
 
 export default function (eleventyConfig) {
   // Optional path prefix for staging deploys under a subpath.
@@ -71,6 +72,16 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("json", function (value) {
     return JSON.stringify(value ?? null);
   });
+
+  // Pages for hidden features are skipped at build time; their source is kept.
+  const hiddenPages = {
+    program: ["program/index.njk", "en/program/index.njk", "program-ics.11ty.js"],
+    speakers: ["speakers/index.njk", "en/speakers/index.njk", "speakers-info/index.njk", "en/speakers-info/index.njk"],
+    partners: ["bli-partner/index.njk", "en/become-a-partner/index.njk"],
+  };
+  for (const [flag, patterns] of Object.entries(hiddenPages)) {
+    if (!site.featureFlags[flag]) patterns.forEach((pattern) => eleventyConfig.ignores.add(pattern));
+  }
 
   // Watch targets
   eleventyConfig.addWatchTarget("assets/css/");

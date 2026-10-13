@@ -6,7 +6,7 @@ export default {
       menu: "Meny",
       menu_close: "Lukk meny",
       home: "Hjem",
-      logo_alt: "TDC 2026-logo",
+      logo_alt: "TDC 2027-logo",
       theme_light: "Bytt til lyst tema",
       theme_dark: "Bytt til mørkt tema",
       to_top: "Til toppen",
@@ -25,14 +25,14 @@ export default {
       courses: "Kurs",
     },
     hero: {
-      date_full: "19. oktober 2026",
-      date_day: "19. oktober",
-      year: "2026",
+      date_full: "25. oktober 2027",
+      date_day: "25. oktober",
+      year: "2027",
       venue: "Clarion Hotel Trondheim",
       cta_tickets: "Kjøp billetter",
     },
     about: {
-      title: "Velkommen til TDC 2026!",
+      title: "Velkommen til TDC 2027!",
       stat_tracks: "spor",
       stat_talks: "foredrag",
       stat_attendees: "deltakere",
@@ -74,7 +74,7 @@ export default {
       calendar_outlook: "Outlook",
       calendar_ics: "Apple og andre (.ics)",
       calendar_saved: "Legg til lagrede i kalenderen",
-      calendar_saved_name: "TDC 2026 – mine lagrede foredrag",
+      calendar_saved_name: "TDC 2027 – mine lagrede foredrag",
       speaker_singular: "Foredragsholder",
       speaker_plural: "Foredragsholdere",
       live_toggle: "Følg dagen",
@@ -97,7 +97,7 @@ export default {
       title: "Partnere",
       heading: "Våre partnere",
       cta: "Bli partner?",
-      hero_title: "Bli partner på TDC 2026",
+      hero_title: "Bli partner på TDC 2027",
       hero_subtitle:
         "TDC er den beste teknologikonferansen i Trondheim, drevet frem av ildsjeler i tech-miljøet.",
       hero_stats:
@@ -150,8 +150,8 @@ export default {
       title: "Kjekt å vite",
       items: [
         {
-          q: "Når og hvor er TDC 2026?",
-          a: "TDC 2026 arrangeres 19. oktober 2026 på Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
+          q: "Når og hvor er TDC 2027?",
+          a: "TDC 2027 arrangeres 25. oktober 2027 på Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
         },
         {
           q: "Hvordan kommer jeg meg dit?",
@@ -168,6 +168,7 @@ export default {
         {
           q: "Kan jeg bli partner?",
           a: 'Alle partnerplasser for 2026 er utsolgt. Vil du stå på venteliste? Se <a href="#partner">partner-seksjonen</a>.',
+          flag: "partners",
         },
         {
           q: "Kan jeg bli frivillig?",
@@ -177,7 +178,7 @@ export default {
     },
     footer: {
       find_us: "Du finner oss her:",
-      copyright: "TDC 2026",
+      copyright: "TDC 2027",
     },
     lang_switch: "EN",
     lang_switch_url: "/en/",
@@ -190,7 +191,7 @@ export default {
       menu: "Menu",
       menu_close: "Close menu",
       home: "Home",
-      logo_alt: "TDC 2026 logo",
+      logo_alt: "TDC 2027 logo",
       theme_light: "Switch to light theme",
       theme_dark: "Switch to dark theme",
       to_top: "Back to top",
@@ -209,14 +210,14 @@ export default {
       courses: "Courses",
     },
     hero: {
-      date_full: "19th of October 2026",
-      date_day: "19th of October",
-      year: "2026",
+      date_full: "25th of October 2027",
+      date_day: "25th of October",
+      year: "2027",
       venue: "Clarion Hotel Trondheim",
       cta_tickets: "Buy tickets",
     },
     about: {
-      title: "Welcome to TDC 2026!",
+      title: "Welcome to TDC 2027!",
       stat_tracks: "tracks",
       stat_talks: "talks",
       stat_attendees: "attendees",
@@ -261,7 +262,7 @@ export default {
       calendar_outlook: "Outlook",
       calendar_ics: "Apple and others (.ics)",
       calendar_saved: "Add saved talks to your calendar",
-      calendar_saved_name: "TDC 2026 – my saved talks",
+      calendar_saved_name: "TDC 2027 – my saved talks",
       speaker_singular: "Speaker",
       speaker_plural: "Speakers",
       live_toggle: "Follow the day",
@@ -284,7 +285,7 @@ export default {
       title: "Partners",
       heading: "Our partners",
       cta: "Become a partner?",
-      hero_title: "Become a partner at TDC 2026",
+      hero_title: "Become a partner at TDC 2027",
       hero_subtitle:
         "TDC is the best technology conference in Trondheim, driven by passionate people in the tech community.",
       hero_stats:
@@ -337,8 +338,8 @@ export default {
       title: "Good to know",
       items: [
         {
-          q: "When and where is TDC 2026?",
-          a: "TDC 2026 takes place on 19 October 2026 at Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
+          q: "When and where is TDC 2027?",
+          a: "TDC 2027 takes place on 25 October 2027 at Clarion Hotel &amp; Congress Trondheim, Brattørkaia 1, 7010 Trondheim.",
         },
         {
           q: "How do I get there?",
@@ -355,6 +356,7 @@ export default {
         {
           q: "Can I become a partner?",
           a: 'All partner spots for 2026 are sold out. Want to join the waiting list? See the <a href="#partner">partner section</a>.',
+          flag: "partners",
         },
         {
           q: "Can I volunteer?",
@@ -364,7 +366,7 @@ export default {
     },
     footer: {
       find_us: "Find us here:",
-      copyright: "TDC 2026",
+      copyright: "TDC 2027",
     },
     lang_switch: "NO",
     lang_switch_url: "/",
