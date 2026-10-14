@@ -38,11 +38,11 @@
   <meta property="og:locale" content="{{ 'en_GB' if lang == 'en' else 'nb_NO' }}">
   <meta property="og:site_name" content="{{ site.title }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
-  {# Pages may set ogImage in front matter; social crawlers need an absolute URL. #}
-  <meta property="og:image" content="{{ site.url }}{{ ogImage | default('/assets/images/og.png') }}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{{ title | default(site.title) }}">
+  {# Same share image everywhere (the one LinkedIn picked up from the home page);
+     social crawlers need an absolute URL. #}
+  <meta property="og:image" content="{{ site.url }}/assets/images/komite.jpg">
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="534">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}">
