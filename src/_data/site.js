@@ -1,7 +1,7 @@
 export default {
   title: "TDC 2026",
   description: "TDC 2026",
-  url: "https://trondheimdc.no",
+  url: "https://2026.trondheimdc.no",
   date: "2026-10-19",
   venue: "Clarion Hotel Trondheim",
   email: "connect@trondheimdc.no",
