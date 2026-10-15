@@ -2,7 +2,12 @@
 
 <section class="section section--hero" id="hero" aria-label="TDC 2026">
   <div class="container hero__inner">
-    <p class="hero__date text-display">{{ t.hero.date_full }}</p>
+    {# The stamp rides on the year so it lands beside the date's last line,
+       however the date wraps. #}
+    <p class="hero__date text-display">
+      {{ t.hero.date_day }}
+      <span class="hero__year">{{ t.hero.year }}<span class="hero__stamp">{{ t.hero.sold_out }}</span></span>
+    </p>
 
     {# Clickable 8-bit duck mascot — click to quack, double-click to spin,
        drag to move, five quick clicks for party mode. (easter eggs) #}
@@ -11,7 +16,7 @@
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
 
     <div class="hero__actions cluster" style="--cluster-justify: center;">
-      {{ button(t.hero.cta_tickets, site.ticketUrl, "primary", "lg", null, true, "ticket-click") }}
+      {{ button(t.hero.cta_program, "#program", "primary", "lg") }}
     </div>
   </div>
 </section>

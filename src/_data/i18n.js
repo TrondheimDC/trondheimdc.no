@@ -17,7 +17,6 @@ export default {
       cfp: "CFP",
       program: "Program",
       speakers: "Foredragsholdere",
-      tickets: "Billetter",
       partners: "Partnere",
       faq: "Kjekt å vite",
       coc: "Retningslinjer",
@@ -29,7 +28,8 @@ export default {
       date_day: "19. oktober",
       year: "2026",
       venue: "Clarion Hotel Trondheim",
-      cta_tickets: "Kjøp billetter",
+      sold_out: "Utsolgt",
+      cta_program: "Se programmet",
     },
     about: {
       title: "Velkommen til TDC 2026!",
@@ -86,12 +86,6 @@ export default {
       live_hide_earlier: "Skjul",
       live_hide_earlier_name: "Skjul ferdige foredrag",
       close: "Lukk",
-    },
-    tickets: {
-      title: "Billetter",
-      description:
-        "Få tilgang til hele konferansen, inkludert mat og drikke. Gir også tilgang til festen på kvelden.",
-      cta: "Kjøp billetter",
     },
     partners: {
       title: "Partnere",
@@ -201,7 +195,6 @@ export default {
       cfp: "CFP",
       program: "Program",
       speakers: "Speakers",
-      tickets: "Tickets",
       partners: "Partners",
       faq: "Good to know",
       coc: "Code of conduct",
@@ -213,7 +206,8 @@ export default {
       date_day: "19th of October",
       year: "2026",
       venue: "Clarion Hotel Trondheim",
-      cta_tickets: "Buy tickets",
+      sold_out: "Sold out",
+      cta_program: "See the program",
     },
     about: {
       title: "Welcome to TDC 2026!",
@@ -273,12 +267,6 @@ export default {
       live_hide_earlier: "Hide",
       live_hide_earlier_name: "Hide finished talks",
       close: "Close",
-    },
-    tickets: {
-      title: "Tickets",
-      description:
-        "Get access to the full conference, including food and drinks. Also includes access to the evening party.",
-      cta: "Buy tickets",
     },
     partners: {
       title: "Partners",
