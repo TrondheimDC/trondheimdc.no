@@ -1,5 +1,3 @@
-{% from "components/button.njk" import button %}
-
 <section class="section section--hero" id="hero" aria-label="TDC 2026">
   <div class="container hero__inner">
     <p class="hero__date text-display">{{ t.hero.date_full }}</p>
@@ -9,9 +7,5 @@
     <tdc-duck class="hero__duck" image="{{ '/assets/images/8bit-duck.svg' | url }}"></tdc-duck>
 
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
-
-    <div class="hero__actions cluster" style="--cluster-justify: center;">
-      {{ button(t.hero.cta_tickets, site.ticketUrl, "primary", "lg", null, true, "ticket-click") }}
-    </div>
   </div>
 </section>

@@ -866,15 +866,27 @@ test.describe('Single-page sections', () => {
 });
 
 test.describe('Hero', () => {
-  test('Norwegian hero shows venue and ticket CTA', async ({ page }) => {
+  test('Norwegian hero shows venue and no ticket CTA', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
-    await expect(page.locator('#hero a', { hasText: 'Kjøp billetter' })).toBeVisible();
+    await expect(page.locator('#hero [aria-disabled="true"]')).toHaveCount(0);
   });
 
-  test('English hero shows ticket CTA', async ({ page }) => {
+  test('English hero shows no ticket CTA', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('#hero a', { hasText: 'Buy tickets' })).toBeVisible();
+    await expect(page.locator('#hero [aria-disabled="true"]')).toHaveCount(0);
+  });
+});
+
+test.describe('Tickets', () => {
+  test('Norwegian tickets section shows disabled sold-out CTA', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#tickets [aria-disabled="true"]', { hasText: 'Utsolgt' })).toBeVisible();
+  });
+
+  test('English tickets section shows disabled sold-out CTA', async ({ page }) => {
+    await page.goto('/en/');
+    await expect(page.locator('#tickets [aria-disabled="true"]', { hasText: 'Sold out' })).toBeVisible();
   });
 });
 

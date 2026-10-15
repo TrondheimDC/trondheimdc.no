@@ -29,7 +29,6 @@ export default {
       date_day: "19. oktober",
       year: "2026",
       venue: "Clarion Hotel Trondheim",
-      cta_tickets: "Kjøp billetter",
     },
     about: {
       title: "Velkommen til TDC 2026!",
@@ -91,7 +90,7 @@ export default {
       title: "Billetter",
       description:
         "Få tilgang til hele konferansen, inkludert mat og drikke. Gir også tilgang til festen på kvelden.",
-      cta: "Kjøp billetter",
+      cta: "Utsolgt",
     },
     partners: {
       title: "Partnere",
@@ -213,7 +212,6 @@ export default {
       date_day: "19th of October",
       year: "2026",
       venue: "Clarion Hotel Trondheim",
-      cta_tickets: "Buy tickets",
     },
     about: {
       title: "Welcome to TDC 2026!",
@@ -278,7 +276,7 @@ export default {
       title: "Tickets",
       description:
         "Get access to the full conference, including food and drinks. Also includes access to the evening party.",
-      cta: "Buy tickets",
+      cta: "Sold out",
     },
     partners: {
       title: "Partners",

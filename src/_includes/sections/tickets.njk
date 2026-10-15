@@ -1,5 +1,3 @@
-{% from "components/button.njk" import button %}
-
 <tdc-section>
 <section class="section section--surface" id="tickets" data-animate aria-labelledby="tickets-title">
   <div class="container stack">
@@ -9,7 +7,7 @@
     </header>
 
     <div class="cluster">
-      {{ button(t.tickets.cta, site.ticketUrl, "primary", "lg", null, true, "ticket-click") }}
+      <span class="btn btn--primary btn--lg btn--disabled" aria-disabled="true">{{ t.tickets.cta }}</span>
     </div>
   </div>
 </section>
