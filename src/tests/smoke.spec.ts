@@ -22,14 +22,13 @@ async function readDownload(download: Download) {
 // placed immediately before the speaker area.
 const SECTION_IDS = [
   'about',
-  'tickets',
   'program',
   'speakers',
   'faq',
   'coc',
 ];
 
-const NAV_SECTIONS = ['about', 'tickets', 'program', 'speakers', 'faq', 'coc'];
+const NAV_SECTIONS = ['about', 'program', 'speakers', 'faq', 'coc'];
 
 test.describe('Pages load', () => {
   for (const path of ['/', '/en/']) {
@@ -866,27 +865,23 @@ test.describe('Single-page sections', () => {
 });
 
 test.describe('Hero', () => {
-  test('Norwegian hero shows venue and no ticket CTA', async ({ page }) => {
+  test('Norwegian hero shows venue and sold-out stamp', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
-    await expect(page.locator('#hero [aria-disabled="true"]')).toHaveCount(0);
+    await expect(page.locator('#hero .hero__stamp')).toHaveText('Utsolgt');
+    await expect(page.locator('#hero a[href="#program"]', { hasText: 'Se programmet' })).toBeVisible();
   });
 
-  test('English hero shows no ticket CTA', async ({ page }) => {
+  test('English hero shows sold-out stamp', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('#hero [aria-disabled="true"]')).toHaveCount(0);
+    await expect(page.locator('#hero .hero__stamp')).toHaveText('Sold out');
+    await expect(page.locator('#hero a[href="#program"]', { hasText: 'See the program' })).toBeVisible();
   });
-});
 
-test.describe('Tickets', () => {
-  test('Norwegian tickets section shows disabled sold-out CTA', async ({ page }) => {
+  test('ticket section and nav link are gone', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#tickets [aria-disabled="true"]', { hasText: 'Utsolgt' })).toBeVisible();
-  });
-
-  test('English tickets section shows disabled sold-out CTA', async ({ page }) => {
-    await page.goto('/en/');
-    await expect(page.locator('#tickets [aria-disabled="true"]', { hasText: 'Sold out' })).toBeVisible();
+    await expect(page.locator('#tickets')).toHaveCount(0);
+    await expect(page.locator('a[href$="#tickets"]')).toHaveCount(0);
   });
 });
 
