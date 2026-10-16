@@ -30,6 +30,7 @@ const FLAGS: { tickets: boolean; program: boolean; speakers: boolean; partners: 
 // Sections rendered on the single-page layout (home.njk). The program embed is
 // placed immediately before the speaker area.
 const SECTION_IDS = [
+  'interest',
   'about',
   ...(FLAGS.tickets ? ['tickets'] : []),
   ...(FLAGS.program ? ['program'] : []),

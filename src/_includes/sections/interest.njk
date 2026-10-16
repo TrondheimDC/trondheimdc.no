@@ -1,0 +1,16 @@
+{% from "components/button.njk" import button %}
+
+<tdc-section>
+<section class="section" id="interest" data-animate aria-labelledby="interest-title">
+  <div class="container stack">
+    <header class="section__header stack stack-sm">
+      <h2 class="section__title text-h1" id="interest-title">{{ t.interest.title }}</h2>
+      <p class="section__lead text-lead">{{ t.interest.lead }}</p>
+    </header>
+
+    <div class="cluster">
+      {{ button(t.interest.cta, site.interestFormUrl, "primary", "lg", null, true, "interest-click") }}
+    </div>
+  </div>
+</section>
+</tdc-section>
