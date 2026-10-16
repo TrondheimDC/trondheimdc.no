@@ -1,5 +1,5 @@
 const ticketUrl = "";
-const interestFormUrl = "https://hub.trondheimdc.no/apps/forms/s/f3sgK9DTxF57zbfjS2d7nzDH";
+const interestFormUrl = "https://hub.trondheimdc.no/apps/forms/s/8ryzaodaiETBBGcsxtzEspDk";
 const sessionizeEventId = "";
 
 export default {
