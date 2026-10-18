@@ -1,4 +1,5 @@
 const ticketUrl = "";
+const interestFormUrl = "https://forms.trondheimdc.no/s/8ryzaodaiETBBGcsxtzEspDk";
 const sessionizeEventId = "";
 
 export default {
@@ -10,6 +11,7 @@ export default {
   email: "connect@trondheimdc.no",
   partnerEmail: "partner@trondheimdc.no",
   ticketUrl,
+  interestFormUrl,
   partnerOrderUrl: "#partners",
   sessionizeEventId,
   social: {

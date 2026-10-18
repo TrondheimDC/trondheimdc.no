@@ -18,6 +18,7 @@ export default {
       program: "Program",
       speakers: "Foredragsholdere",
       tickets: "Billetter",
+      interest: "Interesse",
       partners: "Partnere",
       faq: "Kjekt å vite",
       coc: "Retningslinjer",
@@ -92,6 +93,11 @@ export default {
       description:
         "Få tilgang til hele konferansen, inkludert mat og drikke. Gir også tilgang til festen på kvelden.",
       cta: "Kjøp billetter",
+    },
+    interest: {
+      title: "Interessert i TDC 2027?",
+      lead: "Fyll ut interesseskjemaet for å vise at du er interessert i TDC 2027.",
+      cta: "Meld din interesse",
     },
     partners: {
       title: "Partnere",
@@ -203,6 +209,7 @@ export default {
       program: "Program",
       speakers: "Speakers",
       tickets: "Tickets",
+      interest: "Interest",
       partners: "Partners",
       faq: "Good to know",
       coc: "Code of conduct",
@@ -280,6 +287,11 @@ export default {
       description:
         "Get access to the full conference, including food and drinks. Also includes access to the evening party.",
       cta: "Buy tickets",
+    },
+    interest: {
+      title: "Interested in TDC 2027?",
+      lead: "Fill in the interest form to let us know you are interested in TDC 2027.",
+      cta: "Show your interest",
     },
     partners: {
       title: "Partners",

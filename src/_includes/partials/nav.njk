@@ -28,6 +28,7 @@
 
       <div class="site-nav__menu" id="nav-menu">
         <ul class="site-nav__links" role="list">
+          <li><a href="{{ sectionBase }}#interest" class="site-nav__link" data-section="interest">{{ t.nav.interest }}</a></li>
           {% if site.featureFlags.tickets %}<li><a href="{{ sectionBase }}#tickets" class="site-nav__link" data-section="tickets">{{ t.nav.tickets }}</a></li>{% endif %}
           {% if site.featureFlags.program %}<li><a href="{{ sectionBase }}#program" class="site-nav__link" data-section="program">{{ t.nav.program }}</a></li>{% endif %}
           {% if site.featureFlags.speakers %}<li><a href="{{ sectionBase }}#speakers" class="site-nav__link" data-section="speakers">{{ t.nav.speakers }}</a></li>{% endif %}
