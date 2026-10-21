@@ -3,10 +3,12 @@
  * - Mobile hamburger toggle
  * - Intersection Observer active section highlighting
  * - Smooth scroll
- * - URL hash sync
+ * - A Matomo page view per section scrolled to (the address bar is left alone)
  */
 class TdcNav extends HTMLElement {
   #activeSection = location.hash.slice(1) || "hero";
+  // The page as loaded: a talk dialog later puts its own page in the address bar.
+  #pageUrl = location.href.split("#")[0];
 
   connectedCallback() {
     this.toggle = this.querySelector(".site-nav__toggle");
@@ -72,12 +74,6 @@ class TdcNav extends HTMLElement {
           if (entry.isIntersecting) {
             const id = entry.target.id;
             this.#setActive(id);
-            // Update URL hash without scrolling (only when it changes). Skip
-            // this on standalone pages (e.g. /program/): there's no home
-            // page section for the hash to mean anything to.
-            if (!this.hasAttribute("data-no-hash-sync") && location.hash !== `#${id}`) {
-              history.replaceState(null, "", `#${id}`);
-            }
             this.#trackSectionView(entry.target);
           }
         });
@@ -96,12 +92,13 @@ class TdcNav extends HTMLElement {
     if (this.#activeSection === id) return;
     this.#activeSection = id;
 
-    // Hash changes made with replaceState do not create a Matomo page view by
-    // themselves. Record each section as a virtual page so scrolling through
-    // the single-page site is visible in the page reports.
+    // Record each home page section as a virtual page (/#program, ...) so
+    // scrolling through the single-page site is visible in the page reports.
+    // The address bar itself is left alone. A standalone page (/program/, a
+    // talk page) is just itself.
     const tracker = window._paq = window._paq || [];
     const heading = section.querySelector("h1, h2, h3")?.textContent?.trim();
-    tracker.push(["setCustomUrl", window.location.href]);
+    tracker.push(["setCustomUrl", this.hasAttribute("data-standalone") ? this.#pageUrl : `${this.#pageUrl}#${id}`]);
     tracker.push(["setDocumentTitle", heading ? `${document.title} — ${heading}` : document.title]);
     tracker.push(["trackPageView"]);
   }

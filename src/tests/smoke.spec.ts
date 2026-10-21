@@ -112,16 +112,41 @@ test.describe('Program schedule', () => {
     await expect.poll(() => scroll.evaluate((el) => el.scrollTop)).toBe(0);
   });
 
-  test('keeps the sticky nav out of the dialog\'s View Transition', async ({ page }) => {
-    // Regression guard: .site-nav is position: sticky and visible on every
-    // page. Left unnamed, it gets bundled into the *document-wide* "root"
-    // snapshot the dialog's View Transition still takes — captured at its
-    // natural, unstuck document position rather than its current on-screen
-    // one, which reads as the nav vanishing and snapping back once live
-    // rendering resumes. Naming it pulls it into its own, unaffected group.
+  test('closing a talk keeps the page where it was, even after a #section link', async ({ page }) => {
+    await page.goto('/#program');
+    const card = page.locator('.program-session--favoritable [data-session-open]').nth(8);
+    await card.scrollIntoViewIfNeeded();
+    const before = await page.evaluate(() => window.scrollY);
+    await card.click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page).toHaveURL(/\/$/);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+  });
+
+  test('scrolling the home page leaves the address bar alone', async ({ page }) => {
     await page.goto('/');
-    const viewTransitionName = await page.locator('.site-nav').evaluate((el) => getComputedStyle(el).viewTransitionName);
-    expect(viewTransitionName).toBe('site-nav');
+    await page.locator('#speakers').scrollIntoViewIfNeeded();
+    await expect(page.locator('.site-nav__link--active')).toHaveAttribute('data-section', 'speakers');
+    expect(new URL(page.url()).hash).toBe('');
+  });
+
+  test('opens and closes the dialog without a page-wide View Transition', async ({ page }) => {
+    // Regression guard: a View Transition snapshots the whole page, and on
+    // Android Chrome (toolbar showing) draws those snapshots off by the
+    // toolbar's height — the sticky nav flashed. The dialog fades in CSS.
+    await page.addInitScript(() => {
+      (window as any).viewTransitions = 0;
+      const start = document.startViewTransition?.bind(document);
+      if (start) document.startViewTransition = (...args: any[]) => { (window as any).viewTransitions++; return start(...args); };
+    });
+    await page.goto('/');
+    await page.locator('[data-program-session].program-session--favoritable [data-session-open]').first().click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    await page.locator('[data-session-close]').click();
+    await expect(page.locator('[data-session-dialog]')).toBeHidden();
+    expect(await page.evaluate(() => (window as any).viewTransitions)).toBe(0);
   });
 
   test('labels the speakers section singular or plural to match the talk', async ({ page }) => {
@@ -181,9 +206,7 @@ test.describe('Program schedule', () => {
 
     const close = page.locator('[data-session-close]');
     const favorite = page.locator('[data-session-modal-favorite]');
-    // Opening runs inside a View Transition; give its (browser-default-length)
-    // animation time to settle before measuring, or this reads an in-transit
-    // position rather than the dialog's actual, final one.
+    // Let the fade-in settle before measuring.
     await page.waitForTimeout(350);
     const closeBefore = await close.boundingBox();
 
@@ -705,14 +728,62 @@ test.describe('Talk pages', () => {
     });
   }
 
-  test('a plain click still opens the dialog, which links to the talk page', async ({ page }) => {
+  test('a plain click opens the dialog and puts the talk page in the address bar', async ({ page }) => {
     await page.goto('/');
     const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
     const id = await session.getAttribute('data-session-id');
+    const dialog = page.locator('[data-session-dialog]');
+
     await session.locator('[data-session-open]').click();
-    await expect(page).toHaveURL(/\/(#.*)?$/);
-    await expect(page.locator('[data-session-dialog]')).toBeVisible();
-    await expect(page.locator('[data-session-modal-permalink]')).toHaveAttribute('href', `/program/${id}/`);
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(`/program/${id}/`);
+    await expect(page).toHaveTitle(/After the AI Hype.*TDC 2026/);
+
+    // Back closes it, Forward brings it back, closing steps back again.
+    await page.goBack();
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/(#\w+)?$/);
+    await page.goForward();
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(`/program/${id}/`);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/(#\w+)?$/);
+    await expect(page).toHaveTitle(/^TDC/);
+  });
+
+  test('copies the talk link from the dialog', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/en/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    const id = await session.getAttribute('data-session-id');
+    await session.locator('[data-session-open]').click();
+
+    const copy = page.locator('[data-session-copy]');
+    await copy.click();
+    await expect(copy).toHaveClass(/is-done/);
+    await expect(page.locator('[data-session-copy-status]')).toHaveText('Link copied');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:4000/en/program/${id}/`);
+    await expect(copy).not.toHaveClass(/is-done/, { timeout: 4000 });
+  });
+
+  test('the whole card is a link, for opening a talk in a new tab', async ({ page, context }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    const id = await session.getAttribute('data-session-id');
+    // Somewhere on the card that isn't the title text: still the link.
+    await session.scrollIntoViewIfNeeded();
+    const box = (await session.boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height - 6]);
+    expect(hit).toBe(`/program/${id}/`);
+
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      session.locator('[data-session-open]').click({ modifiers: ['ControlOrMeta'] }),
+    ]);
+    await popup.waitForLoadState();
+    expect(new URL(popup.url()).pathname).toBe(`/program/${id}/`);
+    await expect(page.locator('[data-session-dialog]')).toBeHidden();
   });
 
   test('each talk page shares its own image', async ({ page, request }) => {
@@ -1368,9 +1439,7 @@ test.describe('Speaker analytics', () => {
 
     const close = page.locator('[data-session-close]');
     const favorite = page.locator('[data-session-modal-favorite]');
-    // Opening runs inside a View Transition; give its (browser-default-length)
-    // animation time to settle before measuring, or this reads an in-transit
-    // position rather than the dialog's actual, final one.
+    // Let the fade-in settle before measuring.
     await page.waitForTimeout(350);
     const closeBefore = await close.boundingBox();
 

@@ -1,0 +1,147 @@
+/* Pill — the small rounded control the program uses for its filters ("Vis
+   lagrede", the saved-talks calendar export) and the talk dialog's actions
+   (save and add to calendar, plus copy link as an icon in its header). One
+   look and one feel everywhere: brand-coloured on hover/focus and while "on"
+   (aria-pressed/-expanded, or .is-done for a one-off action like copying),
+   and a press-in on tap.
+
+   A pill whose label changes with its state puts both versions, each with its
+   own icon, in .pill__labels: they share one grid cell, so the pill keeps the
+   wider one's width (nothing around it reflows) and stays centred either way.
+   The label slides to its other version and a ring pulses out when the state
+   is turned on by the reader (.is-toggling, or .is-done). The reduced-motion
+   reset in reset.css flattens all of it to an instant swap. */
+.pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-height: 2.75rem;
+  padding: 0 var(--spacing-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-base);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform var(--duration-fast) var(--ease-spring),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.pill:hover,
+.pill:focus-visible,
+.pill[aria-pressed="true"],
+.pill[aria-expanded="true"],
+.pill.is-done {
+  border-color: var(--color-fg-brand);
+  color: var(--color-fg-brand);
+}
+
+.pill:active {
+  transform: scale(0.96);
+  transition-duration: 60ms;
+}
+
+.pill:disabled {
+  cursor: default;
+  opacity: 0.45;
+  transform: none;
+}
+
+.pill:disabled:hover {
+  border-color: var(--color-border);
+  color: var(--color-fg-base);
+}
+
+/* Icon only (the dialog's copy-link button): round, the size of the
+   dialog's close button beside it. Name it with aria-label and title. */
+.pill--icon {
+  width: 2.25rem;
+  min-height: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+}
+
+.pill[hidden] {
+  display: none;
+}
+
+.pill > svg {
+  flex: none;
+}
+
+.pill::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--color-fg-brand);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pill.is-toggling[aria-pressed="true"]::after,
+.pill.is-done::after {
+  animation: pill-ring var(--duration-slow) var(--ease-out);
+}
+
+.pill--icon.is-done::after {
+  animation-name: pill-ring-round;
+}
+
+.pill__labels {
+  display: grid;
+  justify-items: center;
+  overflow: hidden;
+}
+
+.pill__label {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  transition: transform var(--duration-normal) var(--ease-spring),
+    opacity var(--duration-fast) var(--ease-default);
+}
+
+.pill__label > svg {
+  flex: none;
+}
+
+.pill__label--alt {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+:is(.pill[aria-pressed="true"], .pill.is-done) .pill__label:not(.pill__label--alt) {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+:is(.pill[aria-pressed="true"], .pill.is-done) .pill__label--alt {
+  opacity: 1;
+  transform: none;
+}
+
+/* Set for one style pass while a reused pill takes on new state that the
+   reader didn't cause (another talk opening in the same dialog). */
+.is-swapping .pill,
+.is-swapping .pill * {
+  transition: none;
+}
+
+@keyframes pill-ring {
+  0% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25, 1.6); }
+}
+
+@keyframes pill-ring-round {
+  0% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
