@@ -1,0 +1,31 @@
+---js
+{
+  layout: "default.njk",
+  lang: "en",
+  // English twin of program/talk.njk.
+  pagination: {
+    data: "sessionize.schedule.sessions",
+    size: 1,
+    alias: "session",
+    before: (sessions) => sessions.filter((session) => !session.isService),
+  },
+  permalink: (data) => `/en/program/${data.session.id}/`,
+  standalone: true,
+  canonical: true,
+  ogType: "article",
+  eleventyExcludeFromCollections: true,
+  eleventyComputed: {
+    title: (data) => `${data.session.title} — TDC 2026`,
+    description: (data) => data.session.description,
+    // Rendered by program-og.11ty.js, beside the page.
+    ogImage: (data) => ({ src: `${data.page.url}og.png`, width: 1200, height: 630 }),
+    noUrl: (data) => `/program/${data.session.id}/`,
+    enUrl: (data) => `/en/program/${data.session.id}/`,
+  },
+}
+---
+
+{# Language-scoped UI strings, as in home.njk (layouts render after the page). #}
+{% set t = i18n[lang] %}
+
+{% include "sections/talk.njk" %}

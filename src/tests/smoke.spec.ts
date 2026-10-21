@@ -673,6 +673,73 @@ test.describe('Standalone program page', () => {
   }
 });
 
+test.describe('Talk pages', () => {
+  // Every talk has a page of its own (/program/<id>/, /en/program/<id>/), so a
+  // talk can be linked to directly — and read with JavaScript off.
+  for (const { home, base, lang } of [
+    { home: '/', base: '/program/', lang: 'no' },
+    { home: '/en/', base: '/en/program/', lang: 'en' },
+  ]) {
+    test(`${home} links each talk title to its own page, readable without JavaScript`, async ({ browser }) => {
+      const context = await browser.newContext({ javaScriptEnabled: false });
+      const page = await context.newPage();
+      await page.goto(home);
+      const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+      const id = await session.getAttribute('data-session-id');
+      const link = session.locator('a[data-session-open]');
+      await expect(link).toHaveAttribute('href', `${base}${id}/`);
+
+      await link.click();
+      await expect(page).toHaveURL(`${base}${id}/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await expect(page.locator('h1')).toHaveText(/After the AI Hype/);
+      await expect(page).toHaveTitle(/After the AI Hype.*TDC 2026/);
+      await expect(page.locator('.talk__description')).not.toBeEmpty();
+      await expect(page.locator('.session-speaker__name')).toHaveText('Richard Campbell');
+      await expect(page.locator(`a[href="/program/${id}.ics"]`)).toHaveCount(1);
+      await expect(page.locator('a[href^="https://calendar.google.com/"]')).toHaveCount(1);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', new RegExp(`${base}${id}/$`));
+      await expect(page.locator('.site-nav__lang a[hreflang="no"]')).toHaveAttribute('href', `/program/${id}/`);
+      await expect(page.locator('.site-nav__lang a[hreflang="en"]')).toHaveAttribute('href', `/en/program/${id}/`);
+      await context.close();
+    });
+  }
+
+  test('a plain click still opens the dialog, which links to the talk page', async ({ page }) => {
+    await page.goto('/');
+    const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
+    const id = await session.getAttribute('data-session-id');
+    await session.locator('[data-session-open]').click();
+    await expect(page).toHaveURL(/\/(#.*)?$/);
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+    await expect(page.locator('[data-session-modal-permalink]')).toHaveAttribute('href', `/program/${id}/`);
+  });
+
+  test('each talk page shares its own image', async ({ page, request }) => {
+    for (const base of ['/program/', '/en/program/']) {
+      await page.goto('/');
+      const id = await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).getAttribute('data-session-id');
+      await page.goto(`${base}${id}/`);
+      const image = await page.locator('meta[property="og:image"]').getAttribute('content') ?? '';
+      expect(new URL(image).pathname).toBe(`${base}${id}/og.png`);
+      const res = await request.get(`${base}${id}/og.png`);
+      expect(res.status()).toBe(200);
+      expect(res.headers()['content-type']).toContain('image/png');
+      const png = await res.body();
+      // PNG IHDR: width and height, big-endian, at bytes 16 and 20.
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+    }
+  });
+
+  test('breaks get no page of their own', async ({ request }) => {
+    const res = await request.get('/');
+    const html = await res.text();
+    const breakId = html.match(/program-session--service[^>]*data-session-id="([^"]+)"/)?.[1];
+    expect(breakId).toBeTruthy();
+    expect((await request.get(`/program/${breakId}/`)).status()).toBe(404);
+  });
+});
+
 test.describe('Live program view', () => {
   // EPG-style "follow the day": finished slots collapse out of the grid while
   // the conference is running. ?now= fakes the clock so this is testable on any

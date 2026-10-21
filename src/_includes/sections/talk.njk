@@ -1,0 +1,73 @@
+{# One talk on a page of its own (/program/<id>/, /en/program/<id>/), so a
+   talk can be linked to directly. Plain HTML: everything here, calendar links
+   included, works with JavaScript off. #}
+{% from "components/session-language.njk" import sessionLanguage %}
+{% set programBase = '/en/program/' if lang == 'en' else '/program/' %}
+{% set home = '/en/' if lang == 'en' else '/' %}
+{% set talkUrl = site.url + programBase + session.id + '/' %}
+{% set talkLang = session.language if (session.language == 'en' or session.language == 'no') else '' %}
+<section class="section talk" aria-labelledby="talk-title">
+  <div class="container stack">
+    <p class="talk__back"><a href="{{ home | url }}#program">← {{ t.program.back }}</a></p>
+
+    <header class="talk__header">
+      <p class="talk__meta">
+        <span>{{ sessionize.schedule.date | date(lang) }}</span>
+        <span>{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
+        <span>{{ session.roomName or t.program.shared_session }}</span>
+        {{ sessionLanguage(session.language, t) }}
+      </p>
+      <h1 class="talk__title text-h1" id="talk-title"{% if talkLang %} lang="{{ talkLang }}"{% endif %}>{{ session.title }}</h1>
+    </header>
+
+    {% if session.description %}
+      <p class="talk__description"{% if talkLang %} lang="{{ talkLang }}"{% endif %}>{{ session.description }}</p>
+    {% endif %}
+
+    {% if session.topics and session.topics.length %}
+      <ul class="talk__topics" role="list" aria-label="{{ t.program.topic }}">
+        {% for topic in session.topics %}<li class="tag">{{ topic }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="talk__calendar" role="group" aria-label="{{ t.program.calendar_add }}">
+      <a class="calendar-menu__item" href="{{ session | googleCalendarUrl(sessionize.speakers, talkUrl) }}" target="_blank" rel="noopener">
+        {{ t.program.calendar_google }} <span class="visually-hidden">({{ t.ui.external }})</span>
+      </a>
+      <a class="calendar-menu__item" href="{{ session | outlookCalendarUrl(sessionize.speakers, talkUrl) }}" target="_blank" rel="noopener">
+        {{ t.program.calendar_outlook }} <span class="visually-hidden">({{ t.ui.external }})</span>
+      </a>
+      <a class="calendar-menu__item" href="{{ ('/program/' + session.id + '.ics') | url }}">{{ t.program.calendar_ics }}</a>
+    </div>
+
+    {% if session.speakers and session.speakers.length %}
+      <section class="talk__speakers" aria-labelledby="talk-speakers-title">
+        <h2 class="program-session-modal__speakers-title" id="talk-speakers-title">{{ t.program.speaker_singular if session.speakers.length == 1 else t.program.speaker_plural }}</h2>
+        <div class="program-session-modal__speakers">
+          {% for speakerId in session.speakers %}
+            {% set speaker = sessionize.speakers | speakerById(speakerId) %}
+            {% if speaker %}
+              <div class="session-speaker">
+                <div class="session-speaker__header">
+                  {% if speaker.profilePicture %}<img class="session-speaker__avatar" src="{{ speaker.profilePicture }}" alt="" width="56" height="56">{% endif %}
+                  <div class="session-speaker__heading">
+                    <p class="session-speaker__name">{{ speaker.firstName }} {{ speaker.lastName }}</p>
+                    {% if speaker.tagLine %}<p class="session-speaker__tagline">{{ speaker.tagLine }}</p>{% endif %}
+                  </div>
+                </div>
+                {% if speaker.bio %}<p class="session-speaker__bio">{{ speaker.bio }}</p>{% endif %}
+                {% if speaker.twitter or speaker.linkedIn or speaker.blog %}
+                  <div class="session-speaker__socials">
+                    {% if speaker.twitter %}<a class="social-link" href="https://twitter.com/{{ speaker.twitter }}" target="_blank" rel="noopener noreferrer">X (Twitter)</a>{% endif %}
+                    {% if speaker.linkedIn %}<a class="social-link" href="{{ speaker.linkedIn }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}
+                    {% if speaker.blog %}<a class="social-link" href="{{ speaker.blog }}" target="_blank" rel="noopener noreferrer">Website</a>{% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+</section>

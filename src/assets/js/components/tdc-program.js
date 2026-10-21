@@ -32,6 +32,7 @@ class TdcProgram {
     this.calendarExport = root.querySelector("[data-program-calendar-export]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
+    this.permalink = root.querySelector("[data-session-modal-permalink]");
     this.meta = root.querySelector("[data-session-modal-meta]");
     this.metaRow = root.querySelector("[data-session-modal-meta-row]");
     this.modalLanguage = root.querySelector("[data-session-modal-language]");
@@ -41,6 +42,9 @@ class TdcProgram {
     this.speakersList = root.querySelector("[data-session-modal-speakers]");
     this.activeSession = null;
     this.returnFocus = null;
+
+    // Titles are links to each talk's own page; here they open the dialog.
+    root.querySelectorAll("[data-session-open]").forEach((link) => link.setAttribute("aria-haspopup", "dialog"));
 
     root.addEventListener("click", (event) => {
       const favorite = event.target.closest("[data-session-favorite]");
@@ -65,6 +69,10 @@ class TdcProgram {
       // inert.
       const session = event.target.closest(".program-session--favoritable");
       if (session) {
+        // Ctrl/Cmd/Shift-click on the title still opens the talk's page.
+        const link = event.target.closest("a[href]");
+        if (link && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)) return;
+        if (link?.matches("[data-session-open]")) event.preventDefault();
         // A speaker click already has its own event; counting it here too
         // would inflate the session numbers.
         if (!speakerButton) this.trackSessionClick(session);
@@ -412,7 +420,7 @@ class TdcProgram {
     const speakers = [...session.querySelectorAll("[data-speaker-open]")]
       .map((speaker) => speaker.dataset.speakerName)
       .filter(Boolean);
-    const url = this.root.dataset.calendarUrl;
+    const url = session.dataset.sessionUrl || this.root.dataset.calendarUrl;
 
     return {
       uid: `${session.dataset.sessionId}@trondheimdc.no`,
@@ -445,6 +453,11 @@ class TdcProgram {
       this.title.textContent = session.dataset.sessionTitle || "";
       this.description.textContent = session.dataset.sessionDescription || "";
       this.description.hidden = !this.description.textContent;
+      if (this.permalink) {
+        const href = session.querySelector("[data-session-open]")?.getAttribute("href");
+        this.permalink.parentElement.hidden = !href;
+        if (href) this.permalink.href = href;
+      }
       this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
       // A previous open() may have been the no-session speaker fallback below,
       // which hides all three — a real session always shows all three.
@@ -497,6 +510,7 @@ class TdcProgram {
       this.returnFocus = button;
       this.title.textContent = button.dataset.speakerName || "";
       this.description.hidden = true;
+      if (this.permalink) this.permalink.parentElement.hidden = true;
       if (this.metaRow) this.metaRow.hidden = true;
       if (this.actions) this.actions.hidden = true;
       setLanguageSlot(this.modalLanguage, null);

@@ -24,17 +24,19 @@
   </script>
 
   <title>{{ title | default(site.title) }}</title>
-  <meta name="description" content="{{ description | default(site.description) }}">
-  <link rel="canonical" href="{{ site.url }}{{ ('/en/' if lang == 'en' else '/') }}">
+  <meta name="description" content="{{ description | default(site.description) | excerpt(200) }}">
+  {# Pages that only repeat the home page canonical to it; a page with content
+     of its own (a talk) sets canonical: true and points at itself. #}
+  <link rel="canonical" href="{{ site.url }}{{ page.url if canonical else ('/en/' if lang == 'en' else '/') }}">
 
   {# Theme colour matches the design tokens (dark default / light override). #}
   <meta name="theme-color" content="#0F0F0F" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#FEFEFE" media="(prefers-color-scheme: light)">
 
   {# Open Graph / social #}
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="{{ ogType | default('website') }}">
   <meta property="og:title" content="{{ title | default(site.title) }}">
-  <meta property="og:description" content="{{ description | default(site.description) }}">
+  <meta property="og:description" content="{{ description | default(site.description) | excerpt(200) }}">
   <meta property="og:locale" content="{{ 'en_GB' if lang == 'en' else 'nb_NO' }}">
   <meta property="og:site_name" content="{{ site.title }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
