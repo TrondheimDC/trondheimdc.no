@@ -8,7 +8,7 @@
 {% set noHome = noUrl | default('/') %}
 {% set enHome = enUrl | default('/en/') %}
 
-<tdc-nav{% if standalone %} data-no-hash-sync{% endif %}>
+<tdc-nav{% if standalone %} data-standalone{% endif %}>
   <nav class="site-nav" aria-label="{{ 'Main navigation' if lang == 'en' else 'Hovednavigasjon' }}">
     <div class="site-nav__inner container container--wide">
       <a href="{{ home | url }}" class="site-nav__brand" aria-label="TDC 2027 — {{ t.ui.home }}">

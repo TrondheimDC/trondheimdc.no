@@ -1,7 +1,6 @@
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock.js";
 import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
 import { ProgramLive } from "./tdc-program-live.js";
-import { withViewTransition } from "./view-transition.js";
 import { buildSocialLinks } from "./social-links.js";
 import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
 
@@ -21,7 +20,6 @@ class TdcProgram {
     this.filterCount = root.querySelector("[data-program-filter-count]");
     this.filterReset = root.querySelector("[data-program-filter-reset]");
     this.modalFavorite = root.querySelector("[data-session-modal-favorite]");
-    this.modalFavoriteLabel = root.querySelector("[data-session-modal-favorite-label]");
     this.calendarMenu = root.querySelector("[data-calendar-menu]");
     this.calendarToggle = root.querySelector("[data-calendar-toggle]");
     this.calendarList = root.querySelector("[data-calendar-list]");
@@ -32,7 +30,9 @@ class TdcProgram {
     this.calendarExport = root.querySelector("[data-program-calendar-export]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
-    this.permalink = root.querySelector("[data-session-modal-permalink]");
+    this.copyButton = root.querySelector("[data-session-copy]");
+    this.copyStatus = root.querySelector("[data-session-copy-status]");
+    this.pageTitle = document.title;
     this.meta = root.querySelector("[data-session-modal-meta]");
     this.metaRow = root.querySelector("[data-session-modal-meta-row]");
     this.modalLanguage = root.querySelector("[data-session-modal-language]");
@@ -94,6 +94,9 @@ class TdcProgram {
     this.onlyFavorites?.addEventListener("click", () => {
       const active = this.onlyFavorites.getAttribute("aria-pressed") === "true";
       this.onlyFavorites.setAttribute("aria-pressed", String(!active));
+      this.onlyFavorites.classList.remove("is-toggling");
+      void this.onlyFavorites.offsetWidth; // replay the star pop and ring, like the other pills
+      this.onlyFavorites.classList.add("is-toggling");
       this.applyFilter();
     });
 
@@ -118,6 +121,23 @@ class TdcProgram {
     });
 
     this.modalFavorite?.addEventListener("click", () => this.toggle(this.activeSession?.dataset.sessionId));
+    this.copyButton?.addEventListener("click", () => this.copyLink());
+
+    // The address bar follows the dialog: open() pushes the talk's own page,
+    // so Back closes it again and Forward reopens it.
+    window.addEventListener("popstate", (event) => {
+      const id = event.state?.tdcSession;
+      const session = id
+        ? this.root.querySelector(`.program-session--favoritable[data-session-id="${CSS.escape(id)}"]`)
+        : null;
+      if (session) this.open(session, undefined, { fromHistory: true });
+      else this.closeDialog();
+      // After the traversal has fully settled (it can also reset focus after
+      // popstate, when it fires hashchange).
+      const refocus = this.refocusAfterBack;
+      this.refocusAfterBack = null;
+      if (refocus) setTimeout(() => refocus.focus({ preventScroll: true }));
+    });
 
     this.calendarToggle?.addEventListener("click", () => {
       this.setCalendarMenu(this.calendarToggle.getAttribute("aria-expanded") !== "true");
@@ -163,6 +183,16 @@ class TdcProgram {
       if (!insideDialog) this.closeDialog();
     });
     this.dialog?.addEventListener("close", () => {
+      // Closed by the user (Escape, ×, backdrop) while the address bar still
+      // shows the talk: step back to the page underneath. Closed by Back
+      // itself, history.state is already that page's, so nothing to undo.
+      if (history.state?.tdcSession) {
+        // Chromium drops focus to <body> when that traversal lands, after the
+        // focus() below has run — popstate puts it back.
+        this.refocusAfterBack = this.returnFocus;
+        history.back();
+      }
+      document.title = this.pageTitle;
       this.setCalendarMenu(false);
       unlockModalScroll();
       this.returnFocus?.focus();
@@ -363,7 +393,7 @@ class TdcProgram {
 
   closeDialog() {
     if (!this.dialog?.open) return;
-    withViewTransition(() => this.dialog.close());
+    this.dialog.close();
   }
 
   setCalendarMenu(open) {
@@ -435,47 +465,99 @@ class TdcProgram {
 
   // returnFocusTo overrides the default (the session's own title button) —
   // needed when the click that opened this came from outside the grid
-  // entirely (openFromSpeaker below). Take it as a parameter here, applied
-  // inside the same withViewTransition callback, rather than having the
-  // caller set this.returnFocus right after calling open(): the callback can
-  // run as a deferred microtask, so anything the caller does "after" open()
-  // in the same synchronous turn can actually land *before* the callback
-  // does, and get clobbered when it finally runs.
-  open(session, returnFocusTo) {
+  // entirely (openFromSpeaker below).
+  open(session, returnFocusTo, { fromHistory = false } = {}) {
     if (!session || !this.dialog) return;
-    withViewTransition(() => {
-      this.activeSession = session;
-      // The pill is reused across sessions, so drop a stale .is-toggling before
-      // updateModalFavorite() flips aria-pressed and replays the pop on open.
-      this.modalFavorite?.classList.remove("is-toggling");
-      this.setCalendarMenu(false);
-      this.returnFocus = returnFocusTo ?? session.querySelector("[data-session-open]");
-      this.title.textContent = session.dataset.sessionTitle || "";
-      this.description.textContent = session.dataset.sessionDescription || "";
-      this.description.hidden = !this.description.textContent;
-      if (this.permalink) {
-        const href = session.querySelector("[data-session-open]")?.getAttribute("href");
-        this.permalink.parentElement.hidden = !href;
-        if (href) this.permalink.href = href;
-      }
-      this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
-      // A previous open() may have been the no-session speaker fallback below,
-      // which hides all three — a real session always shows all three.
-      if (this.metaRow) this.metaRow.hidden = false;
-      if (this.actions) this.actions.hidden = false;
-      if (this.speakersTitle) this.speakersTitle.hidden = false;
-      setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
-      this.renderSpeakers(session);
-      this.updateModalFavorite();
-      if (typeof this.dialog.showModal === "function") this.dialog.showModal();
-      else this.dialog.setAttribute("open", "");
-      // A session reused from a previous open shouldn't reopen scrolled to
-      // wherever that visit left it. Has to come after showModal() — while
-      // the dialog is still closed (display: none), it has no layout box to
-      // scroll, so scrollTo() on it is a silent no-op.
-      this.dialogScroll?.scrollTo(0, 0);
-      lockModalScroll();
-    });
+    this.activeSession = session;
+    // The pill is reused across sessions, so drop a stale .is-toggling before
+    // updateModalFavorite() flips aria-pressed and replays the pop on open.
+    this.modalFavorite?.classList.remove("is-toggling");
+    this.setCalendarMenu(false);
+    this.returnFocus = returnFocusTo ?? session.querySelector("[data-session-open]");
+    this.title.textContent = session.dataset.sessionTitle || "";
+    this.description.textContent = session.dataset.sessionDescription || "";
+    this.description.hidden = !this.description.textContent;
+    this.resetCopy();
+    this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
+    // A previous open() may have been the no-session speaker fallback below,
+    // which hides these — a real session always shows them.
+    if (this.metaRow) this.metaRow.hidden = false;
+    if (this.actions) this.actions.hidden = false;
+    if (this.copyButton) this.copyButton.hidden = false;
+    if (this.speakersTitle) this.speakersTitle.hidden = false;
+    setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
+    this.renderSpeakers(session);
+    this.updateModalFavorite();
+    if (this.dialog.open) {
+      // Forward onto another talk: just swap contents, without the pills
+      // animating from the previous talk's state.
+      this.dialog.classList.add("is-swapping");
+      void this.dialog.offsetWidth;
+      this.dialog.classList.remove("is-swapping");
+    }
+    else if (typeof this.dialog.showModal === "function") this.dialog.showModal();
+    else this.dialog.setAttribute("open", "");
+    // A session reused from a previous open shouldn't reopen scrolled to
+    // wherever that visit left it. Has to come after showModal() — while
+    // the dialog is still closed (display: none), it has no layout box to
+    // scroll, so scrollTo() on it is a silent no-op.
+    this.dialogScroll?.scrollTo(0, 0);
+    lockModalScroll();
+    if (!fromHistory) this.pushSessionUrl(session);
+  }
+
+  // Puts the talk's own page (/program/<id>/) in the address bar, so what you
+  // see is what you can copy and share, and counts it as a Matomo page view.
+  // Reloading lands on that static page, which shows the same talk.
+  pushSessionUrl(session) {
+    const href = session.querySelector("[data-session-open]")?.getAttribute("href");
+    if (!href) return;
+    const title = `${session.dataset.sessionTitle} — TDC 2026`;
+    if (history.state?.tdcSession) history.replaceState({ tdcSession: session.dataset.sessionId }, "", href);
+    else {
+      // Stepping back onto an entry with a #fragment (from a menu click or a
+      // shared link) scrolls to that section again when the dialog closes;
+      // without one, the page stays where the reader left it.
+      if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
+      history.pushState({ tdcSession: session.dataset.sessionId }, "", href);
+    }
+    document.title = title;
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["setCustomUrl", location.href]);
+    tracker.push(["setDocumentTitle", title]);
+    tracker.push(["trackPageView"]);
+  }
+
+  sessionUrl(session) {
+    const href = session?.querySelector("[data-session-open]")?.getAttribute("href");
+    return href ? new URL(href, location.href).href : location.href;
+  }
+
+  async copyLink() {
+    if (!this.activeSession || !this.copyButton) return;
+    const url = this.sessionUrl(this.activeSession);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // No clipboard (insecure context, old browser): the share sheet is the
+      // next best thing, and the address bar already shows the link anyway.
+      if (navigator.share) navigator.share({ title: this.activeSession.dataset.sessionTitle, url }).catch(() => {});
+      return;
+    }
+    this.copyButton.classList.remove("is-done");
+    void this.copyButton.offsetWidth; // reflow, so a second copy replays the animation
+    this.copyButton.classList.add("is-done");
+    if (this.copyStatus) this.copyStatus.textContent = this.copyButton.dataset.copiedLabel;
+    clearTimeout(this.copyTimer);
+    this.copyTimer = setTimeout(() => this.resetCopy(), 2200);
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Sessions", "Copy link", this.activeSession.dataset.sessionTitle || "", 1]);
+  }
+
+  resetCopy() {
+    clearTimeout(this.copyTimer);
+    this.copyButton?.classList.remove("is-done");
+    if (this.copyStatus) this.copyStatus.textContent = "";
   }
 
   // Reached from the speakers wall (#speakers), which sits outside this
@@ -503,28 +585,26 @@ class TdcProgram {
   // the parts (meta, description, favorite/calendar) that need one.
   openSpeakerOnly(button) {
     if (!this.dialog) return;
-    withViewTransition(() => {
-      this.activeSession = null;
-      this.modalFavorite?.classList.remove("is-toggling");
-      this.setCalendarMenu(false);
-      this.returnFocus = button;
-      this.title.textContent = button.dataset.speakerName || "";
-      this.description.hidden = true;
-      if (this.permalink) this.permalink.parentElement.hidden = true;
-      if (this.metaRow) this.metaRow.hidden = true;
-      if (this.actions) this.actions.hidden = true;
-      setLanguageSlot(this.modalLanguage, null);
-      // The title above already names them — skip the redundant name line, but
-      // keep everything else (avatar, tagline, bio, socials) the block offers.
-      if (this.speakersList) this.speakersList.replaceChildren(this.buildSpeakerBlock(button, { showName: false }));
-      if (this.speakersSection) this.speakersSection.hidden = false;
-      if (this.speakersTitle) this.speakersTitle.hidden = true;
-      if (typeof this.dialog.showModal === "function") this.dialog.showModal();
-      else this.dialog.setAttribute("open", "");
-      // Has to come after showModal() — see the comment in open().
-      this.dialogScroll?.scrollTo(0, 0);
-      lockModalScroll();
-    });
+    this.activeSession = null;
+    this.modalFavorite?.classList.remove("is-toggling");
+    this.setCalendarMenu(false);
+    this.returnFocus = button;
+    this.title.textContent = button.dataset.speakerName || "";
+    this.description.hidden = true;
+    if (this.metaRow) this.metaRow.hidden = true;
+    if (this.actions) this.actions.hidden = true;
+    if (this.copyButton) this.copyButton.hidden = true;
+    setLanguageSlot(this.modalLanguage, null);
+    // The title above already names them — skip the redundant name line, but
+    // keep everything else (avatar, tagline, bio, socials) the block offers.
+    if (this.speakersList) this.speakersList.replaceChildren(this.buildSpeakerBlock(button, { showName: false }));
+    if (this.speakersSection) this.speakersSection.hidden = false;
+    if (this.speakersTitle) this.speakersTitle.hidden = true;
+    if (typeof this.dialog.showModal === "function") this.dialog.showModal();
+    else this.dialog.setAttribute("open", "");
+    // Has to come after showModal() — see the comment in open().
+    this.dialogScroll?.scrollTo(0, 0);
+    lockModalScroll();
   }
 
   // Records which speaker's profile got the click, the way the old standalone
@@ -619,7 +699,6 @@ class TdcProgram {
   updateModalFavorite() {
     if (!this.activeSession || !this.modalFavorite) return;
     const saved = this.favorites.has(this.activeSession.dataset.sessionId);
-    if (this.modalFavoriteLabel) this.modalFavoriteLabel.textContent = saved ? this.root.dataset.unstarLabel : this.root.dataset.starLabel;
     this.modalFavorite.setAttribute("aria-pressed", String(saved));
   }
 }

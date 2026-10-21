@@ -55,7 +55,9 @@ testing or screenshotting — editing a stylesheet alone leaves `_site` stale.
 
 - **Single-page** site. All content lives in **sections** on one scrolling page, reached via in-page anchors (Code of Conduct, partner info, etc. are all sections).
   - The one exception: `/program/` and `/en/program/` render `sections/program.njk` on their own, for people who would rather read the schedule without the single page around it. They are **unlisted** — nothing links to them, and `default.njk` canonicals them to the home page so they don't compete with it in search.
-  - Every talk also has a **page of its own**, `/program/<session-id>/` and `/en/program/<session-id>/` (`program/talk.njk`, `en/program/talk.njk`, both rendering `sections/talk.njk`), so a talk can be linked to directly and read with JavaScript off — calendar links included (built at build time by the `googleCalendarUrl`/`outlookCalendarUrl` filters from the same `calendar.js`). Breaks and other service sessions get none. Unlike `/program/`, these canonical to themselves (`canonical: true`). In the schedule each talk title is a real `<a>` to that page; `TdcProgram` intercepts a plain click and opens the dialog instead (modifier-clicks still follow the link), and the dialog shows a "Lenke til foredraget" link to it. Calendar entries point at the talk page too. Each talk page also gets its own 1200×630 share image (`og:image`), `/program/<id>/og.png` and `/en/program/<id>/og.png`, rendered at build time by `program-og.11ty.js` → `_lib/session-og.js` with **satori** (flexbox → SVG) and **resvg** (→ PNG). satori can't read woff2, so its fonts come from the `@fontsource/*` packages, not `assets/fonts/`. Speaker photos are fetched from Sessionize during the build; a failed fetch just drops the photo.
+  - Every talk also has a **page of its own**, `/program/<session-id>/` and `/en/program/<session-id>/` (`program/talk.njk`, `en/program/talk.njk`, both rendering `sections/talk.njk`), so a talk can be linked to directly and read with JavaScript off — calendar links included (built at build time by the `googleCalendarUrl`/`outlookCalendarUrl` filters from the same `calendar.js`). Breaks and other service sessions get none. Unlike `/program/`, these canonical to themselves (`canonical: true`). In the schedule each talk title is a real `<a>` to that page, **stretched over the whole card** (`.program-session__title::after`, with the star and speaker names lifted above it by `z-index`), so middle-click / Cmd-Ctrl-click / "Open in new tab" work anywhere on a card; `TdcProgram` intercepts a plain click and opens the dialog instead.
+    - **The address bar follows the dialog:** `open()` `pushState`s the talk's page (`pushSessionUrl()`, which also sets `document.title` and sends a Matomo page view), closing the dialog calls `history.back()`, and `popstate` opens/closes to match — so Back closes, Forward reopens, and a reload lands on the static page. Scrolling the home page does not touch the address bar (`tdc-nav` used to sync `#section` into it; it now only sends each section to Matomo as a virtual page view, `/#program` etc.). Chromium resets focus to `<body>` after that back-traversal *after* the dialog's own focus return has run, so `popstate` re-focuses on a `setTimeout`.
+    - The dialog's header has an animated **copy link** icon button next to × (`copyLink()`, kept out of the footer so it stays two pills tall on phones): clipboard first, the share sheet if that fails; on success `.is-done` turns the link icon into a check and a `role="status"` line announces it. The program's filter buttons and the dialog's actions are all `.pill` (`04-components/pill.css`): one look, one press/hover/"on" treatment, and `.pill__labels` for a pill whose label changes — both versions share one grid cell, so the pill never changes width (no reflow of the row) and stays centred. Calendar entries point at the talk page too. Each talk page also gets its own 1200×630 share image (`og:image`), `/program/<id>/og.png` and `/en/program/<id>/og.png`, rendered at build time by `program-og.11ty.js` → `_lib/session-og.js` with **satori** (flexbox → SVG) and **resvg** (→ PNG). satori can't read woff2, so its fonts come from the `@fontsource/*` packages, not `assets/fonts/`. Speaker photos are fetched from Sessionize during the build; a failed fetch just drops the photo.
   - Pages that aren't a home page set `standalone: true` in front matter. That flag makes `partials/nav.njk` prefix its section anchors with the home URL (bare `#about` has no target off the home page) and promotes the program section's heading to `<h1>`. Such pages also set `noUrl`/`enUrl` so the language switch crosses to the matching translation instead of the home pages.
 - **Bilingual** via directory-based i18n:
   - Norwegian (default) renders at `/` from `index.njk` (`lang: no`).
@@ -267,36 +269,15 @@ file.
     (`overflow-x: clip`): a keynote already fills the row, so the press
     scale otherwise paints a pixel past it and the grid flashes a
     horizontal scrollbar until the transform ends.
-  - **Opening/closing the dialog runs inside a View Transition**
-    (`TdcProgram.withViewTransition()`), feature-detected
-    (`document.startViewTransition`) and skipped under
-    `prefers-reduced-motion: reduce`, so it's always safe to call — cross-
-    fades the dialog + backdrop in/out instead of them just appearing.
-    `.detail-modal`/`.detail-modal::backdrop` carry their own
-    `view-transition-name`, and `::view-transition-old(root)` /
-    `::view-transition-new(root)` are turned off (`animation: none`), so only
-    the dialog itself visibly transitions — without that, the *entire page*
-    (including the schedule behind it) would cross-fade as one group by
-    default.
-    - **The callback passed to `startViewTransition()` can run as a deferred
-      microtask, not synchronously within the same call** — code the caller
-      runs "after" `open()` in the same synchronous turn can execute *before*
-      the callback does, and then get silently overwritten once the callback
-      finally runs. `open()` takes its `returnFocusTo` override as a second
-      argument for exactly this reason, applied *inside* the callback,
-      instead of the caller setting `this.returnFocus` right after calling
-      `open()` — that raced the transition and lost. Tests that read layout
-      (`boundingBox()`) right after opening/closing need a short wait first,
-      for the same reason: they can read an in-transit position otherwise.
-    - **`.site-nav` (sticky, visible on every page) needs its own
-      `view-transition-name` too** (`nav.css`), or it gets bundled into the
-      document-wide "root" snapshot the dialog's transition still takes —
-      captured at its natural, *unstuck* document position rather than its
-      current on-screen one, which reads as the nav vanishing and snapping
-      back the instant live rendering resumes. Any other always-visible
-      sticky/fixed element added later needs the same treatment; things only
-      visible *within* the dialog (its own sticky header/actions) don't,
-      since they're already part of the dialog's own named, bounded snapshot.
+  - **Opening/closing the dialog fades with plain CSS transitions**, not a
+    View Transition (`detail-modal.css`): `@starting-style` for the entry and
+    `transition-behavior: allow-discrete` on `display`/`overlay` so the exit
+    plays out before the dialog leaves the top layer. A View Transition was
+    tried first and dropped: it snapshots the *whole page*, the sticky
+    `.site-nav` needed its own `view-transition-name` to not jump, and on
+    Android Chrome with the toolbar showing the snapshots are drawn off by
+    the toolbar's height — the nav visibly flashed on every open. A smoke
+    test guards against `startViewTransition` creeping back in.
     - **Reset the dialog's own scroll position (`.detail-modal__scroll`) on
       every open** — it's the same reused DOM node across sessions, so
       without this a session opened after a long one you'd scrolled through

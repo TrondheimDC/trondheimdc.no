@@ -20,7 +20,7 @@
 /* 1rem, not smaller: iOS zooms the page into any field under 16px. */
 .program-filters__search-input { width: 100%; min-height: var(--program-filters-control); padding: var(--spacing-2) var(--spacing-10); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); font: inherit; font-size: var(--font-size-30); transition: border-color var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default); }
 .program-filters__search-input::placeholder { color: var(--color-fg-muted); opacity: 1; }
-.program-filters__search-input:hover { border-color: var(--color-border-strong); }
+.program-filters__search-input:hover { border-color: var(--color-fg-brand); }
 .program-filters__search-input:focus-visible { border-color: var(--color-fg-brand); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-fg-brand) 35%, transparent); }
 /* Our own clear button replaces the UA one, which ignores the theme. */
 .program-filters__search-input::-webkit-search-cancel-button, .program-filters__search-input::-webkit-search-decoration { appearance: none; }
@@ -41,7 +41,6 @@
 .program-filters__topic:has(option:checked:not([value=""])) { color: var(--color-fg-brand); }
 .program-filters__topic:has(option:checked:not([value=""])) .program-filters__topic-select { border-color: var(--color-fg-brand); }
 
-.program-filters .program-schedule__filter { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); min-height: var(--program-filters-control); white-space: nowrap; }
 .program-filters__count { min-width: 1.5rem; padding: 0 var(--spacing-2); border-radius: var(--radius-full); background: var(--color-fg-base); color: var(--color-bg-base); font: var(--font-weight-bold) var(--font-size-10) / 1.5rem var(--font-family-mono); text-align: center; }
 .program-filters__count[hidden] { display: none; }
 
@@ -61,11 +60,8 @@
   .program-filters__topic-select { field-sizing: content; }
 }
 
-.program-schedule__filter, .program-session__favorite, .program-session-modal__favorite, .program-session-modal__calendar { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-.program-schedule__filter { padding: var(--spacing-2) var(--spacing-4); }
-.program-schedule__favorites-only { display: inline-flex; align-items: center; gap: var(--spacing-2); }
-.program-schedule__favorites-only[aria-pressed="true"] { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
-.program-schedule__filter:hover, .program-schedule__filter:focus-visible, .program-session__favorite:hover, .program-session__favorite:focus-visible, .program-session-modal__calendar:hover, .program-session-modal__calendar:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
+.program-session__favorite { border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-bg-surface); color: var(--color-fg-base); cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+.program-session__favorite:hover, .program-session__favorite:focus-visible { border-color: var(--color-fg-brand); color: var(--color-fg-brand); }
 .program-schedule__grid { overflow-x: auto; }
 .program-schedule__rooms, .program-schedule__row { display: grid; grid-template-columns: 4.5rem repeat(var(--program-room-count), minmax(10rem, 1fr)); gap: var(--spacing-2); min-width: calc(4.5rem + var(--program-room-count) * 10rem); }
 .program-schedule__rooms { margin-block-end: var(--spacing-2); }
@@ -114,6 +110,12 @@
 .program-session__title:hover, .program-session__title:focus-visible, .program-session__speaker:hover, .program-session__speaker:focus-visible { color: var(--color-fg-brand); }
 .program-session--service .program-session__title:hover { color: inherit; }
 .program-session__favorite { position: absolute; inset-block-start: var(--spacing-2); inset-inline-end: var(--spacing-2); display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
+/* The title link is stretched over the whole card, so middle-click, Cmd/Ctrl-
+   click and "Open in new tab" work anywhere on it (a plain click is still the
+   dialog, see TdcProgram). The star and speaker names sit above the stretch. */
+.program-session--favoritable .program-session__title::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.program-session--favoritable .program-session__speaker { position: relative; z-index: 1; }
+.program-session__favorite { z-index: 1; }
 .program-session__favorite:hover { transform: scale(1.1); }
 .program-session__favorite:active { transform: scale(0.88); transition-duration: 60ms; }
 
@@ -128,8 +130,8 @@
    so the stars saved from a previous visit do not all fire on page load. */
 [aria-pressed="true"].is-toggling > .favorite-star { animation: favorite-pop var(--duration-normal) var(--ease-out); }
 [aria-pressed="false"].is-toggling > .favorite-star { animation: favorite-undo var(--duration-fast) var(--ease-default); }
-/* The ring bursts out of the round card button only; on the wide pill it would
-   read as the whole button inflating. */
+/* The round card button gets a burst; the wide pills get pill.css's gentler
+   ring instead. */
 .program-session__favorite::after { content: ""; position: absolute; inset: -1px; border: 2px solid var(--color-fg-brand); border-radius: var(--radius-full); opacity: 0; pointer-events: none; }
 .program-session__favorite.is-toggling[aria-pressed="true"]::after { animation: favorite-burst var(--duration-normal) var(--ease-out); }
 
@@ -151,7 +153,7 @@
 }
 
 .program-session--favoritable .program-session__meta, .program-session--favoritable .program-session__heading { padding-inline-end: calc(2rem + var(--spacing-2)); }
-.program-session__favorite[aria-pressed="true"], .program-session-modal__favorite[aria-pressed="true"] { color: var(--color-fg-brand); }
+.program-session__favorite[aria-pressed="true"] { color: var(--color-fg-brand); }
 .program-session__speakers { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-2); }
 .program-session__speaker { padding: 0; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font: inherit; font-size: var(--font-size-20); text-align: left; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .program-session-modal { width: min(720px, calc(100vw - 2rem)); max-width: min(720px, calc(100vw - 2rem)); max-height: min(85dvh, 800px); margin: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-surface); color: var(--color-fg-base); }
@@ -164,7 +166,6 @@
 .program-session-modal__language:empty { display: none; }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
-.program-session-modal__permalink { margin-block-start: var(--spacing-4); font-size: var(--font-size-20); }
 
 /* Speaker bios, merged into this dialog — built by TdcProgram.renderSpeakers()
    from the session's own [data-speaker-open] buttons. */
@@ -195,19 +196,27 @@
 .calendar-menu__item[hidden] { display: none; }
 .calendar-menu__icon { flex: none; color: var(--color-fg-muted); }
 .calendar-menu__item:hover .calendar-menu__icon, .calendar-menu__item:focus-visible .calendar-menu__icon { color: inherit; }
-.program-session-modal__favorite, .program-session-modal__calendar { padding: var(--spacing-2) var(--spacing-3); }
-/* Lines the icon up with the label, on both the favorite pill and the
-   calendar toggle. */
-.program-session-modal__favorite, .program-session-modal__calendar { display: flex; align-items: center; gap: var(--spacing-2); }
-.program-session-modal__favorite { transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default); }
-.program-session-modal__favorite:active { transform: scale(0.96); transition-duration: 60ms; }
-.program-session-modal__calendar-icon, .program-session-modal__calendar-chevron { flex: none; }
-/* Points at where the chooser opens (it prefers to open upwards), and turns
-   over once it is open. */
+/* The dialog's action pills are .pill (pill.css). The star pops in as
+   "saved" slides up, and the check draws itself in on "copied". */
+.program-session-modal__favorite .pill__label--alt .favorite-star { fill: currentColor; }
+.program-session-modal__favorite.is-toggling[aria-pressed="true"] .pill__label--alt .favorite-star { animation: favorite-pop var(--duration-normal) var(--ease-out); }
+.program-session-modal__share-check path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.is-done .program-session-modal__share-check path { animation: share-check-draw var(--duration-normal) var(--ease-out) 80ms forwards; }
+
+@keyframes share-check-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Too narrow for both pills on one row: stack them full width, so neither
+   can wrap onto a line of its own. */
+@media (max-width: 559px) {
+  .detail-modal__actions { flex-direction: column; align-items: stretch; }
+  .detail-modal__actions .pill { width: 100%; }
+}
+
+/* The chevron turns over while the chooser is open. */
 .program-session-modal__calendar-chevron { transition: transform var(--duration-fast) var(--ease-default); }
 .program-session-modal__calendar[aria-expanded="true"] .program-session-modal__calendar-chevron { transform: rotate(180deg); }
-.program-schedule__filter:disabled { cursor: default; opacity: 0.45; }
-.program-schedule__filter:disabled:hover { border-color: var(--color-border); color: var(--color-fg-base); }
 .program-session[hidden] { display: none; }
 
 @media (max-width: 1199px) {

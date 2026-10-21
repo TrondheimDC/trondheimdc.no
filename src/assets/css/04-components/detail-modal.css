@@ -32,6 +32,7 @@
   flex: none;
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-2);
   padding: var(--spacing-3) var(--spacing-3) 0;
   background: var(--color-bg-surface);
 }
@@ -105,21 +106,33 @@
   }
 }
 
-/* View Transition (TdcProgram.withViewTransition) — feature-detected and
-   skipped under prefers-reduced-motion in JS, so this only ever runs where
-   it's wanted. Named so the dialog and its backdrop cross-fade as their own
-   group; ::view-transition-old/new(root) covers everything else on the page
-   (i.e. the schedule behind it) and is switched off below so only the
-   dialog itself visibly transitions, not the whole document. */
-.detail-modal {
-  view-transition-name: detail-modal;
-}
-
+/* Fade in/out with plain CSS transitions: @starting-style for the entry,
+   allow-discrete display/overlay so the exit plays before the dialog leaves
+   the top layer. Deliberately not a View Transition: that snapshots the whole
+   page, and on Android Chrome (toolbar showing) the snapshots are drawn off
+   by the toolbar's height, so the sticky nav flashed. */
+.detail-modal,
 .detail-modal::backdrop {
-  view-transition-name: detail-modal-backdrop;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-default),
+    overlay var(--duration-fast) var(--ease-default) allow-discrete,
+    display var(--duration-fast) var(--ease-default) allow-discrete;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
+.detail-modal[open],
+.detail-modal[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .detail-modal[open],
+  .detail-modal[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Still fading out, but already closed: let clicks through to the page. */
+.detail-modal:not([open]),
+.detail-modal:not([open])::backdrop {
+  pointer-events: none;
 }

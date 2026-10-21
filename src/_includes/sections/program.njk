@@ -66,12 +66,12 @@
           {# One label; aria-pressed carries the state and the star fills with
              it (same .favorite-star rule as the cards). Flipping the label to
              "Vis alle foredrag" would read "show all talks, pressed". #}
-          <button type="button" class="program-schedule__filter program-schedule__favorites-only" data-program-favorites-only aria-pressed="false">
+          <button type="button" class="pill program-schedule__favorites-only" data-program-favorites-only aria-pressed="false">
             <svg class="favorite-star" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
             {{ t.program.show_favorites }}
             <span class="program-filters__count" data-program-favorites-count hidden></span>
           </button>
-          <button type="button" class="program-schedule__filter" data-program-calendar-export disabled>
+          <button type="button" class="pill" data-program-calendar-export disabled>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
             {{ t.program.calendar_saved }}
           </button>
@@ -217,6 +217,16 @@
 
         <dialog class="detail-modal program-session-modal" data-session-dialog aria-labelledby="program-session-modal-title">
           <div class="detail-modal__header">
+            {# Copies the talk's own page (also what the address bar shows while
+               the dialog is open). The link icon turns into a check and a
+               polite status line says "copied" to screen readers. #}
+            <button type="button" class="pill pill--icon program-session-modal__share" data-session-copy data-copied-label="{{ t.program.link_copied }}" aria-label="{{ t.program.copy_link }}" title="{{ t.program.copy_link }}">
+              <span class="pill__labels" aria-hidden="true">
+                <span class="pill__label"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg></span>
+                <span class="pill__label pill__label--alt"><svg class="program-session-modal__share-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              </span>
+            </button>
+            <span class="visually-hidden" role="status" data-session-copy-status></span>
             <button type="button" class="detail-modal__close" data-session-close aria-label="{{ t.program.close }}" autofocus>
               <svg class="detail-modal__close-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </button>
@@ -228,8 +238,6 @@
             </p>
             <h3 id="program-session-modal-title" data-session-modal-title></h3>
             <p class="program-session-modal__description" data-session-modal-description></p>
-            {# The talk's own page — something to copy and share. #}
-            <p class="program-session-modal__permalink"><a href="#" data-session-modal-permalink>{{ t.program.permalink }}</a></p>
 
             {# Filled by TdcProgram from the session's own [data-speaker-open]
                buttons — one dialog, not a separate speaker one to jump to. #}
@@ -241,9 +249,13 @@
             </div>
           </div>
           <div class="detail-modal__actions">
-            <button type="button" class="program-session-modal__favorite" data-session-modal-favorite aria-pressed="false">
-              <svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>
-              <span data-session-modal-favorite-label></span>
+            {# The name stays "save" (aria-pressed carries the state), so the
+               second label is for sighted users only. #}
+            <button type="button" class="pill program-session-modal__favorite" data-session-modal-favorite aria-pressed="false">
+              <span class="pill__labels">
+                <span class="pill__label"><svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>{{ t.program.star }}</span>
+                <span class="pill__label pill__label--alt" aria-hidden="true"><svg class="favorite-star" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg>{{ t.program.unstar }}</span>
+              </span>
             </button>
             <div class="calendar-menu" data-calendar-menu>
               {# Opens a chooser rather than adding anything. It is a disclosure of
@@ -251,7 +263,7 @@
                  aria-haspopup, which promises arrow-key menu navigation); the
                  chevron says the same to sighted users, and the group label
                  names the chooser once it opens. #}
-              <button type="button" class="program-session-modal__calendar" data-calendar-toggle aria-expanded="false" aria-controls="program-calendar-menu">
+              <button type="button" class="pill program-session-modal__calendar" data-calendar-toggle aria-expanded="false" aria-controls="program-calendar-menu">
                 <svg class="program-session-modal__calendar-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
                 {{ t.program.calendar_add }}
                 <svg class="program-session-modal__calendar-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
