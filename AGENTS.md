@@ -55,6 +55,7 @@ testing or screenshotting — editing a stylesheet alone leaves `_site` stale.
 
 - **Single-page** site. All content lives in **sections** on one scrolling page, reached via in-page anchors (Code of Conduct, partner info, etc. are all sections).
   - The one exception: `/program/` and `/en/program/` render `sections/program.njk` on their own, for people who would rather read the schedule without the single page around it. They are **unlisted** — nothing links to them, and `default.njk` canonicals them to the home page so they don't compete with it in search.
+  - Every talk also has a **page of its own**, `/program/<session-id>/` and `/en/program/<session-id>/` (`program/talk.njk`, `en/program/talk.njk`, both rendering `sections/talk.njk`), so a talk can be linked to directly and read with JavaScript off — calendar links included (built at build time by the `googleCalendarUrl`/`outlookCalendarUrl` filters from the same `calendar.js`). Breaks and other service sessions get none. Unlike `/program/`, these canonical to themselves (`canonical: true`). In the schedule each talk title is a real `<a>` to that page; `TdcProgram` intercepts a plain click and opens the dialog instead (modifier-clicks still follow the link), and the dialog shows a "Lenke til foredraget" link to it. Calendar entries point at the talk page too. Each talk page also gets its own 1200×630 share image (`og:image`), `/program/<id>/og.png` and `/en/program/<id>/og.png`, rendered at build time by `program-og.11ty.js` → `_lib/session-og.js` with **satori** (flexbox → SVG) and **resvg** (→ PNG). satori can't read woff2, so its fonts come from the `@fontsource/*` packages, not `assets/fonts/`. Speaker photos are fetched from Sessionize during the build; a failed fetch just drops the photo.
   - Pages that aren't a home page set `standalone: true` in front matter. That flag makes `partials/nav.njk` prefix its section anchors with the home URL (bare `#about` has no target off the home page) and promotes the program section's heading to `<h1>`. Such pages also set `noUrl`/`enUrl` so the language switch crosses to the matching translation instead of the home pages.
 - **Bilingual** via directory-based i18n:
   - Norwegian (default) renders at `/` from `index.njk` (`lang: no`).
@@ -81,6 +82,7 @@ src/
   index.njk                 # NO home  (permalink /)
   en/index.njk              # EN home  (permalink /en/)
   program/index.njk         # unlisted standalone program page (permalink /program/)
+  program/talk.njk          # one page per talk (permalink /program/<session-id>/)
   en/program/index.njk      # unlisted standalone program page (permalink /en/program/)
   program-ics.11ty.js       # one .ics per session -> /program/<session-id>.ics
   assets/

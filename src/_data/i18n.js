@@ -87,6 +87,8 @@ export default {
       live_hide_earlier: "Skjul",
       live_hide_earlier_name: "Skjul ferdige foredrag",
       close: "Lukk",
+      back: "Hele programmet",
+      permalink: "Lenke til foredraget",
     },
     tickets: {
       title: "Billetter",
@@ -281,6 +283,8 @@ export default {
       live_hide_earlier: "Hide",
       live_hide_earlier_name: "Hide finished talks",
       close: "Close",
+      back: "Full program",
+      permalink: "Link to this talk",
     },
     tickets: {
       title: "Tickets",

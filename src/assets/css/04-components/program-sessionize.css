@@ -108,7 +108,7 @@
 .program-session__room { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
 .program-session__duration { white-space: nowrap; }
 .program-session__heading { display: flex; align-items: flex-start; gap: var(--spacing-2); }
-.program-session__title { flex: 1; padding: 0; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
+.program-session__title { flex: 1; padding: 0; text-decoration: none; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
 /* Breaks etc. render this as a <span>, not a <button> — plain text, no pointer. */
 .program-session--service .program-session__title { text-align: center; cursor: default; }
 .program-session__title:hover, .program-session__title:focus-visible, .program-session__speaker:hover, .program-session__speaker:focus-visible { color: var(--color-fg-brand); }
@@ -164,6 +164,7 @@
 .program-session-modal__language:empty { display: none; }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
+.program-session-modal__permalink { margin-block-start: var(--spacing-4); font-size: var(--font-size-20); }
 
 /* Speaker bios, merged into this dialog — built by TdcProgram.renderSpeakers()
    from the session's own [data-speaker-open] buttons. */

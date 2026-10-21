@@ -37,7 +37,8 @@ export default {
     return buildCalendar([
       sessionEvent(data.session, {
         speakers: data.sessionize.speakers,
-        url: `${data.site.url}/#program`,
+        // Breaks and the like have no page of their own.
+        url: data.session.isService ? `${data.site.url}/#program` : `${data.site.url}/program/${data.session.id}/`,
       }),
     ]);
   },

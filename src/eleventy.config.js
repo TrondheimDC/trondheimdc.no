@@ -1,5 +1,7 @@
 import { RenderPlugin } from "@11ty/eleventy";
 import site from "./_data/site.js";
+import { googleCalendarUrl, outlookCalendarUrl } from "./assets/js/calendar.js";
+import { sessionEvent } from "./_lib/session-calendar.js";
 
 export default function (eleventyConfig) {
   // Optional path prefix for staging deploys under a subpath.
@@ -66,6 +68,22 @@ export default function (eleventyConfig) {
     if (!Array.isArray(sessions) || id === undefined || id === null || id === "") return null;
     const needle = String(id);
     return sessions.find((session) => String(session.id) === needle) ?? null;
+  });
+
+  // Web-calendar deep links for a session, built with the same code as the
+  // dialog's, so the static talk pages work without JavaScript.
+  eleventyConfig.addFilter("googleCalendarUrl", function (session, speakers, url) {
+    return googleCalendarUrl(sessionEvent(session, { speakers, url }));
+  });
+
+  eleventyConfig.addFilter("outlookCalendarUrl", function (session, speakers, url) {
+    return outlookCalendarUrl(sessionEvent(session, { speakers, url }));
+  });
+
+  // Plain-text excerpt for meta descriptions.
+  eleventyConfig.addFilter("excerpt", function (value, length = 160) {
+    const text = String(value ?? "").replace(/\s+/g, " ").trim();
+    return text.length > length ? `${text.slice(0, length - 1).trimEnd()}…` : text;
   });
 
   // Serialize a value to JSON, e.g. for embedding in a data-* attribute.

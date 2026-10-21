@@ -1,4 +1,5 @@
 {% from "components/session-language.njk" import sessionLanguage %}
+{% set programBase = '/en/program/' if lang == 'en' else '/program/' %}
 <tdc-section>
 <section class="section" id="program" aria-labelledby="program-title">
   <div class="container container--wide stack">
@@ -132,6 +133,7 @@
                     data-session-room="{{ session.roomName | escape }}"
                     data-session-service="{{ 'true' if session.isService else 'false' }}"
                     data-session-topics="{{ session.topics | join('|') | escape }}"
+                    {% if not session.isService %}data-session-url="{{ site.url }}{{ programBase }}{{ session.id }}/"{% endif %}
                   >
                     <div class="program-session__meta">
                       <span class="program-session__room">{% if session.title == "Lunch" %}{{ t.program.lunch_location }}{% else %}{{ session.roomName or t.program.shared_session }}{% endif %}</span>
@@ -142,9 +144,12 @@
                         {# Breaks, lunch, registration, the party — nothing to open, so no button. #}
                         <span class="program-session__title">{{ session.title }}</span>
                       {% else %}
-                        <button type="button" class="program-session__title" data-session-open aria-haspopup="dialog">
+                        {# A real link to the talk's own page, so it can be
+                           shared and still works with JavaScript off;
+                           TdcProgram opens the dialog instead on a plain click. #}
+                        <a class="program-session__title" href="{{ (programBase + session.id + '/') | url }}" data-session-open>
                           {{ session.title }}
-                        </button>
+                        </a>
                       {% endif %}
                       {% if not session.isService %}
                         <button type="button" class="program-session__favorite" data-session-favorite aria-label="{{ t.program.star }}: {{ session.title | escape }}" aria-pressed="false"><svg class="favorite-star" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.41L14.13 9.97L21.04 9.97L15.45 14.03L17.58 20.59L12 16.54L6.42 20.59L8.55 14.03L2.96 9.97L9.87 9.97Z"/></svg></button>
@@ -223,6 +228,8 @@
             </p>
             <h3 id="program-session-modal-title" data-session-modal-title></h3>
             <p class="program-session-modal__description" data-session-modal-description></p>
+            {# The talk's own page — something to copy and share. #}
+            <p class="program-session-modal__permalink"><a href="#" data-session-modal-permalink>{{ t.program.permalink }}</a></p>
 
             {# Filled by TdcProgram from the session's own [data-speaker-open]
                buttons — one dialog, not a separate speaker one to jump to. #}
