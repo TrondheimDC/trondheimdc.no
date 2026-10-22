@@ -896,7 +896,7 @@ test.describe('Live program view', () => {
     await expect(page.locator('.program-session__status:visible')).toHaveCount(await live.count());
   });
 
-  test('snaps to the row on narrow screens instead of pointing into the stack', async ({ page }) => {
+  test('runs down the row on narrow screens and moves across it instead', async ({ page }) => {
     // Below 1200px rooms stack as cards instead of sitting in columns, so a
     // row's height is "how many talks run at once" there, not "time passed" —
     // creeping into it would point the line at an arbitrary card in the stack.
@@ -910,6 +910,34 @@ test.describe('Live program view', () => {
     const rowTop = await currentRow.evaluate((el) => el.getBoundingClientRect().top);
     const lineTop = await page.locator('[data-program-now]').evaluate((el) => el.getBoundingClientRect().top);
     expect(Math.abs(lineTop - rowTop)).toBeLessThan(2);
+
+    // The time passed shows across the row instead: the line runs down it
+    // and moves left to right, carrying the time pill along — and keeps
+    // moving with the clock.
+    const across = () => page.evaluate(() => {
+      const grid = document.querySelector('.program-schedule__grid').getBoundingClientRect();
+      const pill = document.querySelector('[data-program-now-time]').getBoundingClientRect();
+      return (pill.left - grid.left) / (grid.width - pill.width);
+    });
+    const at1332 = await across();
+    expect(at1332).toBeGreaterThan(0.45);
+    expect(at1332).toBeLessThan(0.75);
+    await expect(currentRow).toHaveClass(/\bis-now\b/);
+
+    // The time stays in view below the nav while the row scrolls past.
+    await page.evaluate(() => {
+      const row = document.querySelector('.program-schedule__row.is-now');
+      window.scrollTo(0, row.getBoundingClientRect().top + window.scrollY + row.offsetHeight / 2);
+    });
+    const pillTop = await page.locator('[data-program-now-time]').evaluate((el) => el.getBoundingClientRect().top);
+    const navBottom = await page.locator('.site-nav').evaluate((el) => el.getBoundingClientRect().bottom);
+    expect(pillTop).toBeGreaterThanOrEqual(navBottom - 1);
+    expect(pillTop).toBeLessThan(navBottom + 40);
+
+    await page.evaluate(() => {
+      document.querySelector('.program-schedule')._tdcProgram.live.clockOffset += 5 * 60 * 1000;
+    });
+    await expect.poll(across, { timeout: 2000 }).toBeGreaterThan(at1332 + 0.15);
   });
 
   test('creeps through the current row while the schedule is wide', async ({ page }) => {
