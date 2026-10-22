@@ -307,4 +307,15 @@
   /* The grid is no longer a horizontally scrolling table here, so the playhead
      tracks the container instead of the (wider) room columns. */
   .program-schedule__now { min-width: 0; }
+  /* Rows are stacks of cards here, not lengths of time, so the line turns on
+     its side: it runs down the current row and moves left to right as the
+     slot runs (--program-now-progress, 0–1, set on the grid by
+     tdc-program-live.js). It is the background of the row and of its cards,
+     so it passes under their text rather than through it. The playhead itself
+     only spans the row to carry the time, which sticks below the nav while
+     the row scrolls by, pulled back by the same share as it moves so it never
+     pokes out past either edge. */
+  .program-schedule__now { border-block-start: 0; }
+  .program-schedule__row.is-now, .program-schedule__row.is-now .program-session { background-image: repeating-linear-gradient(to bottom, var(--color-fg-brand) 0 6px, transparent 6px 10px); background-size: 2px 100%; background-repeat: no-repeat; background-origin: border-box; background-position-x: calc(var(--program-now-progress, 0) * 100%); }
+  .program-schedule__now-time { position: sticky; inset-block-start: calc(var(--nav-height, 4.5rem) + var(--spacing-2)); display: block; width: max-content; margin-inline-start: calc(var(--program-now-progress, 0) * 100%); transform: translateX(calc(var(--program-now-progress, 0) * -100%)); }
 }

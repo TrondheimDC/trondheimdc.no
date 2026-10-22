@@ -241,14 +241,14 @@ export class ProgramLive {
 
   // Interpolates between the visible rows so the line creeps rather than jumps:
   // where it sits between two slots is the "how far into the day are we" signal.
-  // On the wide grid that position changes continuously, so a short timer keeps
-  // it moving between the slower collapse refreshes. The stacked layout snaps
-  // to the row and doesn't need it.
+  // That position changes continuously, so a short timer keeps it moving
+  // between the slower collapse refreshes. The stacked layout turns the line
+  // on its side instead: it runs down the current row and moves from left to
+  // right as the slot runs, drawn by the stylesheet under the cards' text.
   positionPlayhead(now = this.now()) {
     if (!this.ready || !this.playhead) return;
     if (!this.active || now > this.dayEnd) {
-      this.playhead.hidden = true;
-      this.stopCreep();
+      this.hidePlayhead();
       return;
     }
 
@@ -256,8 +256,7 @@ export class ProgramLive {
     // to measure — which would pin the line to the top of the grid.
     const visible = this.rows.filter((row) => !row.element.hidden && row.element.offsetParent !== null);
     if (!visible.length) {
-      this.playhead.hidden = true;
-      this.stopCreep();
+      this.hidePlayhead();
       return;
     }
 
@@ -271,12 +270,11 @@ export class ProgramLive {
     // Match positionLongService()'s breakpoint so both switch at the same width.
     const stacked = window.innerWidth < 1200;
     let top;
+    let ratio = 0;
 
     if (!current) {
       // The day has not started: park the line on top of the first slot.
       top = next.element.getBoundingClientRect().top - gridTop;
-    } else if (stacked) {
-      top = current.element.getBoundingClientRect().top - gridTop;
     } else {
       const box = current.element.getBoundingClientRect();
       // Measure against the next slot where there is one, so the line lands
@@ -284,17 +282,25 @@ export class ProgramLive {
       const until = next ? next.start : Math.max(current.end, current.start + 1);
       const height = next ? next.element.getBoundingClientRect().top - box.top : box.height;
       const span = until - current.start;
-      const ratio = span > 0 ? Math.min(1, Math.max(0, (now - current.start) / span)) : 0;
-      top = box.top - gridTop + ratio * height;
+      ratio = span > 0 ? Math.min(1, Math.max(0, (now - current.start) / span)) : 0;
+      top = box.top - gridTop + (stacked ? 0 : ratio * height);
     }
 
-    // The stylesheet's slow `top` transition is for the snaps (a slot starting,
-    // rows collapsing); on a creep step it would leave the line chasing the
-    // clock, so it is switched off there.
-    const creeping = !stacked && current && now >= this.dayStart;
+    // The stylesheet's slow transitions are for the snaps (a slot starting,
+    // rows collapsing); on a creep step they would leave the line chasing the
+    // clock, so they are switched off there.
+    const creeping = Boolean(current) && now >= this.dayStart;
     this.playhead.style.transition = creeping ? "none" : "";
     this.playhead.hidden = false;
     this.playhead.style.top = `${top}px`;
+
+    // The stacked line is the background of the row it runs down (and of the
+    // cards in it, under their text); the playhead spans that row only to
+    // carry the time, which sticks below the nav while the row scrolls by.
+    const nowRow = stacked ? (current ?? next) : null;
+    for (const row of this.rows) row.element.classList.toggle("is-now", row === nowRow);
+    this.grid.style.setProperty("--program-now-progress", String(stacked ? ratio : 0));
+    this.playhead.style.height = nowRow ? `${nowRow.element.getBoundingClientRect().height}px` : "";
     if (this.playheadTime) {
       const label = clock.format(now);
       if (this.playheadTime.textContent !== label) this.playheadTime.textContent = label;
@@ -318,9 +324,14 @@ export class ProgramLive {
     this.creepTimer = 0;
   }
 
-  reset() {
-    this.stopCreep();
+  hidePlayhead() {
     this.playhead.hidden = true;
+    this.stopCreep();
+    for (const row of this.rows) row.element.classList.remove("is-now");
+  }
+
+  reset() {
+    this.hidePlayhead();
     this.playhead.style.transition = "";
     if (this.earlierButton) this.earlierButton.hidden = true;
     for (const row of this.rows) {
