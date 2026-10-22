@@ -736,6 +736,8 @@ test.describe('Hidden for 2027', () => {
 });
 
 test.describe('Talk pages', () => {
+  test.skip(!FLAGS.program, 'Program is hidden for 2027');
+
   // Every talk has a page of its own (/program/<id>/, /en/program/<id>/), so a
   // talk can be linked to directly — and read with JavaScript off.
   for (const { home, base, lang } of [
@@ -776,7 +778,7 @@ test.describe('Talk pages', () => {
     await session.locator('[data-session-open]').click();
     await expect(dialog).toBeVisible();
     await expect(page).toHaveURL(`/program/${id}/`);
-    await expect(page).toHaveTitle(/After the AI Hype.*TDC 2026/);
+    await expect(page).toHaveTitle(/After the AI Hype.*TDC 2027/);
 
     // Back closes it, Forward brings it back, closing steps back again.
     await page.goBack();

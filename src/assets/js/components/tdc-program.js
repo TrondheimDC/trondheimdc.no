@@ -512,7 +512,7 @@ class TdcProgram {
   pushSessionUrl(session) {
     const href = session.querySelector("[data-session-open]")?.getAttribute("href");
     if (!href) return;
-    const title = `${session.dataset.sessionTitle} — TDC 2026`;
+    const title = `${session.dataset.sessionTitle} — ${this.root.dataset.siteTitle}`;
     if (history.state?.tdcSession) history.replaceState({ tdcSession: session.dataset.sessionId }, "", href);
     else {
       // Stepping back onto an entry with a #fragment (from a menu click or a
