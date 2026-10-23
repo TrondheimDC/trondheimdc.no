@@ -16,6 +16,10 @@
   -webkit-user-select: none;
   user-select: none;
   touch-action: pan-y;
+  /* No grey/blue tap box on touch screens, and no iOS "Save image" sheet on
+     a long press, which would otherwise get in the way of dragging. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   filter: drop-shadow(0 8px 24px rgba(255, 204, 0, 0.3));
   transition: filter 0.3s ease;
   /* Idle floating animation */

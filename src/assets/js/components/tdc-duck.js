@@ -145,7 +145,9 @@ export class TdcDuck extends HTMLElement {
     // path-prefix resolved by the template); fall back to the 8-bit mascot.
     const imgSrc = this.getAttribute('image') || `${getPathPrefix()}/assets/images/8bit-duck.svg`;
 
-    this.innerHTML = `
+    // The hero renders this markup itself so the duck is there from the first
+    // paint; only build it when it isn't already in place.
+    if (!this.querySelector('.duck')) this.innerHTML = `
       <div class="duck" role="img" aria-label="${lang === 'en' ? 'TDC mascot duck' : 'TDC maskot-and'}" tabindex="0">
         <img class="duck__img" src="${imgSrc}" alt="" draggable="false">
         <span class="duck__quack" aria-live="polite"></span>
