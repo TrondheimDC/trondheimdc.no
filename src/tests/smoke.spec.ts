@@ -1144,6 +1144,11 @@ test.describe('FAQ accordion', () => {
 });
 
 test.describe('Duck mascot', () => {
+  test('never shows the browser\'s own tap highlight on the hero duck', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero__duck .duck')).toHaveCSS('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)');
+  });
+
   test('hero shows the interactive duck without eagerly loading the engine', async ({ page }) => {
     const duckMateRequests: string[] = [];
     page.on('request', (req) => {

@@ -51,9 +51,13 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}">
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/logos/TDC_white.svg' | url }}">
 
-  {# Preload the two most-used font weights (latin) to cut layout shift. #}
+  {# Preload the fonts the first screen needs (latin), so they don't wait for
+     main.css and its @import chain to be discovered: body text, and Space
+     Grotesk for the hero date (400) and the nav (600, served by the 700 file). #}
   <link rel="preload" href="{{ '/assets/fonts/ibm-plex-sans-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ '/assets/fonts/ibm-plex-sans-latin-600-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/space-grotesk-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/space-grotesk-latin-700-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
 
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
 

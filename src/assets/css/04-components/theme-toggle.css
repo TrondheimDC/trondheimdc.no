@@ -2,6 +2,10 @@
    the sun/moon icon based on the active theme it stores in its data-theme. */
 tdc-theme-toggle {
   display: inline-flex;
+  /* Hold the button's box before tdc-theme-toggle.js has rendered it, so the
+     nav doesn't grow (and shift) when it appears. */
+  min-inline-size: 2.5rem;
+  min-block-size: 2.5rem;
 }
 
 .theme-toggle {

@@ -53,11 +53,13 @@
   /* ---------------------------------------------------------------
      PRIMITIVE — typography
      --------------------------------------------------------------- */
-  --font-family-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-family-mono: "Space Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-family-sans: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-mono: "Space Mono", "Space Mono Fallback", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   /* Display = Space Grotesk per Figma design system v7.0 (docs/design.md).
-     Drives headings, hero and nav; falls back to the sans stack. */
-  --font-family-display: "Space Grotesk", var(--font-family-sans);
+     Drives headings, hero and nav; falls back to the sans stack. Its own
+     metric-matched fallback comes first, so a slow Space Grotesk doesn't
+     render in (differently sized) IBM Plex Sans meanwhile. */
+  --font-family-display: "Space Grotesk", "Space Grotesk Fallback", var(--font-family-sans);
 
   --font-weight-regular: 400;
   --font-weight-semibold: 600;

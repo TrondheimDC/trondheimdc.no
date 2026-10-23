@@ -176,3 +176,72 @@
     U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
     U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* ---- Metric-matched fallbacks ----
+   While a webfont loads (font-display: swap), text renders in a local font
+   first. These faces scale that local font to the webfont's average glyph
+   width and line metrics, so the swap changes the letterforms but not where
+   lines wrap or how tall they are — no layout shift. Listed right after each
+   webfont in the --font-family-* tokens.
+
+   Values: size-adjust = webfont avg width / fallback avg width; the overrides
+   are the webfont's ascent/descent/line gap divided by that. Metrics from
+   @capsizecss/metrics. Space Grotesk is the exception: that average is
+   lowercase-weighted, but above the fold it is mostly set in capitals (hero
+   date, nav), where Arial runs 16–23% wider. Its size-adjust is tuned on
+   "19. OKTOBER 2026" instead, leaving mixed-case headings ~9% narrow. Liberation Sans/Mono are metric-compatible stand-ins
+   for Arial/Courier New on Linux. */
+@font-face {
+  font-family: "IBM Plex Sans Fallback";
+  font-weight: 400;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  size-adjust: 101.17%;
+  ascent-override: 101.32%;
+  descent-override: 27.18%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "IBM Plex Sans Fallback";
+  font-weight: 600 700;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  size-adjust: 101.17%;
+  ascent-override: 101.32%;
+  descent-override: 27.18%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Space Grotesk Fallback";
+  font-weight: 400;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  size-adjust: 96%;
+  ascent-override: 102.50%;
+  descent-override: 30.42%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Space Grotesk Fallback";
+  font-weight: 600 700;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  size-adjust: 96%;
+  ascent-override: 102.50%;
+  descent-override: 30.42%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Space Mono Fallback";
+  font-weight: 400;
+  src: local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono");
+  size-adjust: 101.98%;
+  ascent-override: 109.82%;
+  descent-override: 35.40%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Space Mono Fallback";
+  font-weight: 700;
+  src: local("Courier New Bold"), local("CourierNewPS-BoldMT"), local("Liberation Mono Bold");
+  size-adjust: 101.98%;
+  ascent-override: 109.82%;
+  descent-override: 35.40%;
+  line-gap-override: 0%;
+}

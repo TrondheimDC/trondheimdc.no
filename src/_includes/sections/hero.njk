@@ -10,8 +10,21 @@
     </p>
 
     {# Clickable 8-bit duck mascot — click to quack, double-click to spin,
-       drag to move, five quick clicks for party mode. (easter eggs) #}
-    <tdc-duck class="hero__duck" image="{{ '/assets/images/8bit-duck.svg' | url }}"></tdc-duck>
+       drag to move, five quick clicks for party mode. (easter eggs)
+       The duck's markup is rendered here rather than by tdc-duck.js, so it is
+       on screen from the first paint instead of popping in (and pushing the
+       rest of the hero down) once the script has run. The component picks it
+       up as it is; keep the two in step. #}
+    <tdc-duck class="hero__duck" image="{{ '/assets/images/8bit-duck.svg' | url }}">
+      <div class="duck" role="img" aria-label="{{ 'TDC mascot duck' if lang == 'en' else 'TDC maskot-and' }}" tabindex="0">
+        <img class="duck__img" src="{{ '/assets/images/8bit-duck.svg' | url }}" alt="" draggable="false" fetchpriority="high">
+        <span class="duck__quack" aria-live="polite"></span>
+        <svg class="duck__splash" viewBox="0 0 120 30">
+          <ellipse cx="60" cy="15" rx="50" ry="10" fill="#3D9EFF" opacity="0.4"/>
+          <ellipse cx="60" cy="15" rx="35" ry="6" fill="#70B8FF" opacity="0.3"/>
+        </svg>
+      </div>
+    </tdc-duck>
 
     <p class="hero__venue text-lead">{{ t.hero.venue }}</p>
 
