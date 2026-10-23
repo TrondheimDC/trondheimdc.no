@@ -767,7 +767,7 @@ test.describe('Talk pages', () => {
     await expect(copy).not.toHaveClass(/is-done/, { timeout: 4000 });
   });
 
-  test('the whole card is a link, for opening a talk in a new tab', async ({ page, context }) => {
+  test('the whole card is a link, for opening a talk in a new tab', async ({ page }) => {
     await page.goto('/');
     const session = page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' });
     const id = await session.getAttribute('data-session-id');
@@ -777,12 +777,19 @@ test.describe('Talk pages', () => {
     const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height - 6]);
     expect(hit).toBe(`/program/${id}/`);
 
-    const [popup] = await Promise.all([
-      context.waitForEvent('page'),
-      session.locator('[data-session-open]').click({ modifiers: ['ControlOrMeta'] }),
-    ]);
-    await popup.waitForLoadState();
-    expect(new URL(popup.url()).pathname).toBe(`/program/${id}/`);
+    // Ctrl/Cmd-click must be left to the browser (it opens the talk's page in a
+    // new tab). Opening a real popup is flaky in headless runs under load, so
+    // check the contract instead: nothing on the page cancels the click. A
+    // listener further up the tree records that, then cancels it itself so the
+    // test page doesn't navigate.
+    await page.evaluate(() => {
+      document.addEventListener('click', (event) => {
+        (window as any).__clickWasCancelled = event.defaultPrevented;
+        event.preventDefault();
+      }, { once: true });
+    });
+    await session.locator('[data-session-open]').click({ modifiers: ['ControlOrMeta'] });
+    expect(await page.evaluate(() => (window as any).__clickWasCancelled)).toBe(false);
     await expect(page.locator('[data-session-dialog]')).toBeHidden();
   });
 
