@@ -238,7 +238,9 @@
      read as a wall of white with the backdrop gone entirely; leaving room
      above and below (and rounding the corners back on) reads as a sheet,
      not a takeover. */
-  .program-session-modal { width: 100vw; max-width: 100vw; height: fit-content; max-height: 85dvh; margin: auto 0; border-radius: var(--radius-lg); }
+  /* 100%, not 100vw: vw counts a classic scrollbar too, which made the dialog
+     overhang the screen and scroll sideways wherever the scrollbar takes room. */
+  .program-session-modal { width: 100%; max-width: 100%; height: fit-content; max-height: 85dvh; margin: auto 0; border-radius: var(--radius-lg); }
 }
 
 /* ---------------------------------------------------------------------------
