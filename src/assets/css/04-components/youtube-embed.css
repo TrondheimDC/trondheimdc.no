@@ -1,6 +1,8 @@
 /* Click-to-play YouTube embed (components/tdc-youtube.js). A 16:9 box that
    holds either the play button, the playing iframe, or — without JavaScript —
    a plain link to the video. Semantic tokens only. */
+/* The component is the <tdc-youtube> element itself; it never gets the class. */
+tdc-youtube,
 .tdc-youtube {
   position: relative;
   display: flex;
