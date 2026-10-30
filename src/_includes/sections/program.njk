@@ -139,6 +139,10 @@
                     <div class="program-session__meta">
                       <span class="program-session__room">{% if session.title == "Lunch" %}{{ t.program.lunch_location }}{% else %}{{ session.roomName or t.program.shared_session }}{% endif %}</span>
                       <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
+                      {% if session.recordingVideoId %}
+                        {# Visible marker that a recording exists. A span, not a link, so the whole card still opens the talk. #}
+                        <span class="program-session__recording"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>{{ t.program.recording }}</span>
+                      {% endif %}
                     </div>
                     <div class="program-session__heading">
                       {% if session.isService %}

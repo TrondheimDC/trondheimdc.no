@@ -103,6 +103,9 @@
 .program-session--service .program-session__meta, .program-session--service .program-session__heading { justify-content: center; }
 .program-session__room { color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
 .program-session__duration { white-space: nowrap; }
+/* Recording marker: a word and an icon, not colour alone (WCAG 1.4.1). */
+.program-session__recording { display: inline-flex; align-items: center; gap: var(--spacing-1); color: var(--color-fg-brand); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); white-space: nowrap; }
+.program-session__recording svg { flex: none; }
 .program-session__heading { display: flex; align-items: flex-start; gap: var(--spacing-2); }
 .program-session__title { flex: 1; padding: 0; text-decoration: none; border: 0; background: transparent; color: var(--color-fg-base); cursor: pointer; font: inherit; font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); text-align: left; }
 /* Breaks etc. render this as a <span>, not a <button> — plain text, no pointer. */
