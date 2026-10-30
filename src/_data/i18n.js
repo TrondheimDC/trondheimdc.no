@@ -30,6 +30,7 @@ export default {
       venue: "Clarion Hotel Trondheim",
       sold_out: "Utsolgt",
       cta_program: "Se programmet",
+      cta_partner_sold_out: "Meld din interesse for 2027",
     },
     about: {
       title: "Velkommen til TDC 2026!",
@@ -220,6 +221,7 @@ export default {
       venue: "Clarion Hotel Trondheim",
       sold_out: "Sold out",
       cta_program: "See the program",
+      cta_partner_sold_out: "Register your interest for 2027",
     },
     about: {
       title: "Welcome to TDC 2026!",

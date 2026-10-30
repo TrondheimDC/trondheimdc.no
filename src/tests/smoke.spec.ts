@@ -1119,13 +1119,13 @@ test.describe('Hero', () => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Utsolgt');
-    await expect(page.locator('#hero a[href="#program"]', { hasText: 'Se programmet' })).toBeVisible();
+    await expect(page.locator('#hero a[href="https://2027.trondheimdc.no/"]', { hasText: 'Meld din interesse for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('English hero shows sold-out stamp', async ({ page }) => {
     await page.goto('/en/');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Sold out');
-    await expect(page.locator('#hero a[href="#program"]', { hasText: 'See the program' })).toBeVisible();
+    await expect(page.locator('#hero a[href="https://2027.trondheimdc.no/"]', { hasText: 'Register your interest for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('ticket section and nav link are gone', async ({ page }) => {
