@@ -24,6 +24,16 @@
       <p class="talk__description"{% if talkLang %} lang="{{ talkLang }}"{% endif %}>{{ session.description }}</p>
     {% endif %}
 
+    {% if session.recordingVideoId %}
+      {# Shareable: this page is the talk's own URL, so the recording travels with it. #}
+      <section class="talk__recording" aria-labelledby="talk-recording-title">
+        <h2 class="talk__recording-title" id="talk-recording-title">{{ t.program.recording_title }}</h2>
+        <tdc-youtube video-id="{{ session.recordingVideoId }}" title="{{ session.title }}" play-label="{{ t.program.recording_play }}">
+          <a href="https://www.youtube.com/watch?v={{ session.recordingVideoId }}" target="_blank" rel="noopener">{{ t.program.recording_watch }} <span class="visually-hidden">({{ t.ui.external }})</span></a>
+        </tdc-youtube>
+      </section>
+    {% endif %}
+
     {% if session.topics and session.topics.length %}
       <ul class="talk__topics" role="list" aria-label="{{ t.program.topic }}">
         {% for topic in session.topics %}<li class="tag">{{ topic }}</li>{% endfor %}

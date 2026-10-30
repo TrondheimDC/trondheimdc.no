@@ -6,6 +6,8 @@ import "./components/tdc-theme-toggle.js";
 // see the "Program: the merged session/speaker dialog" note in AGENTS.md.
 import "./components/tdc-program.js";
 import "./components/tdc-faq.js";
+// Click-to-play YouTube recordings on talk pages (no YouTube requests until play).
+import "./components/tdc-youtube.js";
 // Clickable 8-bit duck mascot + easter eggs (lazy-loads the duck-mate engine).
 import "./components/tdc-duck.js";
 // Re-fetches Sessionize client-side so newly added speakers show up without a rebuild.

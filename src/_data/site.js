@@ -8,6 +8,8 @@ export default {
   partnerEmail: "partner@trondheimdc.no",
   ticketUrl: "https://event.checkin.no/215261/tdc-2026",
   partnerOrderUrl: "#partners",
+  // Priority list for partner spots at the next conference.
+  partner2027Url: "https://2027.trondheimdc.no/",
   sessionizeEventId: "1diujeu9",
   social: {
     facebook: "https://www.facebook.com/TDConf",

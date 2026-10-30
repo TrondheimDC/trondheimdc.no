@@ -89,6 +89,15 @@ export default {
       back: "Hele programmet",
       copy_link: "Kopier lenke",
       link_copied: "Lenke kopiert",
+      recording: "Opptak",
+      recording_title: "Opptak",
+      recording_play: "Spill av opptaket",
+      recording_watch: "Se på YouTube",
+    },
+    partner_banner: {
+      title: "Utsolgt for partnere i 2026",
+      text: "Alle partnerplassene for TDC 2026 ble utsolgt før påske. Vil du være med i 2027? Meld din interesse nå, så kommer du på prioritert liste for partnerskap.",
+      cta: "Meld interesse for 2027",
     },
     partners: {
       title: "Partnere",
@@ -273,6 +282,15 @@ export default {
       back: "Full program",
       copy_link: "Copy link",
       link_copied: "Link copied",
+      recording: "Recording",
+      recording_title: "Recording",
+      recording_play: "Play the recording",
+      recording_watch: "Watch on YouTube",
+    },
+    partner_banner: {
+      title: "Partner spots sold out for 2026",
+      text: "All partner spots for TDC 2026 sold out before Easter. Want to be part of 2027? Register your interest now and join the priority list for partnership.",
+      cta: "Register interest for 2027",
     },
     partners: {
       title: "Partners",

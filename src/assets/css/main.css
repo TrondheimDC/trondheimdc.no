@@ -44,6 +44,8 @@
 @import "04-components/theme-toggle.css" layer(components);
 @import "04-components/footer.css" layer(components);
 @import "04-components/duck.css" layer(components);
+@import "04-components/partner-banner.css" layer(components);
+@import "04-components/youtube-embed.css" layer(components);
 
 /* utilities — single-purpose overrides */
 @import "05-utilities/visually-hidden.css" layer(utilities);

@@ -1,0 +1,74 @@
+/* Click-to-play YouTube embed (components/tdc-youtube.js). A 16:9 box that
+   holds either the play button, the playing iframe, or — without JavaScript —
+   a plain link to the video. Semantic tokens only. */
+.tdc-youtube {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+}
+
+.tdc-youtube > a {
+  color: var(--color-fg-brand);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tdc-youtube iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.tdc-youtube__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-base);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tdc-youtube__icon {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-fg-brand);
+  color: var(--color-fg-always-dark);
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.tdc-youtube__play:hover .tdc-youtube__icon {
+  transform: scale(1.06);
+}
+
+.tdc-youtube__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.tdc-youtube__play:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tdc-youtube__icon {
+    transition: none;
+  }
+}

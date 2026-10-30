@@ -1,0 +1,12 @@
+{% from "components/button.njk" import button %}
+
+{# Partner band under the hero: partner spots for 2026 are sold out, and the
+   next conference's priority list is open. Kept short, so the programme
+   stays the first thing below the hero. #}
+<section class="partner-banner" aria-labelledby="partner-banner-title">
+  <div class="container partner-banner__inner">
+    <h2 class="partner-banner__title" id="partner-banner-title">{{ t.partner_banner.title }}</h2>
+    <p class="partner-banner__text">{{ t.partner_banner.text }}</p>
+    {{ button(t.partner_banner.cta, site.partner2027Url, "primary", "md", null, true) }}
+  </div>
+</section>

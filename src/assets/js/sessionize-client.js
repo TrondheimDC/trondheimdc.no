@@ -169,6 +169,34 @@ function apiValue(value, fallback = "") {
   return value === undefined || value === null ? fallback : value;
 }
 
+const youtubeIdPattern = /^[A-Za-z0-9_-]{11}$/;
+
+/**
+ * The YouTube video id behind a recording URL, or "" if the URL isn't a
+ * YouTube video. Only the id is ever embedded, so a stray or hostile URL in
+ * Sessionize's recordingUrl field can't become an iframe src.
+ */
+export function youtubeVideoId(url = "") {
+  let parsed;
+  try {
+    parsed = new URL(String(url).trim());
+  } catch {
+    return "";
+  }
+  const host = parsed.hostname.replace(/^(www|m)\./, "");
+  let id = "";
+  if (host === "youtu.be") {
+    id = parsed.pathname.split("/")[1] ?? "";
+  } else if (host === "youtube.com" || host === "youtube-nocookie.com") {
+    if (parsed.pathname === "/watch") {
+      id = parsed.searchParams.get("v") ?? "";
+    } else {
+      id = parsed.pathname.match(/^\/(?:live|embed|shorts)\/([^/]+)/)?.[1] ?? "";
+    }
+  }
+  return youtubeIdPattern.test(id) ? id : "";
+}
+
 export function parseApiData(data) {
   const payload = Array.isArray(data) ? data[0] : data;
   if (!payload || !Array.isArray(payload.sessions) || !Array.isArray(payload.speakers)) return null;
@@ -224,6 +252,10 @@ export function parseApiData(data) {
       language: getLanguage(categoryItems),
       isService: Boolean(session.isService ?? session.isServiceSession),
       isPlenum: Boolean(session.isPlenum ?? session.isPlenumSession),
+      // Recordings are published as YouTube videos and linked from Sessionize.
+      // recordingVideoId is "" until a YouTube link is entered for the talk.
+      recordingUrl: apiValue(session.recordingUrl),
+      recordingVideoId: youtubeVideoId(apiValue(session.recordingUrl)),
     };
   }).filter((session) => session.id);
 

@@ -696,6 +696,83 @@ test.describe('Standalone program page', () => {
   }
 });
 
+test.describe('Partner band and recordings', () => {
+  for (const home of ['/', '/en/']) {
+    test(`${home} announces the 2026 partner sell-out with a 2027 link under the hero`, async ({ page }) => {
+      await page.goto(home);
+      const band = page.locator('.partner-banner');
+      await expect(band).toBeVisible();
+      await expect(band.locator('h2')).toBeVisible();
+      const cta = band.locator('a');
+      await expect(cta).toHaveAttribute('href', 'https://2027.trondheimdc.no/');
+      await expect(cta).toHaveAttribute('target', '_blank');
+
+      // Between the hero and the programme, so it is seen before the schedule.
+      const bandBox = (await band.boundingBox())!;
+      const programBox = (await page.locator('#program').boundingBox())!;
+      expect(bandBox.y).toBeLessThan(programBox.y);
+    });
+  }
+
+  test('a YouTube recording loads nothing from YouTube until it is played', async ({ page }) => {
+    await page.goto('/en/');
+    const id = await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).getAttribute('data-session-id');
+    await page.goto(`/en/program/${id}/`);
+
+    const youtubeRequests: string[] = [];
+    page.on('request', (request) => {
+      if (/youtube|ytimg/.test(request.url())) youtubeRequests.push(request.url());
+    });
+
+    await page.evaluate(() => {
+      const host = document.querySelector('.talk .container') ?? document.body;
+      host.insertAdjacentHTML(
+        'beforeend',
+        '<tdc-youtube video-id="dQw4w9WgXcQ" title="Test recording" play-label="Play the recording"><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Watch</a></tdc-youtube>',
+      );
+    });
+
+    const facade = page.locator('tdc-youtube');
+    const play = facade.locator('.tdc-youtube__play');
+    await expect(play).toBeVisible();
+    expect(youtubeRequests).toEqual([]);
+
+    await play.click();
+    const frame = facade.locator('iframe');
+    await expect(frame).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?autoplay=1/);
+    await expect(frame).toHaveAttribute('title', 'Test recording');
+  });
+
+  test('a value that is not a YouTube id never becomes an embed', async ({ page }) => {
+    await page.goto('/en/');
+    const id = await page.locator('[data-program-session]').filter({ hasText: 'After the AI Hype' }).getAttribute('data-session-id');
+    await page.goto(`/en/program/${id}/`);
+    await page.evaluate(() => {
+      const host = document.querySelector('.talk .container') ?? document.body;
+      host.insertAdjacentHTML(
+        'beforeend',
+        '<tdc-youtube video-id="javascript:alert(1)" title="Bad" play-label="Play"><a href="https://www.youtube.com/">Watch</a></tdc-youtube>',
+      );
+    });
+    const facade = page.locator('tdc-youtube');
+    await expect(facade.locator('a')).toBeVisible();
+    await expect(facade.locator('.tdc-youtube__play')).toHaveCount(0);
+    await expect(facade.locator('iframe')).toHaveCount(0);
+  });
+
+  test('a talk with a recording shows the marker on its card and the player on its page', async ({ page }) => {
+    await page.goto('/');
+    const marked = page.locator('[data-program-session]').filter({ has: page.locator('.program-session__recording') });
+    test.skip((await marked.count()) === 0, 'No recordings published in Sessionize yet');
+
+    await expect(marked.first().locator('.program-session__recording')).toBeVisible();
+    const id = await marked.first().getAttribute('data-session-id');
+    await page.goto(`/program/${id}/`);
+    await expect(page.locator('.talk__recording')).toBeVisible();
+    await expect(page.locator('tdc-youtube')).toHaveAttribute('video-id', /^[A-Za-z0-9_-]{11}$/);
+  });
+});
+
 test.describe('Talk pages', () => {
   // Every talk has a page of its own (/program/<id>/, /en/program/<id>/), so a
   // talk can be linked to directly — and read with JavaScript off.
