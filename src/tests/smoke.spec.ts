@@ -771,6 +771,42 @@ test.describe('Partner band and recordings', () => {
     await expect(page.locator('.talk__recording')).toBeVisible();
     await expect(page.locator('tdc-youtube')).toHaveAttribute('video-id', /^[A-Za-z0-9_-]{11}$/);
   });
+
+  test('the program dialog plays a recording from its card and from its speaker, and stays empty without one', async ({ page }) => {
+    await page.goto('/');
+    const marked = page.locator('[data-program-session]').filter({ has: page.locator('.program-session__recording') });
+    test.skip((await marked.count()) === 0, 'No recordings published in Sessionize yet');
+
+    const dialog = page.locator('[data-session-dialog]');
+    const slot = dialog.locator('[data-session-modal-recording]');
+    const close = dialog.locator('[data-session-close]');
+
+    // From the card's title.
+    await marked.first().locator('[data-session-open]').click();
+    await expect(dialog).toBeVisible();
+    await expect(slot.locator('tdc-youtube')).toHaveAttribute('video-id', /^[A-Za-z0-9_-]{11}$/);
+    await expect(slot.locator('.tdc-youtube__play')).toBeVisible();
+    await close.click();
+    await expect(dialog).toBeHidden();
+
+    // From a speaker on that same card: the speaker button also opens the dialog.
+    await marked.first().locator('[data-speaker-open]').first().click();
+    await expect(dialog).toBeVisible();
+    await expect(slot.locator('tdc-youtube')).toHaveCount(1);
+    await close.click();
+    await expect(dialog).toBeHidden();
+
+    // A talk without a recording keeps the slot hidden and empty.
+    const plain = page.locator('.program-session--favoritable[data-program-session]')
+      .filter({ hasNot: page.locator('.program-session__recording') })
+      .first();
+    await plain.locator('[data-session-open]').click();
+    await expect(dialog).toBeVisible();
+    await expect(slot).toBeHidden();
+    await expect(slot.locator('tdc-youtube')).toHaveCount(0);
+    await close.click();
+    await expect(dialog).toBeHidden();
+  });
 });
 
 test.describe('Talk pages', () => {
