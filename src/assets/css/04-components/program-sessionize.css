@@ -169,6 +169,9 @@
 .program-session-modal__language:empty { display: none; }
 .program-session-modal h3 { margin-block: var(--spacing-2) var(--spacing-4); color: var(--color-fg-base); }
 .program-session-modal__description { white-space: pre-line; color: var(--color-fg-muted); line-height: var(--line-height-relaxed); }
+/* Player above the description. Margin only, no display: the slot's `hidden`
+   attribute must keep working (AGENTS.md, [hidden] learning). */
+.program-session-modal__recording { margin-block-end: var(--spacing-4); }
 
 /* Speaker bios, merged into this dialog — built by TdcProgram.renderSpeakers()
    from the session's own [data-speaker-open] buttons. */

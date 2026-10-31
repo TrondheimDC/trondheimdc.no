@@ -30,6 +30,7 @@ class TdcProgram {
     this.calendarExport = root.querySelector("[data-program-calendar-export]");
     this.title = root.querySelector("[data-session-modal-title]");
     this.description = root.querySelector("[data-session-modal-description]");
+    this.recording = root.querySelector("[data-session-modal-recording]");
     this.copyButton = root.querySelector("[data-session-copy]");
     this.copyStatus = root.querySelector("[data-session-copy-status]");
     this.pageTitle = document.title;
@@ -478,6 +479,7 @@ class TdcProgram {
     this.title.textContent = session.dataset.sessionTitle || "";
     this.description.textContent = session.dataset.sessionDescription || "";
     this.description.hidden = !this.description.textContent;
+    this.renderRecording(session);
     this.resetCopy();
     this.meta.textContent = `${session.dataset.sessionRoom} · ${session.dataset.sessionStart}–${session.dataset.sessionEnd}`;
     // A previous open() may have been the no-session speaker fallback below,
@@ -563,6 +565,20 @@ class TdcProgram {
     if (this.copyStatus) this.copyStatus.textContent = "";
   }
 
+  // Same click-to-play player as the talk page, so the recording plays here too.
+  renderRecording(session) {
+    if (!this.recording) return;
+    const videoId = session?.dataset.sessionRecordingVideoId || "";
+    this.recording.replaceChildren();
+    this.recording.hidden = !videoId;
+    if (!videoId) return;
+    const player = document.createElement("tdc-youtube");
+    player.setAttribute("video-id", videoId);
+    player.setAttribute("title", session.dataset.sessionTitle || "");
+    player.setAttribute("play-label", this.root.dataset.recordingPlayLabel || "");
+    this.recording.appendChild(player);
+  }
+
   // Reached from the speakers wall (#speakers), which sits outside this
   // instance's root and only knows which session its speaker belongs to
   // (data-session-id) — the actual bio/social data comes from that session's
@@ -594,6 +610,7 @@ class TdcProgram {
     this.returnFocus = button;
     this.title.textContent = button.dataset.speakerName || "";
     this.description.hidden = true;
+    this.renderRecording(null);
     if (this.metaRow) this.metaRow.hidden = true;
     if (this.actions) this.actions.hidden = true;
     if (this.copyButton) this.copyButton.hidden = true;

@@ -25,6 +25,7 @@
       data-filter-count-label="{{ t.program.filter_count | escape }}"
       data-no-results-label="{{ t.program.no_results | escape }}"
       data-favorite-hint-label="{{ t.program.favorite_hint | escape }}"
+      data-recording-play-label="{{ t.program.recording_play | escape }}"
       data-shared-session-label="{{ t.program.shared_session }}"
       data-calendar-url="{{ site.url }}{{ page.url }}{% if not standalone %}#program{% endif %}"
       data-calendar-ics-base="{{ '/program/' | url }}"
@@ -134,6 +135,7 @@
                     data-session-room="{{ session.roomName | escape }}"
                     data-session-service="{{ 'true' if session.isService else 'false' }}"
                     data-session-topics="{{ session.topics | join('|') | escape }}"
+                    data-session-recording-video-id="{{ session.recordingVideoId | escape }}"
                     {% if not session.isService %}data-session-url="{{ site.url }}{{ programBase }}{{ session.id }}/"{% endif %}
                   >
                     <div class="program-session__meta">
@@ -248,6 +250,7 @@
             </p>
             <h3 id="program-session-modal-title" data-session-modal-title></h3>
             <div class="program-session-modal__topics" data-session-modal-topics></div>
+            <div class="program-session-modal__recording" data-session-modal-recording hidden></div>
             <p class="program-session-modal__description" data-session-modal-description></p>
 
             {# Filled by TdcProgram from the session's own [data-speaker-open]
