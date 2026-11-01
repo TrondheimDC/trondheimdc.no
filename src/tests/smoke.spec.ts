@@ -732,7 +732,8 @@ test.describe('Partner band and recordings', () => {
       );
     });
 
-    const facade = page.locator('tdc-youtube');
+    // The talk may have a real recording of its own now, so target the one we injected.
+    const facade = page.locator('tdc-youtube[video-id="dQw4w9WgXcQ"]');
     const play = facade.locator('.tdc-youtube__play');
     await expect(play).toBeVisible();
     expect(youtubeRequests).toEqual([]);
@@ -754,7 +755,7 @@ test.describe('Partner band and recordings', () => {
         '<tdc-youtube video-id="javascript:alert(1)" title="Bad" play-label="Play"><a href="https://www.youtube.com/">Watch</a></tdc-youtube>',
       );
     });
-    const facade = page.locator('tdc-youtube');
+    const facade = page.locator('tdc-youtube[title="Bad"]');
     await expect(facade.locator('a')).toBeVisible();
     await expect(facade.locator('.tdc-youtube__play')).toHaveCount(0);
     await expect(facade.locator('iframe')).toHaveCount(0);
