@@ -47,7 +47,11 @@
   <meta property="og:image:height" content="534">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}">
+  {# The SVG icon swaps colours itself (prefers-color-scheme inside the SVG):
+     red on white in light mode, green on black in dark, like the wordmark.
+     The PNG fallbacks do the same through media queries on the links. #}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-light-32x32.png' | url }}" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | url }}" media="(prefers-color-scheme: dark)">
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | url }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon-180x180.png' | url }}">
 
