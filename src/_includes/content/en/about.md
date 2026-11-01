@@ -14,4 +14,4 @@ The conference "TDC" originally stood for "Trondheim Developer Conference", but 
 
 Anders Kringstad, Alexander Samsig, Bård Flugon, Bjørn Herve Moslet, Hanna Aalmen, Hannah Jarholm, Hanne Bårdsen, Julie Frøseth, Kari Bach Henningsen, Karl Yngve Lervåg, Kasia Szlejter, Kevin K. Varughese, Kirsti Fossland Brørs, Luci André Knudsen, Mathias Flått, Natalia Mykhailovska, Roar V. Skjønberg, Roger Flataker, Rolf Anders Storset, Sara Løkken, Sigmund Henningsen, Stian Standahl, Terje Storvik and Vladas Diržys
 
-<img src="/assets/images/komite.jpg" alt="Program committee 2026" width="800" height="534" loading="lazy" decoding="async">
+<img src="/assets/images/komite.jpg" alt="Program committee 2026" width="1024" height="683" loading="lazy" decoding="async">
