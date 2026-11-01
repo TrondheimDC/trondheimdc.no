@@ -9,6 +9,7 @@ export default {
   email: "connect@trondheimdc.no",
   partnerEmail: "partner@trondheimdc.no",
   ticketUrl: "https://event.checkin.no/215261/tdc-2026",
+  interestFormUrl,
   partnerOrderUrl: "#partners",
   // Priority list for partner spots at the next conference: the interest
   // form, with "Partner" ticked (question 23; forms.trondheimdc.no fills in

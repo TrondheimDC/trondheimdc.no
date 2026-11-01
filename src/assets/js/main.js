@@ -23,15 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Clicks on the 2027 partner interest CTAs (hero button, partner band),
-  // named by where on the page they were clicked.
+  // Clicks on the 2027 interest form CTAs: the hero button (plain form) and
+  // the partner band (form with Partner ticked), named by placement.
+  const interestCategories = { "interest-click": "Interest", "partner-interest-click": "Partners" };
   document.addEventListener("click", (event) => {
-    const partnerLink = event.target.closest('[data-analytics-event="partner-interest-click"]');
-    if (!partnerLink) return;
+    const link = event.target.closest('[data-analytics-event$="interest-click"]');
+    const category = link && interestCategories[link.dataset.analyticsEvent];
+    if (!category) return;
 
-    const placement = partnerLink.closest("section")?.id || "unknown";
+    const placement = link.closest("section")?.id || "unknown";
     const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Partners", "Click 2027 interest form", placement]);
+    tracker.push(["trackEvent", category, "Click 2027 interest form", placement]);
   });
 
   document.addEventListener("click", (event) => {

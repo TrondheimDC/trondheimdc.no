@@ -721,22 +721,22 @@ test.describe('Partner band and recordings', () => {
       await expect(page.locator('#partner-banner')).toHaveCount(1);
     });
 
-    test(`${home} tracks clicks on the 2027 partner CTAs by placement`, async ({ page, context }) => {
+    test(`${home} tracks clicks on the 2027 interest CTAs by placement`, async ({ page, context }) => {
       // Keep the real Matomo from replacing the _paq queue, and keep the
       // new tabs the CTAs open from loading the real form.
       await context.route('**stats.trondheimdc.no/**', (route) => route.abort());
       await context.route('https://forms.trondheimdc.no/**', (route) => route.abort());
       await page.goto(home);
-      for (const selector of ['#hero a[href$="?q23=Partner"]', '#partner-banner a']) {
+      for (const selector of ['#hero a[href^="https://forms.trondheimdc.no/"]', '#partner-banner a']) {
         await page.locator(selector).click();
       }
       const events = await page.evaluate(() =>
         ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
-          (entry) => entry[0] === 'trackEvent' && entry[1] === 'Partners',
+          (entry) => entry[0] === 'trackEvent' && entry[2] === 'Click 2027 interest form',
         ),
       );
       expect(events).toEqual([
-        ['trackEvent', 'Partners', 'Click 2027 interest form', 'hero'],
+        ['trackEvent', 'Interest', 'Click 2027 interest form', 'hero'],
         ['trackEvent', 'Partners', 'Click 2027 interest form', 'partner-banner'],
       ]);
     });
@@ -1184,13 +1184,13 @@ test.describe('Hero', () => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Utsolgt');
-    await expect(page.locator('#hero a[href$="?q23=Partner"]', { hasText: 'Meld din interesse for 2027' })).toHaveAttribute('target', '_blank');
+    await expect(page.locator('#hero a[href="https://forms.trondheimdc.no/s/8ryzaodaiETBBGcsxtzEspDk"]', { hasText: 'Meld din interesse for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('English hero shows sold-out stamp', async ({ page }) => {
     await page.goto('/en/');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Sold out');
-    await expect(page.locator('#hero a[href$="?q23=Partner"]', { hasText: 'Register your interest for 2027' })).toHaveAttribute('target', '_blank');
+    await expect(page.locator('#hero a[href="https://forms.trondheimdc.no/s/8ryzaodaiETBBGcsxtzEspDk"]', { hasText: 'Register your interest for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('ticket section and nav link are gone', async ({ page }) => {
