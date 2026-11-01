@@ -698,19 +698,20 @@ test.describe('Standalone program page', () => {
 
 test.describe('Partner band and recordings', () => {
   for (const home of ['/', '/en/']) {
-    test(`${home} announces the 2026 partner sell-out with a 2027 link under the hero`, async ({ page }) => {
+    test(`${home} announces the 2026 partner sell-out and links to the 2027 interest form`, async ({ page }) => {
       await page.goto(home);
       const band = page.locator('.partner-banner');
       await expect(band).toBeVisible();
       await expect(band.locator('h2')).toBeVisible();
       const cta = band.locator('a');
-      await expect(cta).toHaveAttribute('href', 'https://2027.trondheimdc.no/');
+      // Straight to the interest form, with Partner ticked.
+      await expect(cta).toHaveAttribute('href', /^https:\/\/forms\.trondheimdc\.no\/s\/[^?]+\?q23=Partner$/);
       await expect(cta).toHaveAttribute('target', '_blank');
 
-      // Between the hero and the programme, so it is seen before the schedule.
+      // Right under the hero.
       const bandBox = (await band.boundingBox())!;
-      const programBox = (await page.locator('#program').boundingBox())!;
-      expect(bandBox.y).toBeLessThan(programBox.y);
+      const heroBox = (await page.locator('#hero').boundingBox())!;
+      expect(bandBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1);
     });
   }
 
@@ -1156,13 +1157,13 @@ test.describe('Hero', () => {
     await page.goto('/');
     await expect(page.locator('#hero')).toContainText('Clarion Hotel Trondheim');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Utsolgt');
-    await expect(page.locator('#hero a[href="https://2027.trondheimdc.no/"]', { hasText: 'Meld din interesse for 2027' })).toHaveAttribute('target', '_blank');
+    await expect(page.locator('#hero a[href$="?q23=Partner"]', { hasText: 'Meld din interesse for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('English hero shows sold-out stamp', async ({ page }) => {
     await page.goto('/en/');
     await expect(page.locator('#hero .hero__stamp')).toHaveText('Sold out');
-    await expect(page.locator('#hero a[href="https://2027.trondheimdc.no/"]', { hasText: 'Register your interest for 2027' })).toHaveAttribute('target', '_blank');
+    await expect(page.locator('#hero a[href$="?q23=Partner"]', { hasText: 'Register your interest for 2027' })).toHaveAttribute('target', '_blank');
   });
 
   test('ticket section and nav link are gone', async ({ page }) => {
