@@ -181,7 +181,7 @@ export default {
         },
         {
           q: "Kan jeg bli frivillig?",
-          a: 'Vi tar dessverre ikke inn flere frivillige i år. Ønsker du å stå på venteliste til neste år, send en e-post til <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
+          a: 'Ønsker du å melde interesse for å være frivillig på TDC 2027, send en e-post til <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
         },
       ],
     },
@@ -378,7 +378,7 @@ export default {
         },
         {
           q: "Can I volunteer?",
-          a: 'Yes! We greatly appreciate our volunteers. If you have questions, contact us at <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
+          a: 'If you would like to volunteer at TDC 2027, send an email to <a href="mailto:frivillig@trondheimdc.no">frivillig@trondheimdc.no</a>.',
         },
       ],
     },
