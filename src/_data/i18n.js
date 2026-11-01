@@ -174,7 +174,7 @@ export default {
         },
         {
           q: "Kan jeg bli partner?",
-          a: 'Alle partnerplasser for 2026 er utsolgt. Vil du stå på venteliste? Se <a href="#partner">partner-seksjonen</a>.',
+          a: 'Alle partnerplasser for 2026 er utsolgt. Vil du stå på venteliste? Se <a href="#partner-banner">partner-seksjonen</a>.',
         },
         {
           q: "Kan jeg bli frivillig?",
@@ -368,7 +368,7 @@ export default {
         },
         {
           q: "Can I become a partner?",
-          a: 'All partner spots for 2026 are sold out. Want to join the waiting list? See the <a href="#partner">partner section</a>.',
+          a: 'All partner spots for 2026 are sold out. Want to join the waiting list? See the <a href="#partner-banner">partner section</a>.',
         },
         {
           q: "Can I volunteer?",

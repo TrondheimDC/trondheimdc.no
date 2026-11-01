@@ -23,6 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Clicks on the 2027 partner interest CTAs (hero button, partner band),
+  // named by where on the page they were clicked.
+  document.addEventListener("click", (event) => {
+    const partnerLink = event.target.closest('[data-analytics-event="partner-interest-click"]');
+    if (!partnerLink) return;
+
+    const placement = partnerLink.closest("section")?.id || "unknown";
+    const tracker = window._paq = window._paq || [];
+    tracker.push(["trackEvent", "Partners", "Click 2027 interest form", placement]);
+  });
+
   document.addEventListener("click", (event) => {
     const ticketLink = event.target.closest('[data-analytics-event="ticket-click"]');
     if (!ticketLink) return;

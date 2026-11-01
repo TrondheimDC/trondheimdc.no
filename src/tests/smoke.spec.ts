@@ -713,6 +713,33 @@ test.describe('Partner band and recordings', () => {
       const heroBox = (await page.locator('#hero').boundingBox())!;
       expect(bandBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1);
     });
+
+    test(`${home} FAQ partner link lands on the partner band`, async ({ page }) => {
+      await page.goto(home);
+      const link = page.locator('#faq a[href="#partner-banner"]');
+      await expect(link).toHaveCount(1);
+      await expect(page.locator('#partner-banner')).toHaveCount(1);
+    });
+
+    test(`${home} tracks clicks on the 2027 partner CTAs by placement`, async ({ page, context }) => {
+      // Keep the real Matomo from replacing the _paq queue, and keep the
+      // new tabs the CTAs open from loading the real form.
+      await context.route('**stats.trondheimdc.no/**', (route) => route.abort());
+      await context.route('https://forms.trondheimdc.no/**', (route) => route.abort());
+      await page.goto(home);
+      for (const selector of ['#hero a[href$="?q23=Partner"]', '#partner-banner a']) {
+        await page.locator(selector).click();
+      }
+      const events = await page.evaluate(() =>
+        ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
+          (entry) => entry[0] === 'trackEvent' && entry[1] === 'Partners',
+        ),
+      );
+      expect(events).toEqual([
+        ['trackEvent', 'Partners', 'Click 2027 interest form', 'hero'],
+        ['trackEvent', 'Partners', 'Click 2027 interest form', 'partner-banner'],
+      ]);
+    });
   }
 
   test('a YouTube recording loads nothing from YouTube until it is played', async ({ page }) => {
