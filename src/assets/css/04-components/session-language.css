@@ -1,6 +1,5 @@
-/* Talk language, as a small pill. On a program card it is the last item in
-   the column, pushed to the bottom, so a row of cards lines the word up and
-   you can scan the language without reading each title. */
+/* Talk language, as a small pill. On a program card it sits in the footer
+   (below), so the word lines up across a row of cards. */
 .session-language {
   display: inline-flex;
   flex: none;
@@ -15,19 +14,24 @@
   white-space: nowrap;
 }
 
-/* Topics and language share the bottom of a program card: topics on their
-   own line of outlined pills, then the filled language pill under them. The
-   outline keeps the two apart at a glance. */
+/* Topics, language and the recording marker share the bottom of a program
+   card: topics on their own line of outlined pills, then the filled language
+   pill with the recording marker beside it. The outline keeps topics and
+   language apart at a glance. */
 .program-session__footer {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-1);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-1) var(--spacing-2);
   margin-top: auto;
 }
 
-.program-session__footer:empty {
+.program-session__footer:not(:has(> *)) {
   display: none;
+}
+
+.program-session__footer > .session-topics {
+  flex-basis: 100%;
 }
 
 .session-topics {

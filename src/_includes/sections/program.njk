@@ -141,10 +141,6 @@
                     <div class="program-session__meta">
                       <span class="program-session__room">{% if session.title == "Lunch" %}{{ t.program.lunch_location }}{% else %}{{ session.roomName or t.program.shared_session }}{% endif %}</span>
                       <span class="program-session__duration">{{ session.startsAt | isoTime }}–{{ session.endsAt | isoTime }}</span>
-                      {% if session.recordingVideoId %}
-                        {# Visible marker that a recording exists. A span, not a link, so the whole card still opens the talk. #}
-                        <span class="program-session__recording"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M6 5h12a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4zM10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>{{ t.program.recording }}</span>
-                      {% endif %}
                     </div>
                     <div class="program-session__heading">
                       {% if session.isService %}
@@ -190,6 +186,10 @@
                       <div class="program-session__footer">
                         {{ sessionTopics(session.topics, t) }}
                         {{ sessionLanguage(session.language, t) }}
+                        {% if session.recordingVideoId %}
+                          {# A span, not a link, so the whole card still opens the talk. #}
+                          <span class="program-session__recording"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M6 5h12a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4zM10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>{{ t.program.recording }}</span>
+                        {% endif %}
                       </div>
                     {% endif %}
                   </article>
