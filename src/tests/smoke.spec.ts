@@ -1142,6 +1142,17 @@ test.describe('Theme toggle', () => {
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', chosen!);
   });
+
+  test('swaps the favicon to match the chosen theme', async ({ page }) => {
+    await page.goto('/');
+    const icon = page.locator('link[rel="icon"][type="image/svg+xml"]');
+    await page.locator('tdc-theme-toggle button').click();
+    const chosen = await page.locator('html').getAttribute('data-theme');
+    await expect(icon).toHaveAttribute('href', new RegExp(`favicon-${chosen}\\.svg$`));
+
+    await page.reload();
+    await expect(icon).toHaveAttribute('href', new RegExp(`favicon-${chosen}\\.svg$`));
+  });
 });
 
 test.describe('Partners', () => {
