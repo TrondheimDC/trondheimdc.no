@@ -36,6 +36,7 @@ class TdcProgram {
     this.meta = root.querySelector("[data-session-modal-meta]");
     this.metaRow = root.querySelector("[data-session-modal-meta-row]");
     this.modalLanguage = root.querySelector("[data-session-modal-language]");
+    this.modalTopics = root.querySelector("[data-session-modal-topics]");
     this.actions = root.querySelector(".detail-modal__actions");
     this.speakersSection = root.querySelector("[data-session-modal-speakers-section]");
     this.speakersTitle = root.querySelector("[data-session-modal-speakers-title]");
@@ -486,6 +487,8 @@ class TdcProgram {
     if (this.copyButton) this.copyButton.hidden = false;
     if (this.speakersTitle) this.speakersTitle.hidden = false;
     setLanguageSlot(this.modalLanguage, sessionLanguageBadge(session));
+    const topics = session.querySelector("[data-session-topic-list]");
+    this.modalTopics?.replaceChildren(...(topics ? [topics.cloneNode(true)] : []));
     this.renderSpeakers(session);
     this.updateModalFavorite();
     if (this.dialog.open) {
@@ -595,6 +598,7 @@ class TdcProgram {
     if (this.actions) this.actions.hidden = true;
     if (this.copyButton) this.copyButton.hidden = true;
     setLanguageSlot(this.modalLanguage, null);
+    this.modalTopics?.replaceChildren();
     // The title above already names them — skip the redundant name line, but
     // keep everything else (avatar, tagline, bio, socials) the block offers.
     if (this.speakersList) this.speakersList.replaceChildren(this.buildSpeakerBlock(button, { showName: false }));

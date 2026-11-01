@@ -1,0 +1,8 @@
+{# Session topics (Sessionize categories other than language/format), as a row of small outlined pills. #}
+{% macro sessionTopics(topics, t) %}
+  {%- if topics and topics.length -%}
+    <ul class="session-topics" role="list" data-session-topic-list aria-label="{{ t.program.topic }}">
+      {%- for topic in topics -%}<li class="session-topics__item">{{ topic }}</li>{%- endfor -%}
+    </ul>
+  {%- endif -%}
+{% endmacro %}

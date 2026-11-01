@@ -1,4 +1,5 @@
 {% from "components/session-language.njk" import sessionLanguage %}
+{% from "components/session-topics.njk" import sessionTopics %}
 {% set programBase = '/en/program/' if lang == 'en' else '/program/' %}
 <tdc-section>
 <section class="section" id="program" aria-labelledby="program-title">
@@ -179,7 +180,12 @@
                         {% endfor %}
                       </div>
                     {% endif %}
-                    {% if not session.isService %}{{ sessionLanguage(session.language, t) }}{% endif %}
+                    {% if not session.isService %}
+                      <div class="program-session__footer">
+                        {{ sessionTopics(session.topics, t) }}
+                        {{ sessionLanguage(session.language, t) }}
+                      </div>
+                    {% endif %}
                   </article>
                 {% endfor %}
               </div>
@@ -237,6 +243,7 @@
               <span class="program-session-modal__language" data-session-modal-language></span>
             </p>
             <h3 id="program-session-modal-title" data-session-modal-title></h3>
+            <div class="program-session-modal__topics" data-session-modal-topics></div>
             <p class="program-session-modal__description" data-session-modal-description></p>
 
             {# Filled by TdcProgram from the session's own [data-speaker-open]

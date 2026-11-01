@@ -15,7 +15,44 @@
   white-space: nowrap;
 }
 
-.program-session > .session-language {
-  align-self: flex-start;
+/* Topics and language share the bottom of a program card: topics on their
+   own line of outlined pills, then the filled language pill under them. The
+   outline keeps the two apart at a glance. */
+.program-session__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-1);
   margin-top: auto;
+}
+
+.program-session__footer:empty {
+  display: none;
+}
+
+.session-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session-topics__item {
+  padding: 0.0625rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-10);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+}
+
+.program-session-modal__topics {
+  margin-block-end: var(--spacing-4);
+}
+
+.program-session-modal__topics:empty {
+  display: none;
 }
