@@ -19,14 +19,45 @@ function storedTheme() {
   }
 }
 
+// The favicon follows the OS colour scheme on its own (the SVG has a
+// prefers-color-scheme rule, the PNG links have media queries). Once the theme
+// is chosen explicitly — stored, or toggled — that can disagree with the OS, so
+// swap in a fixed icon for the chosen theme. Hrefs are derived from the ones
+// in the page so a path prefix is kept.
+const iconBase = (() => {
+  const svg = document.querySelector('link[rel="icon"][type="image/svg+xml"]');
+  return svg ? svg.getAttribute("href").replace(/favicon[^/]*$/, "") : null;
+})();
+
+function syncFavicon(theme) {
+  if (iconBase === null || (theme !== "light" && theme !== "dark")) return;
+  document.querySelectorAll('link[rel="icon"]').forEach((l) => l.remove());
+  const png =
+    theme === "light" ? "favicon-light-32x32.png" : "favicon-32x32.png";
+  for (const [type, file] of [
+    ["image/png", png],
+    ["image/svg+xml", `favicon-${theme}.svg`],
+  ]) {
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.type = type;
+    link.href = iconBase + file;
+    document.head.append(link);
+  }
+}
+
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
+  syncFavicon(theme);
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {
     /* storage unavailable (private mode) — theme still applies for the session */
   }
 }
+
+// A theme chosen on an earlier visit is already on <html> (set before first paint).
+syncFavicon(document.documentElement.dataset.theme);
 
 const SUN = `<svg class="theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>`;
 const MOON = `<svg class="theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
