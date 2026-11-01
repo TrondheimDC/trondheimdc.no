@@ -35,12 +35,16 @@ class TdcFaq {
 
   open(item) {
     const panel = item.querySelector(".faq__a");
+    // Start from wherever the panel is now (0 when closed, part-way if a
+    // collapse is being reversed) so an interrupted animation never jumps.
+    const from = item.open ? this.currentHeight(panel) : 0;
+    this.cancel(item);
+    item.classList.remove("is-closing");
     item.open = true; // reveal content first so we can measure its height
     if (!this.canAnimate(panel)) return;
-    this.cancel(item);
     const anim = panel.animate(
       [
-        { blockSize: "0px", opacity: 0 },
+        { blockSize: `${from}px`, opacity: from ? 1 : 0 },
         { blockSize: `${panel.scrollHeight}px`, opacity: 1 },
       ],
       { duration: 260, easing: "cubic-bezier(0.4, 0, 0.2, 1)" },
@@ -51,22 +55,32 @@ class TdcFaq {
   close(item) {
     const panel = item.querySelector(".faq__a");
     if (!this.canAnimate(panel)) {
+      this.cancel(item);
+      item.classList.remove("is-closing");
       item.open = false;
       return;
     }
+    const from = this.currentHeight(panel);
     this.cancel(item);
+    // Turn the caret back now rather than when the collapse ends.
+    item.classList.add("is-closing");
     const anim = panel.animate(
       [
-        { blockSize: `${panel.scrollHeight}px`, opacity: 1 },
+        { blockSize: `${from}px`, opacity: 1 },
         { blockSize: "0px", opacity: 0 },
       ],
       { duration: 220, easing: "cubic-bezier(0.4, 0, 0.2, 1)" },
     );
     // Keep the row [open] until the collapse finishes, then hide the content.
     anim.addEventListener("finish", () => {
+      item.classList.remove("is-closing");
       item.open = false;
     });
     this.track(item, anim);
+  }
+
+  currentHeight(panel) {
+    return panel.getBoundingClientRect().height;
   }
 
   canAnimate(panel) {

@@ -60,15 +60,19 @@
   border-inline-start: 0.45rem solid var(--faq-accent);
   transition: transform var(--duration-fast) var(--ease-default);
 }
-.faq__item[open] .faq__icon {
+.faq__item[open]:not(.is-closing) .faq__icon {
   transform: rotate(90deg);
 }
 
 .faq__a {
-  padding-block-end: var(--spacing-4);
   color: var(--color-fg-muted);
-  /* Clip content while tdc-faq.js animates the row height open/closed. */
+  /* Clip content while tdc-faq.js animates the row height open/closed. No
+     padding here: with border-box, padding is a floor block-size can't animate
+     below, so the panel would jump on open and snap on close. */
   overflow: hidden;
+}
+.faq__a > :last-child {
+  padding-block-end: var(--spacing-4);
 }
 .faq__a a {
   color: var(--faq-accent);
