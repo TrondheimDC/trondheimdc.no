@@ -1,6 +1,6 @@
 /* =====================================================================
    Self-hosted webfonts (woff2). GDPR-friendly — no third-party font
-   requests (the site uses Matomo, not Google Analytics).
+   requests (the site uses Plausible, not Google Analytics).
 
      - IBM Plex Sans  → body copy            (--font-family-sans)
      - Space Grotesk  → headings / display   (--font-family-display)
