@@ -2,8 +2,7 @@
    holds either the play button, the playing iframe, or — without JavaScript —
    a plain link to the video. Semantic tokens only. */
 /* The component is the <tdc-youtube> element itself; it never gets the class. */
-tdc-youtube,
-.tdc-youtube {
+tdc-youtube {
   position: relative;
   display: flex;
   align-items: center;
@@ -16,12 +15,12 @@ tdc-youtube,
   border: 1px solid var(--color-border);
 }
 
-.tdc-youtube > a {
+tdc-youtube > a {
   color: var(--color-fg-brand);
   font-weight: var(--font-weight-semibold);
 }
 
-.tdc-youtube iframe {
+tdc-youtube iframe {
   position: absolute;
   inset: 0;
   width: 100%;

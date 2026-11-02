@@ -770,6 +770,11 @@ test.describe('Partner band and recordings', () => {
     const frame = facade.locator('iframe');
     await expect(frame).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?autoplay=1/);
     await expect(frame).toHaveAttribute('title', 'Test recording');
+
+    // The player fills its 16:9 box rather than shrinking to the iframe's 300×150 default.
+    const [box, frameBox] = await Promise.all([facade.boundingBox(), frame.boundingBox()]);
+    expect(frameBox!.width).toBeGreaterThan(box!.width - 4);
+    expect(frameBox!.height).toBeGreaterThan(box!.height - 4);
   });
 
   test('a value that is not a YouTube id never becomes an embed', async ({ page }) => {
