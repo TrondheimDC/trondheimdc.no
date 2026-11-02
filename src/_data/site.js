@@ -14,6 +14,12 @@ export default {
   interestFormUrl,
   partnerOrderUrl: "#partners",
   sessionizeEventId,
+  // Plausible (self-hosted). The script ID is per site; PLAUSIBLE_HOST can be
+  // set at build time to point at a local instance.
+  analytics: {
+    host: process.env.PLAUSIBLE_HOST || "https://stats.trondheimdc.no",
+    scriptId: "pa-4c88CIgC6_1YQrqbyiT6m",
+  },
   social: {
     facebook: "https://www.facebook.com/TDConf",
     linkedin: "https://www.linkedin.com/company/trondheimdc/",

@@ -1,14 +1,18 @@
+import { trackPageview } from "../analytics.js";
+
 /**
  * <tdc-nav> — Sticky navigation with:
  * - Mobile hamburger toggle
  * - Intersection Observer active section highlighting
  * - Smooth scroll
- * - A Matomo page view per section scrolled to (the address bar is left alone)
+ * - A page view per section scrolled to (a nav click is counted by its hash change)
  */
 class TdcNav extends HTMLElement {
   #activeSection = location.hash.slice(1) || "hero";
   // The page as loaded: a talk dialog later puts its own page in the address bar.
   #pageUrl = location.href.split("#")[0];
+  // Section a nav click is jumping to; Plausible already counted that hash change.
+  #navTarget = "";
 
   connectedCallback() {
     this.toggle = this.querySelector(".site-nav__toggle");
@@ -20,8 +24,9 @@ class TdcNav extends HTMLElement {
 
     // Close menu on link click (mobile)
     this.links.forEach((link) => {
-      link.addEventListener("click", (e) => {
+      link.addEventListener("click", () => {
         this.#closeMenu();
+        if (!link.classList.contains("site-nav__link--active")) this.#navTarget = link.dataset.section;
       });
     });
 
@@ -92,15 +97,15 @@ class TdcNav extends HTMLElement {
     if (this.#activeSection === id) return;
     this.#activeSection = id;
 
-    // Record each home page section as a virtual page (/#program, ...) so
-    // scrolling through the single-page site is visible in the page reports.
-    // The address bar itself is left alone. A standalone page (/program/, a
-    // talk page) is just itself.
-    const tracker = window._paq = window._paq || [];
-    const heading = section.querySelector("h1, h2, h3")?.textContent?.trim();
-    tracker.push(["setCustomUrl", this.hasAttribute("data-standalone") ? this.#pageUrl : `${this.#pageUrl}#${id}`]);
-    tracker.push(["setDocumentTitle", heading ? `${document.title} — ${heading}` : document.title]);
-    tracker.push(["trackPageView"]);
+    // A standalone page is one URL, already counted on load.
+    if (this.hasAttribute("data-standalone")) return;
+
+    // A nav click already counted this section as a hash change.
+    if (id === this.#navTarget) {
+      this.#navTarget = "";
+      return;
+    }
+    trackPageview(`${this.#pageUrl}#${id}`);
   }
 
   #setActive(sectionId) {

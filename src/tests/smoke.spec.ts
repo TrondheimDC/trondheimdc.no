@@ -1241,6 +1241,11 @@ test.describe('Duck mascot', () => {
 
   test('tracks each click with its cumulative total', async ({ page }) => {
     await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
     await page.goto('/');
 
     const duck = page.locator('#hero tdc-duck .duck');
@@ -1248,15 +1253,97 @@ test.describe('Duck mascot', () => {
     await duck.dispatchEvent('click');
 
     const events = await page.evaluate(() =>
-      ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
-        (entry) => entry[0] === 'trackEvent' && entry[1] === 'Duck',
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Duck click',
       ),
     );
 
     expect(events).toEqual([
-      ['trackEvent', 'Duck', 'Click', 'Total click 1', 1],
-      ['trackEvent', 'Duck', 'Click', 'Total click 2', 2],
+      ['Duck click', { props: { total: '1' } }],
+      ['Duck click', { props: { total: '2' } }],
     ]);
+  });
+
+  test('sends one duck session event with the clicks made on the page', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    const duck = page.locator('#hero tdc-duck .duck');
+    await duck.dispatchEvent('click');
+    await duck.dispatchEvent('click');
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Duck session',
+      ),
+    );
+
+    expect(events).toEqual([['Duck session', { props: { clicks: '2' } }]]);
+  });
+
+  test('tracks interest form and YouTube clicks', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.route('**forms.trondheimdc.no/**', (route) => route.abort());
+    await page.route('**youtube.com/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    await page.locator('#interest a[data-analytics-event="interest-click"]').dispatchEvent('click');
+    await page.locator('footer a[data-analytics-event="video-click"]').dispatchEvent('click');
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Interest click' || entry[0] === 'Video click',
+      ),
+    );
+
+    expect(events).toEqual([
+      ['Interest click', { props: { label: 'Meld din interesse' } }],
+      ['Video click', { props: { label: 'YouTube' } }],
+    ]);
+  });
+
+  test('sends speaker and session ids with the speaker click and session view', async ({ page }) => {
+    test.skip(!FLAGS.program, 'Program is hidden for 2027');
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    const session = page.locator('#program [data-program-session]').filter({ has: page.locator('[data-speaker-open]') }).first();
+    const speaker = session.locator('[data-speaker-open]').first();
+    const speakerId = await speaker.getAttribute('data-speaker-id');
+    const speakerName = await speaker.getAttribute('data-speaker-name');
+    const sessionId = await session.getAttribute('data-session-id');
+    const sessionTitle = await session.getAttribute('data-session-title');
+    expect(speakerId).toBeTruthy();
+    expect(sessionId).toBeTruthy();
+
+    await speaker.click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Speaker click' || entry[0] === 'Session view',
+      ),
+    );
+
+    expect(events).toContainEqual(['Speaker click', { props: { id: speakerId, name: speakerName } }]);
+    expect(events).toContainEqual(['Session view', { props: { id: sessionId, session: sessionTitle } }]);
+    expect(events.filter((entry) => entry[0] === 'Session view')).toHaveLength(1);
   });
 
   test('shows a label above a duck after it is named', async ({ page }) => {
@@ -1426,6 +1513,11 @@ test.describe('Speaker analytics', () => {
 
   test('tracks the clicked speaker by name', async ({ page }) => {
     await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
     await page.goto('/');
 
     const speaker = page.locator('[data-speaker-open]').first();
@@ -1434,17 +1526,15 @@ test.describe('Speaker analytics', () => {
     await speaker.dispatchEvent('click');
 
     const event = await page.evaluate((speakerName) =>
-      ((window as Window & { _paq?: unknown[][] })._paq || []).find(
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).find(
         (entry) =>
-          entry[0] === 'trackEvent' &&
-          entry[1] === 'Speakers' &&
-          entry[2] === 'Click' &&
-          entry[3] === speakerName,
+          entry[0] === 'Speaker click' &&
+          (entry[1] as { props: { name: string } }).props.name === speakerName,
       ),
       name,
     );
 
-    expect(event).toEqual(['trackEvent', 'Speakers', 'Click', name, 1]);
+    expect(event).toEqual(['Speaker click', { props: { name } }]);
   });
 
   test('locks page scroll while the session dialog is open', async ({ page }) => {

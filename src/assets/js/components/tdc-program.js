@@ -3,6 +3,7 @@ import { sessionLanguageBadge, setLanguageSlot } from "./session-language.js";
 import { ProgramLive } from "./tdc-program-live.js";
 import { buildSocialLinks } from "./social-links.js";
 import { buildCalendar, calendarFilename, downloadCalendar, googleCalendarUrl, outlookCalendarUrl, SHARED_LOCATION, sessionDescription } from "../calendar.js";
+import { trackEvent, trackPageview } from "../analytics.js";
 
 class TdcProgram {
   constructor(root) {
@@ -59,7 +60,7 @@ class TdcProgram {
         return;
       }
 
-      // A speaker's name still gets its own Matomo event; the click still
+      // A speaker's name still gets its own event; the click still
       // falls through to open the (single, merged) dialog below.
       const speakerButton = event.target.closest("[data-speaker-open]");
       if (speakerButton) this.trackSpeakerClick(speakerButton);
@@ -256,10 +257,9 @@ class TdcProgram {
     if (this.activeSession?.dataset.sessionId === id) this.updateModalFavorite();
     this.playStarAnimation(id);
 
-    // Favorite counts per session double as a popularity signal in Matomo.
+    // Favorite counts per session double as a popularity signal in Plausible.
     const session = this.root.querySelector(`[data-program-session][data-session-id="${CSS.escape(id)}"]`);
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Sessions", adding ? "Favorite" : "Unfavorite", session?.dataset.sessionTitle || id, 1]);
+    trackEvent(adding ? "Favorite" : "Unfavorite", { session: session?.dataset.sessionTitle || id });
   }
 
   // Runs on a real toggle only, and after aria-pressed is settled on both
@@ -506,11 +506,16 @@ class TdcProgram {
     // scroll, so scrollTo() on it is a silent no-op.
     this.dialogScroll?.scrollTo(0, 0);
     lockModalScroll();
-    if (!fromHistory) this.pushSessionUrl(session);
+    if (!fromHistory) {
+      this.pushSessionUrl(session);
+      // Talk detail view, counted once per open. Back/forward reopens are
+      // skipped, same as the page view above.
+      trackEvent("Session view", { id: session.dataset.sessionId || "", session: session.dataset.sessionTitle || "" });
+    }
   }
 
   // Puts the talk's own page (/program/<id>/) in the address bar, so what you
-  // see is what you can copy and share, and counts it as a Matomo page view.
+  // see is what you can copy and share, and counts it as a page view.
   // Reloading lands on that static page, which shows the same talk.
   pushSessionUrl(session) {
     const href = session.querySelector("[data-session-open]")?.getAttribute("href");
@@ -525,10 +530,7 @@ class TdcProgram {
       history.pushState({ tdcSession: session.dataset.sessionId }, "", href);
     }
     document.title = title;
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["setCustomUrl", location.href]);
-    tracker.push(["setDocumentTitle", title]);
-    tracker.push(["trackPageView"]);
+    trackPageview(location.href);
   }
 
   sessionUrl(session) {
@@ -553,8 +555,7 @@ class TdcProgram {
     if (this.copyStatus) this.copyStatus.textContent = this.copyButton.dataset.copiedLabel;
     clearTimeout(this.copyTimer);
     this.copyTimer = setTimeout(() => this.resetCopy(), 2200);
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Sessions", "Copy link", this.activeSession.dataset.sessionTitle || "", 1]);
+    trackEvent("Copy link", { session: this.activeSession.dataset.sessionTitle || "" });
   }
 
   resetCopy() {
@@ -617,15 +618,13 @@ class TdcProgram {
   trackSpeakerClick(button) {
     const name = button.dataset.speakerName || button.textContent?.trim() || "";
     if (!name) return;
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Speakers", "Click", name, 1]);
+    trackEvent("Speaker click", { id: button.dataset.speakerId || "", name });
   }
 
-  // Card clicks only: speaker clicks are tracked as Speakers, so Sessions/Click
+  // Card clicks only: speaker clicks are tracked as Speaker click, so Session click
   // stays comparable across talks.
   trackSessionClick(session) {
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Sessions", "Click", session.dataset.sessionTitle || "", 1]);
+    trackEvent("Session click", { id: session.dataset.sessionId || "", session: session.dataset.sessionTitle || "" });
   }
 
   // Built from the session's own [data-speaker-open] buttons, so a session
