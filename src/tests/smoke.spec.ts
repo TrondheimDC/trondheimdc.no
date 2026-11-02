@@ -618,6 +618,14 @@ test.describe('Program schedule', () => {
     await expect(page.locator('[data-session-dialog]')).toBeVisible();
     expect(await overflow).toBe(0);
   });
+
+  test('never gives the desktop schedule a vertical scrollbar of its own', async ({ page }) => {
+    // overflow-x: auto alone turns overflow-y to auto too, and a sub-pixel of
+    // rounding (Windows display scaling) was then enough for a scrollbar.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('.program-schedule__grid')).toHaveCSS('overflow-y', 'hidden');
+  });
 });
 
 test.describe('Standalone program page', () => {
