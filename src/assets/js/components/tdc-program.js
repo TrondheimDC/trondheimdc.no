@@ -196,6 +196,8 @@ class TdcProgram {
       }
       document.title = this.pageTitle;
       this.setCalendarMenu(false);
+      // A closed <dialog> only hides the player — drop it so the video stops.
+      this.renderRecording(null);
       unlockModalScroll();
       this.returnFocus?.focus();
       this.returnFocus = null;

@@ -820,8 +820,14 @@ test.describe('Partner band and recordings', () => {
     await expect(dialog).toBeVisible();
     await expect(slot.locator('tdc-youtube')).toHaveAttribute('video-id', /^[A-Za-z0-9_-]{11}$/);
     await expect(slot.locator('.tdc-youtube__play')).toBeVisible();
+
+    // Closing the dialog stops a playing video: the iframe goes with it.
+    await page.route(/youtube-nocookie\.com/, (route) => route.abort());
+    await slot.locator('.tdc-youtube__play').click();
+    await expect(slot.locator('iframe')).toHaveCount(1);
     await close.click();
     await expect(dialog).toBeHidden();
+    await expect(slot.locator('iframe')).toHaveCount(0);
 
     // From a speaker on that same card: the speaker button also opens the dialog.
     await marked.first().locator('[data-speaker-open]').first().click();
