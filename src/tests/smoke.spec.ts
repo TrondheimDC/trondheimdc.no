@@ -804,7 +804,7 @@ test.describe('Talk pages', () => {
     await copy.click();
     await expect(copy).toHaveClass(/is-done/);
     await expect(page.locator('[data-session-copy-status]')).toHaveText('Link copied');
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:4000/en/program/${id}/`);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(new URL(`/en/program/${id}/`, page.url()).href);
     await expect(copy).not.toHaveClass(/is-done/, { timeout: 4000 });
   });
 
@@ -1112,7 +1112,7 @@ test.describe('Language switching', () => {
   test('English -> Norwegian', async ({ page }) => {
     await page.goto('/en/');
     await page.locator('.site-nav__lang a', { hasText: 'NO' }).click();
-    await expect(page).toHaveURL(/localhost:4000\/$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 });
 
