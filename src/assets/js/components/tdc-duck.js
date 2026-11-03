@@ -1,3 +1,5 @@
+import { trackEvent } from "../analytics.js";
+
 /**
  * <tdc-duck> — The TDC rubber duck mascot 🐤
  *
@@ -197,6 +199,9 @@ export class TdcDuck extends HTMLElement {
     this.duck.addEventListener('pointerdown', (e) => this.startDrag(e));
     document.addEventListener('pointermove', (e) => this.onDrag(e));
     document.addEventListener('pointerup', () => this.endDrag());
+
+    // Sent once per page view, so clicks can be counted per session.
+    window.addEventListener('pagehide', () => this.trackDuckSession());
   }
 
   quack() {
@@ -247,8 +252,11 @@ export class TdcDuck extends HTMLElement {
   }
 
   trackDuckClick() {
-    const tracker = window._paq = window._paq || [];
-    tracker.push(['trackEvent', 'Duck', 'Click', `Total click ${this.totalClicks}`, this.totalClicks]);
+    trackEvent('Duck click', { total: String(this.totalClicks) });
+  }
+
+  trackDuckSession() {
+    if (this.totalClicks > 0) trackEvent('Duck session', { clicks: String(this.totalClicks) });
   }
 
   trackClicks() {

@@ -16,6 +16,12 @@ export default {
   // ?q{id}=… by option text, so renaming the option in Nextcloud breaks it).
   partner2027Url: `${interestFormUrl}?q23=Partner`,
   sessionizeEventId: "1diujeu9",
+  // Plausible (self-hosted). The script ID is per site; PLAUSIBLE_HOST can be
+  // set at build time to point at a local instance.
+  analytics: {
+    host: process.env.PLAUSIBLE_HOST || "https://stats.trondheimdc.no",
+    scriptId: "pa-K8HSWFoLLxasclqQTXwPl",
+  },
   social: {
     facebook: "https://www.facebook.com/TDConf",
     linkedin: "https://www.linkedin.com/company/trondheimdc/",

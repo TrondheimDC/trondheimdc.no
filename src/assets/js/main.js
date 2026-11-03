@@ -1,4 +1,5 @@
 // TDC website — main JS entry point. Active components only.
+import { trackEvent } from "./analytics.js";
 import "./components/tdc-nav.js";
 import "./components/tdc-section.js";
 import "./components/tdc-theme-toggle.js";
@@ -23,24 +24,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Clicks on the 2027 interest form CTAs: the hero button (plain form) and
-  // the partner band (form with Partner ticked), named by placement.
-  const interestCategories = { "interest-click": "Interest", "partner-interest-click": "Partners" };
-  document.addEventListener("click", (event) => {
-    const link = event.target.closest('[data-analytics-event$="interest-click"]');
-    const category = link && interestCategories[link.dataset.analyticsEvent];
-    if (!category) return;
-
-    const placement = link.closest("section")?.id || "unknown";
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", category, "Click 2027 interest form", placement]);
-  });
+  const EVENT_NAMES = {
+    "ticket-click": "Ticket click",
+    "interest-click": "Interest click",
+    "partner-interest-click": "Partner interest click",
+    "video-click": "Video click",
+  };
 
   document.addEventListener("click", (event) => {
-    const ticketLink = event.target.closest('[data-analytics-event="ticket-click"]');
-    if (!ticketLink) return;
+    const tracked = event.target.closest("[data-analytics-event]");
+    if (!tracked) return;
 
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Tickets", "Click purchase button", ticketLink.textContent.trim()]);
+    const name = EVENT_NAMES[tracked.dataset.analyticsEvent];
+    if (!name) return;
+
+    const label = tracked.textContent.trim() || tracked.getAttribute("aria-label") || "";
+    trackEvent(name, { label });
   });
 });

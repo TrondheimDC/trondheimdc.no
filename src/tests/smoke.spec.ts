@@ -729,24 +729,26 @@ test.describe('Partner band and recordings', () => {
       await expect(page.locator('#partner-banner')).toHaveCount(1);
     });
 
-    test(`${home} tracks clicks on the 2027 interest CTAs by placement`, async ({ page, context }) => {
-      // Keep the real Matomo from replacing the _paq queue, and keep the
-      // new tabs the CTAs open from loading the real form.
+    test(`${home} tracks clicks on the interest CTAs by goal`, async ({ page, context }) => {
+      // Stub Plausible so the goal names can be read back, and keep the new
+      // tabs the CTAs open from loading the real form.
       await context.route('**stats.trondheimdc.no/**', (route) => route.abort());
       await context.route('https://forms.trondheimdc.no/**', (route) => route.abort());
+      await page.addInitScript(() => {
+        const w = window as Window & { __plausible?: unknown[][] };
+        w.__plausible = [];
+        w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+      });
       await page.goto(home);
       for (const selector of ['#hero a[href^="https://forms.trondheimdc.no/"]', '#partner-banner a']) {
         await page.locator(selector).click();
       }
-      const events = await page.evaluate(() =>
-        ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
-          (entry) => entry[0] === 'trackEvent' && entry[2] === 'Click 2027 interest form',
-        ),
+      const names = await page.evaluate(() =>
+        ((window as Window & { __plausible?: unknown[][] }).__plausible || [])
+          .map((entry) => entry[0])
+          .filter((name) => name !== 'pageview'),
       );
-      expect(events).toEqual([
-        ['trackEvent', 'Interest', 'Click 2027 interest form', 'hero'],
-        ['trackEvent', 'Partners', 'Click 2027 interest form', 'partner-banner'],
-      ]);
+      expect(names).toEqual(['Interest click', 'Partner interest click']);
     });
   }
 
@@ -924,7 +926,7 @@ test.describe('Talk pages', () => {
     await copy.click();
     await expect(copy).toHaveClass(/is-done/);
     await expect(page.locator('[data-session-copy-status]')).toHaveText('Link copied');
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:4000/en/program/${id}/`);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`${new URL(page.url()).origin}/en/program/${id}/`);
     await expect(copy).not.toHaveClass(/is-done/, { timeout: 4000 });
   });
 
@@ -1229,7 +1231,7 @@ test.describe('Language switching', () => {
   test('English -> Norwegian', async ({ page }) => {
     await page.goto('/en/');
     await page.locator('.site-nav__lang a', { hasText: 'NO' }).click();
-    await expect(page).toHaveURL(/localhost:4000\/$/);
+    await expect(page).toHaveURL(/^https?:\/\/[^/]+\/$/);
   });
 });
 
@@ -1356,6 +1358,11 @@ test.describe('Duck mascot', () => {
 
   test('tracks each click with its cumulative total', async ({ page }) => {
     await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
     await page.goto('/');
 
     const duck = page.locator('#hero tdc-duck .duck');
@@ -1363,15 +1370,96 @@ test.describe('Duck mascot', () => {
     await duck.dispatchEvent('click');
 
     const events = await page.evaluate(() =>
-      ((window as Window & { _paq?: unknown[][] })._paq || []).filter(
-        (entry) => entry[0] === 'trackEvent' && entry[1] === 'Duck',
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Duck click',
       ),
     );
 
     expect(events).toEqual([
-      ['trackEvent', 'Duck', 'Click', 'Total click 1', 1],
-      ['trackEvent', 'Duck', 'Click', 'Total click 2', 2],
+      ['Duck click', { props: { total: '1' } }],
+      ['Duck click', { props: { total: '2' } }],
     ]);
+  });
+
+  test('sends one duck session event with the clicks made on the page', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    const duck = page.locator('#hero tdc-duck .duck');
+    await duck.dispatchEvent('click');
+    await duck.dispatchEvent('click');
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Duck session',
+      ),
+    );
+
+    expect(events).toEqual([['Duck session', { props: { clicks: '2' } }]]);
+  });
+
+  test('tracks interest form and YouTube clicks', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.route('**forms.trondheimdc.no/**', (route) => route.abort());
+    await page.route('**youtube.com/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    await page.locator('#hero a[data-analytics-event="interest-click"]').dispatchEvent('click');
+    await page.locator('footer a[data-analytics-event="video-click"]').dispatchEvent('click');
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Interest click' || entry[0] === 'Video click',
+      ),
+    );
+
+    expect(events).toEqual([
+      ['Interest click', { props: { label: 'Meld din interesse for 2027' } }],
+      ['Video click', { props: { label: 'YouTube' } }],
+    ]);
+  });
+
+  test('sends speaker and session ids with the speaker click and session view', async ({ page }) => {
+    await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
+    await page.goto('/');
+
+    const session = page.locator('#program [data-program-session]').filter({ has: page.locator('[data-speaker-open]') }).first();
+    const speaker = session.locator('[data-speaker-open]').first();
+    const speakerId = await speaker.getAttribute('data-speaker-id');
+    const speakerName = await speaker.getAttribute('data-speaker-name');
+    const sessionId = await session.getAttribute('data-session-id');
+    const sessionTitle = await session.getAttribute('data-session-title');
+    expect(speakerId).toBeTruthy();
+    expect(sessionId).toBeTruthy();
+
+    await speaker.click();
+    await expect(page.locator('[data-session-dialog]')).toBeVisible();
+
+    const events = await page.evaluate(() =>
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).filter(
+        (entry) => entry[0] === 'Speaker click' || entry[0] === 'Session view',
+      ),
+    );
+
+    expect(events).toContainEqual(['Speaker click', { props: { id: speakerId, name: speakerName } }]);
+    expect(events).toContainEqual(['Session view', { props: { id: sessionId, session: sessionTitle } }]);
+    expect(events.filter((entry) => entry[0] === 'Session view')).toHaveLength(1);
   });
 
   test('shows a label above a duck after it is named', async ({ page }) => {
@@ -1539,25 +1627,29 @@ test.describe('Duck mascot', () => {
 test.describe('Speaker analytics', () => {
   test('tracks the clicked speaker by name', async ({ page }) => {
     await page.route('**stats.trondheimdc.no/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as Window & { __plausible?: unknown[][] };
+      w.__plausible = [];
+      w.plausible = (...args: unknown[]) => { w.__plausible!.push(args); };
+    });
     await page.goto('/');
 
     const speaker = page.locator('[data-speaker-open]').first();
     await expect(speaker).toBeVisible();
     const name = await speaker.getAttribute('data-speaker-name');
+    const id = await speaker.getAttribute('data-speaker-id');
     await speaker.dispatchEvent('click');
 
     const event = await page.evaluate((speakerName) =>
-      ((window as Window & { _paq?: unknown[][] })._paq || []).find(
+      ((window as Window & { __plausible?: unknown[][] }).__plausible || []).find(
         (entry) =>
-          entry[0] === 'trackEvent' &&
-          entry[1] === 'Speakers' &&
-          entry[2] === 'Click' &&
-          entry[3] === speakerName,
+          entry[0] === 'Speaker click' &&
+          (entry[1] as { props: { name: string } }).props.name === speakerName,
       ),
       name,
     );
 
-    expect(event).toEqual(['trackEvent', 'Speakers', 'Click', name, 1]);
+    expect(event).toEqual(['Speaker click', { props: { id, name } }]);
   });
 
   test('locks page scroll while the session dialog is open', async ({ page }) => {
