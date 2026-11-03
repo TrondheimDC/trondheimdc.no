@@ -1,4 +1,5 @@
 // TDC website — main JS entry point. Active components only.
+import { trackEvent } from "./analytics.js";
 import "./components/tdc-nav.js";
 import "./components/tdc-section.js";
 import "./components/tdc-theme-toggle.js";
@@ -21,11 +22,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.addEventListener("click", (event) => {
-    const ticketLink = event.target.closest('[data-analytics-event="ticket-click"]');
-    if (!ticketLink) return;
+  const EVENT_NAMES = {
+    "ticket-click": "Ticket click",
+    "interest-click": "Interest click",
+    "video-click": "Video click",
+  };
 
-    const tracker = window._paq = window._paq || [];
-    tracker.push(["trackEvent", "Tickets", "Click purchase button", ticketLink.textContent.trim()]);
+  document.addEventListener("click", (event) => {
+    const tracked = event.target.closest("[data-analytics-event]");
+    if (!tracked) return;
+
+    const name = EVENT_NAMES[tracked.dataset.analyticsEvent];
+    if (!name) return;
+
+    const label = tracked.textContent.trim() || tracked.getAttribute("aria-label") || "";
+    trackEvent(name, { label });
   });
 });
