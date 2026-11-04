@@ -23,6 +23,7 @@ export default {
   social: {
     facebook: "https://www.facebook.com/TDConf",
     linkedin: "https://www.linkedin.com/company/trondheimdc/",
+    instagram: "https://www.instagram.com/trondheimdc/",
     youtube: "https://www.youtube.com/@trondheimdc/videos",
     flickr: "https://www.flickr.com/people/trondheimdc/",
   },
