@@ -3,7 +3,7 @@
 <footer class="site-footer" id="contact">
   <div class="site-footer__inner container">
     <div class="site-footer__brand stack stack-sm">
-      <span class="tdc-wordmark site-footer__wordmark" role="img" aria-label="{{ t.ui.logo_alt }}">
+      <span class="tdc-wordmark site-footer__wordmark" data-brand-target role="img" aria-label="{{ t.ui.logo_alt }}">
         <span class="tdc-wordmark__letter tdc-wordmark__letter--t" aria-hidden="true"></span>
         <span class="tdc-wordmark__letter tdc-wordmark__letter--d" aria-hidden="true"></span>
         <span class="tdc-wordmark__letter tdc-wordmark__letter--c" aria-hidden="true"></span>
@@ -15,6 +15,7 @@
     <div class="site-footer__contact stack stack-sm">
       <p class="site-footer__info"><a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
       <p class="site-footer__info"><a href="mailto:{{ site.partnerEmail }}">{{ site.partnerEmail }}</a></p>
+      <p class="site-footer__info"><a href="{{ ('/en/brand/' if lang == 'en' else '/brand/') | url }}">{{ t.brand.title }}</a></p>
     </div>
 
     <div class="site-footer__social stack stack-sm">

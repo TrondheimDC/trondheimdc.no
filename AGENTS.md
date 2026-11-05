@@ -350,7 +350,31 @@ file.
   - Times are formatted in **Europe/Oslo**, not the reader's timezone — the
     Trondheim clock against the Trondheim program.
 
-## 10. Partners
+## 10. Brand assets (`/brand/`, `/en/brand/`)
+
+- The brand page lists the logo (wordmark with the long D, compact logo, app
+  icon) in every colour, the palette, and social-media covers. It is linked from
+  the footer and from the logo's **right-click menu**.
+- Every file is **drawn at build time** by `_lib/brand.js` from the same letter
+  paths as `assets/images/logos/letters/*.svg`: SVGs by hand, PNGs with resvg,
+  covers with satori (fonts shared with `session-og.js`). `brand-assets.11ty.js`
+  writes them to `/brand/logo/`, `/brand/social/` and one store-only
+  `/brand/tdc-brand-assets.zip`. `_data/brand.js` is what the page iterates.
+  Don't commit generated PNGs; add a size or cover to `brandFiles()` instead.
+- The covers read the date and venue from `_data/site.js`, so they follow the
+  year automatically.
+- Right-clicking any `[data-brand-target]` (nav logo, footer wordmark) opens
+  `#brand-menu` (`partials/brand-menu.njk`, `assets/js/components/tdc-brand.js`):
+  copy logo/wordmark as SVG in the colour on screen (green dark, red light),
+  download the zip, go to the brand page. Shift + right-click gives the
+  browser's own menu.
+  - The menu is `popover="manual"`, not `auto`: an auto popover light-dismisses
+    on the mouseup of the right-click that opened it. Outside clicks, Escape,
+    scroll, resize and blur close it in JS instead.
+  - Clipboard writes hand `ClipboardItem` the fetch as a promise, so Safari
+    keeps the user gesture.
+
+## 11. Partners
 
 - The partner logo wall renders **near the footer** (as in the old site), on every render of the page.
 - It is **data-driven** from `_data/partners.js` (`[{ name, url, logo }]`) — no hardcoded `<li>` list.
@@ -359,7 +383,7 @@ file.
 
 ---
 
-## 11. Learnings
+## 12. Learnings
 
 - CSS `@media` can't read `var()` → use literal px for breakpoints (see §5).
 - **Setting your own `display` on an element that has a UA "hidden" state
@@ -392,6 +416,10 @@ file.
   fully inert for a while. Not fixed here — porting the client refresh to
   JSON parsing is a separate, larger job than whatever prompted you to read
   this — but don't be surprised when it doesn't do anything.
+- **The conference is just "TDC".** It started as "Trondheim Developer
+  Conference", but that name was dropped (the about text says so: the D can
+  mean whatever you want). Never write the long name in new copy, images or
+  generated assets.
 - Dark is the default theme; light is the override (don't invert this).
 - `old/` is Jekyll and still production — never break it while iterating on `src/`.
 - Respect `ELEVENTY_PATH_PREFIX` for all internal links/assets, or preview deploys break.

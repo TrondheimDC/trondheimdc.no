@@ -180,6 +180,11 @@
   --partner-chip-bg: var(--color-black-3);
   --partner-logo-filter: brightness(0) invert(1); /* → ~white-1 */
 
+  /* Brand page + logo menu (04-components/brand.css). The previews show each
+     logo on the backdrop it is made for, so these don't flip with the theme. */
+  --brand-backdrop-dark: var(--color-black);
+  --brand-backdrop-light: var(--color-white-1);
+
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 12px rgb(0 0 0 / 0.35);
   --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.45);
