@@ -1639,3 +1639,61 @@ test.describe('Speaker analytics', () => {
     expect(closeAfter?.y).toBeCloseTo(closeBefore?.y ?? 0, 0);
   });
 });
+
+test.describe('Brand assets', () => {
+  // The clipboard is shared by every page in the browser, so the copy tests
+  // can't run side by side.
+  test.describe.configure({ mode: 'serial' });
+
+  test('lists the logo, colours and covers, and serves every file', async ({ page, request }) => {
+    await page.goto('/brand/');
+    await expect(page.locator('h1')).toHaveText('Logo og mediefiler');
+    const hrefs = await page.locator('a[download]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    expect(hrefs.length).toBeGreaterThan(50);
+    for (const href of new Set(hrefs)) {
+      const response = await request.get(href!);
+      expect(response.status(), href!).toBe(200);
+    }
+    const zip = await request.get('/brand/tdc-brand-assets.zip');
+    expect((await zip.body()).subarray(0, 2).toString()).toBe('PK');
+  });
+
+  test('has an English page, linked from the footer', async ({ page }) => {
+    await page.goto('/en/');
+    await page.locator('.site-footer').getByRole('link', { name: 'Brand assets' }).click();
+    await expect(page).toHaveURL(/\/en\/brand\/$/);
+    await expect(page.locator('h1')).toHaveText('Brand assets');
+  });
+
+  test('right-clicking the logo opens the brand menu and copies the SVG', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/en/');
+    const menu = page.locator('#brand-menu');
+    await expect(menu).toBeHidden();
+
+    await page.locator('.site-nav__brand').click({ button: 'right' });
+    await expect(menu).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Copy logo as SVG' })).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('menuitem', { name: 'Copy wordmark as SVG' })).toBeFocused();
+
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeHidden();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('#9BF7A9'); // dark theme → green
+  });
+
+  test('copies the red logo in the light theme, and Escape closes the menu', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/');
+    await page.locator('.site-nav__brand').click({ button: 'right' });
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#brand-menu')).toBeHidden();
+    await expect(page.locator('.site-nav__brand')).toBeFocused();
+
+    await page.locator('.site-nav__brand').click({ button: 'right' });
+    await page.getByRole('menuitem', { name: 'Kopier logo som SVG' }).click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('#FE6650');
+  });
+});

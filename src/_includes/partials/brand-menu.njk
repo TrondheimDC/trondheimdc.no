@@ -1,0 +1,25 @@
+{# The logo's right-click menu (tdc-brand.js), opened from any [data-brand-target].
+   Shift + right-click still gives the browser's own menu. #}
+{% set b = t.brand %}
+{% set brandBase = '/brand/' | url %}
+<div class="brand-menu" id="brand-menu" popover="manual" role="menu" aria-label="{{ b.menu_label }}"
+  data-brand-menu data-brand-base="{{ brandBase }}logo/" data-label-done="{{ b.menu_copied }}" data-label-failed="{{ b.copy_failed }}">
+  <button type="button" class="brand-menu__item" role="menuitem" tabindex="-1" data-brand-menu-copy="logo">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+    <span>{{ b.menu_copy_logo }}</span>
+  </button>
+  <button type="button" class="brand-menu__item" role="menuitem" tabindex="-1" data-brand-menu-copy="wordmark">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5"/></svg>
+    <span>{{ b.menu_copy_wordmark }}</span>
+  </button>
+  <a class="brand-menu__item" role="menuitem" tabindex="-1" href="{{ brandBase }}{{ brand.zip }}" download>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>
+    <span>{{ b.menu_download }}</span>
+  </a>
+  <div class="brand-menu__sep" role="separator"></div>
+  <a class="brand-menu__item" role="menuitem" tabindex="-1" href="{{ ('/en/brand/' if lang == 'en' else '/brand/') | url }}">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4-4-10 10"/></svg>
+    <span>{{ b.menu_visit }}</span>
+  </a>
+</div>
+<p class="visually-hidden" role="status" data-brand-status></p>
