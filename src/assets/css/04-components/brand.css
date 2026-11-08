@@ -1,0 +1,222 @@
+/* Brand assets page (sections/brand.njk) and the logo's right-click menu
+   (partials/brand-menu.njk, tdc-brand.js). */
+
+.brand__download {
+  align-items: center;
+}
+
+.brand__grid,
+.brand__covers {
+  display: grid;
+  gap: var(--spacing-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.brand__covers {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+}
+
+.brand__tile {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-surface);
+}
+
+.brand__preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: var(--spacing-8);
+}
+
+.brand__preview img {
+  max-inline-size: 100%;
+  max-block-size: 3rem;
+}
+
+.brand__grid--logo .brand__preview img {
+  max-block-size: 3.5rem;
+}
+
+.brand__grid--icon .brand__preview img {
+  max-block-size: 6rem;
+}
+
+.brand__preview--dark {
+  background-color: var(--brand-backdrop-dark);
+}
+
+.brand__preview--light {
+  background-color: var(--brand-backdrop-light);
+}
+
+.brand__cover-preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: var(--spacing-4);
+  background-color: var(--brand-backdrop-dark);
+}
+
+.brand__cover-preview img {
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  inline-size: auto;
+  block-size: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.brand__meta {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.brand__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.brand__hex {
+  margin-inline-start: var(--spacing-2);
+  color: var(--color-fg-muted);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-regular);
+}
+
+.brand__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-20);
+}
+
+.brand__links a,
+.brand__copy {
+  color: var(--color-fg-base);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 0.2em;
+}
+
+.brand__links a:hover,
+.brand__copy:hover {
+  color: var(--color-fg-brand);
+  text-decoration-color: currentColor;
+}
+
+.brand__copy {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.brand__swatches {
+  display: grid;
+  gap: var(--spacing-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+}
+
+.brand__swatch {
+  display: grid;
+  gap: var(--spacing-1);
+  inline-size: 100%;
+  padding: 0 0 var(--spacing-3);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-surface);
+  color: var(--color-fg-base);
+  font: inherit;
+  text-align: start;
+  cursor: copy;
+}
+
+.brand__swatch > :not(.brand__swatch-chip) {
+  padding-inline: var(--spacing-3);
+}
+
+.brand__swatch .brand__hex {
+  margin-inline-start: 0;
+}
+
+.brand__swatch-chip {
+  display: block;
+  block-size: 5rem;
+  margin-block-end: var(--spacing-2);
+  background-color: var(--swatch);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.brand__swatch:hover,
+.brand__swatch:focus-visible {
+  border-color: var(--color-border-strong);
+}
+
+/* ── Right-click menu on the logo ───────────────────────────────────────── */
+.brand-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  min-inline-size: 15rem;
+  padding: var(--spacing-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  color: var(--color-fg-base);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--font-size-20);
+}
+
+.brand-menu:not(:popover-open) {
+  display: none;
+}
+
+.brand-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  inline-size: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.brand-menu__item svg {
+  flex: none;
+  color: var(--color-fg-muted);
+}
+
+.brand-menu__item:hover,
+.brand-menu__item:focus-visible {
+  outline: none;
+  background-color: var(--color-border);
+}
+
+.brand-menu__sep {
+  block-size: 1px;
+  margin-block: var(--spacing-1);
+  background-color: var(--color-border);
+}
+
+.brand-menu__status {
+  padding: var(--spacing-1) var(--spacing-3);
+  color: var(--color-fg-brand);
+}
+
+.brand-menu__status:empty {
+  display: none;
+}

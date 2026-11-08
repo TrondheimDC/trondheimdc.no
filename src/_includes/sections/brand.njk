@@ -1,0 +1,116 @@
+{# Brand assets page (/brand/, /en/brand/). Data: _data/brand.js. #}
+{% set b = t.brand %}
+{% set base = '/brand/' | url %}
+
+<section class="section brand" aria-labelledby="brand-title">
+  <div class="container stack stack-lg">
+    <header class="section__header stack stack-sm">
+      <h1 class="section__title text-h1" id="brand-title">{{ b.title }}</h1>
+      <p class="section__lead text-lead measure">{{ b.lead }}</p>
+      <div class="cluster brand__download">
+        <a class="btn btn--primary btn--md" href="{{ base }}{{ brand.zip }}" download>
+          <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg></span>
+          {{ b.download_all }}
+        </a>
+        <span class="text-muted">{{ b.download_all_note }}</span>
+      </div>
+    </header>
+
+    {% for mark in brand.marks %}
+      <section class="brand__group stack" aria-labelledby="brand-{{ mark.kind }}">
+        <header class="stack stack-sm">
+          <h2 class="text-h3" id="brand-{{ mark.kind }}">{{ b[mark.kind + '_title'] }}</h2>
+          <p class="text-muted">{{ b[mark.kind + '_text'] }}</p>
+        </header>
+        <ul class="brand__grid brand__grid--{{ mark.kind }}" role="list">
+          {% for v in mark.variants %}
+            <li class="brand__tile">
+              <div class="brand__preview brand__preview--{{ v.backdrop }}">
+                <img src="{{ base }}{{ v.svg }}" alt="{{ b[mark.kind + '_title'] }}, {{ b.colors[v.color] | lower }}" loading="lazy">
+              </div>
+              <div class="brand__meta">
+                <p class="brand__name">{{ b.colors[v.color] }} <span class="brand__hex">{{ v.hex }}</span></p>
+                <p class="brand__links">
+                  <a href="{{ base }}{{ v.svg }}" download>SVG</a>
+                  {% for p in v.pngs %}<a href="{{ base }}{{ p.path }}" download>PNG {{ p.size }}</a>{% endfor %}
+                  <button type="button" class="brand__copy" data-brand-copy="{{ base }}{{ v.svg }}" data-label-done="{{ b.copied }}" data-label-failed="{{ b.copy_failed }}">{{ b.copy_svg }}</button>
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+
+    <section class="brand__group stack" aria-labelledby="brand-icon">
+      <header class="stack stack-sm">
+        <h2 class="text-h3" id="brand-icon">{{ b.icon_title }}</h2>
+        <p class="text-muted">{{ b.icon_text }}</p>
+      </header>
+      <ul class="brand__grid brand__grid--icon" role="list">
+        {% for icon in brand.icons %}
+          <li class="brand__tile">
+            <div class="brand__preview brand__preview--{{ 'light' if icon.theme == 'dark' else 'dark' }}">
+              <img src="{{ base }}{{ icon.svg }}" alt="{{ b.icon_title }}, {{ b[icon.theme] | lower }}" loading="lazy">
+            </div>
+            <div class="brand__meta">
+              <p class="brand__name">{{ b[icon.theme] }}</p>
+              <p class="brand__links">
+                <a href="{{ base }}{{ icon.svg }}" download>SVG</a>
+                {% for p in icon.pngs %}<a href="{{ base }}{{ p.path }}" download>PNG {{ p.size }}</a>{% endfor %}
+              </p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="brand__group stack" aria-labelledby="brand-colors">
+      <header class="stack stack-sm">
+        <h2 class="text-h3" id="brand-colors">{{ b.colors_title }}</h2>
+        <p class="text-muted">{{ b.colors_text }}</p>
+      </header>
+      <ul class="brand__swatches" role="list">
+        {% for c in brand.colors %}
+          <li>
+            <button type="button" class="brand__swatch" style="--swatch: {{ c.hex }}" data-brand-copy-text="{{ c.hex }}" data-label-done="{{ b.copied }}" data-label-failed="{{ b.copy_failed }}">
+              <span class="brand__swatch-chip" aria-hidden="true"></span>
+              <span class="brand__name">{{ b.colors[c.id] }}</span>
+              <span class="brand__hex" data-brand-copy-label>{{ c.hex }}</span>
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="brand__group stack" aria-labelledby="brand-covers">
+      <header class="stack stack-sm">
+        <h2 class="text-h3" id="brand-covers">{{ b.covers_title }}</h2>
+        <p class="text-muted">{{ b.covers_text }}</p>
+      </header>
+      <ul class="brand__covers" role="list">
+        {% for cover in brand.covers %}
+          <li class="brand__tile">
+            <div class="brand__cover-preview">
+              <img src="{{ base }}{{ cover.files[0].path }}" alt="{{ cover.label }}" width="{{ cover.width }}" height="{{ cover.height }}" loading="lazy">
+            </div>
+            <div class="brand__meta">
+              <p class="brand__name">{{ cover.label }} <span class="brand__hex">{{ cover.width }}×{{ cover.height }}</span></p>
+              <p class="brand__links">
+                {% for f in cover.files %}<a href="{{ base }}{{ f.path }}" download>{{ b[f.theme] }}</a>{% endfor %}
+              </p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="brand__group stack prose measure" aria-labelledby="brand-usage">
+      <h2 class="text-h3" id="brand-usage">{{ b.usage_title }}</h2>
+      <ul>
+        {% for rule in b.usage %}<li>{{ rule }}</li>{% endfor %}
+      </ul>
+      <p>{{ b.questions }} <a href="mailto:{{ site.email }}">{{ site.email }}</a>.</p>
+    </section>
+  </div>
+</section>

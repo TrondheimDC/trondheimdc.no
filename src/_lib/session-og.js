@@ -29,7 +29,7 @@ function fontFile(pkg, file) {
 }
 
 let fontsPromise;
-function loadFonts() {
+export function loadFonts() {
   fontsPromise ??= Promise.all([
     ["space-grotesk", "Space Grotesk", 400],
     ["space-grotesk", "Space Grotesk", 600],

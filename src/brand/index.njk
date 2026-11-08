@@ -1,0 +1,19 @@
+---
+layout: default.njk
+lang: no
+permalink: /brand/
+# Linked from the footer and the logo's right-click menu. The files it lists
+# are drawn at build time by brand-assets.11ty.js (see _lib/brand.js).
+standalone: true
+noUrl: /brand/
+enUrl: /en/brand/
+canonical: true
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ i18n[lang].brand.page_title }}"
+  description: "{{ i18n[lang].brand.description }}"
+---
+
+{% set t = i18n[lang] %}
+
+{% include "sections/brand.njk" %}
