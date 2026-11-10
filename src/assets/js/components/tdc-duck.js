@@ -304,13 +304,14 @@ export class TdcDuck extends HTMLElement {
     const menu = document.createElement('div');
     menu.className = 'duck-mate-context-menu';
     menu.setAttribute('role', 'menu');
-    menu.innerHTML = `<button type="button" role="menuitem">${window.isDuckPartyActive?.() ? '🛑 Stop party' : '🎉 PARTY!'}</button>`;
+    menu.innerHTML = `<button type="button" role="menuitem">${window.isDuckPartyActive?.() ? '🛑 Stop party' : '🎉 PARTY!'}</button><button type="button" role="menuitem">🎮 Play</button>`;
     menu.style.left = `${Math.max(4, Math.min(x, innerWidth - 180))}px`;
-    menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 55))}px`;
+    menu.style.top = `${Math.max(4, Math.min(y, innerHeight - 110))}px`;
     document.body.appendChild(menu);
     this._partyMenu = menu;
-    menu.querySelector('button').focus();
-    menu.querySelector('button').addEventListener('click', async () => {
+    const [partyBtn, playBtn] = menu.querySelectorAll('button');
+    partyBtn.focus();
+    partyBtn.addEventListener('click', async () => {
       if (window.isDuckPartyActive?.()) {
         window.stopDuckParty?.();
       } else {
@@ -318,6 +319,14 @@ export class TdcDuck extends HTMLElement {
         window.startDuckParty?.();
       }
       menu.remove();
+    }, { once: true });
+    playBtn.addEventListener('click', async () => {
+      menu.remove();
+      const { openDuckKong } = await import(`${getPathPrefix()}/assets/js/components/donkey-duck.js`);
+      openDuckKong({
+        duckSrc: this.getAttribute('image') || `${getPathPrefix()}/assets/images/8bit-duck.svg`,
+        bossSrc: `${getPathPrefix()}/assets/images/tdc-duck-05-cutout.png`,
+      });
     }, { once: true });
     const close = (event) => {
       if (!menu.contains(event.target)) { menu.remove(); document.removeEventListener('click', close); }
