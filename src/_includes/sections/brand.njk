@@ -83,27 +83,7 @@
       </ul>
     </section>
 
-    <section class="brand__group stack" aria-labelledby="brand-covers">
-      <header class="stack stack-sm">
-        <h2 class="text-h3" id="brand-covers">{{ b.covers_title }}</h2>
-        <p class="text-muted">{{ b.covers_text }}</p>
-      </header>
-      <ul class="brand__covers" role="list">
-        {% for cover in brand.covers %}
-          <li class="brand__tile">
-            <div class="brand__cover-preview">
-              <img src="{{ base }}{{ cover.files[0].path }}" alt="{{ cover.label }}" width="{{ cover.width }}" height="{{ cover.height }}" loading="lazy">
-            </div>
-            <div class="brand__meta">
-              <p class="brand__name">{{ cover.label }} <span class="brand__hex">{{ cover.width }}×{{ cover.height }}</span></p>
-              <p class="brand__links">
-                {% for f in cover.files %}<a href="{{ base }}{{ f.path }}" download>{{ b[f.theme] }}</a>{% endfor %}
-              </p>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
+
 
     <section class="brand__group stack" aria-labelledby="brand-slack">
       <header class="stack stack-sm">
