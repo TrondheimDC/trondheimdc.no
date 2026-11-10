@@ -9,6 +9,9 @@
  */
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
+import { readFileSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import site from "../_data/site.js";
 import { loadFonts } from "./session-og.js";
 
@@ -167,6 +170,9 @@ export function brandFiles() {
       });
     }
   }
+  for (const emoji of emojiFiles()) {
+    files.push({ path: emoji.path, render: () => readFileSync(emoji.source) });
+  }
   files.push({ path: "README.txt", render: readme });
   return files;
 }
@@ -192,10 +198,27 @@ export function brandCatalogue() {
     ...cover,
     files: ["dark", "light"].map((theme) => ({ theme, path: `social/tdc-${cover.id}-${theme}-${cover.width}x${cover.height}.png` })),
   }));
-  return { marks, icons, covers, colors: COLORS, zip: ZIP_NAME };
+  const emojis = emojiFiles().map(({ name, path }) => ({ name, path }));
+  return { marks, icons, covers, emojis, colors: COLORS, zip: ZIP_NAME, emojiZip: EMOJI_ZIP_NAME };
 }
 
 export const ZIP_NAME = "tdc-brand-assets.zip";
+export const EMOJI_ZIP_NAME = "tdc-slack-emoji.zip";
+
+// Hand-made Slack emoji (128×128 PNG), committed as source art.
+const EMOJI_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "assets", "brand", "slack-emoji");
+
+/** The Slack emoji, { name, path, source }: name is the Slack shortcode, path is relative to /brand/. */
+export function emojiFiles() {
+  return readdirSync(EMOJI_DIR)
+    .filter((file) => file.endsWith(".png"))
+    .sort()
+    .map((file) => ({
+      name: file.slice(0, -".png".length),
+      path: `slack-emoji/${file}`,
+      source: join(EMOJI_DIR, file),
+    }));
+}
 
 function readme() {
   return [

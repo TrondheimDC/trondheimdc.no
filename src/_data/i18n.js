@@ -206,6 +206,10 @@ export default {
       colors_text: "Grønt på mørk bakgrunn, rødt på lys. Trykk på en farge for å kopiere koden.",
       covers_title: "Sosiale medier",
       covers_text: "Ferdige cover- og profilbilder, i mørk og lys utgave.",
+      slack_title: "Slack-emojier",
+      slack_text: "Våre egne emojier til Slack. Last ned hele pakken og last dem opp under Tilpasning → Emojier i Slack.",
+      slack_download: "Last ned emojier (.zip)",
+      slack_note: "PNG, klare til Slack",
       usage_title: "Bruk",
       usage: [
         "Gi logoen luft: minst høyden av T-en på alle kanter.",
@@ -441,6 +445,10 @@ export default {
       colors_text: "Green on dark backgrounds, red on light. Press a colour to copy its code.",
       covers_title: "Social media",
       covers_text: "Ready-made covers and profile pictures, in dark and light.",
+      slack_title: "Slack emoji",
+      slack_text: "Our custom emoji for Slack. Download the whole pack and upload them under Customize → Emoji in your workspace.",
+      slack_download: "Download emoji (.zip)",
+      slack_note: "PNG, ready for Slack",
       usage_title: "Usage",
       usage: [
         "Give the logo room: at least the height of the T on every side.",

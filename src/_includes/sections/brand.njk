@@ -105,6 +105,33 @@
       </ul>
     </section>
 
+    <section class="brand__group stack" aria-labelledby="brand-slack">
+      <header class="stack stack-sm">
+        <h2 class="text-h3" id="brand-slack">{{ b.slack_title }}</h2>
+        <p class="text-muted">{{ b.slack_text }}</p>
+        <div class="cluster brand__download">
+          <a class="btn btn--primary btn--md" href="{{ base }}{{ brand.emojiZip }}" download>
+            <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg></span>
+            {{ b.slack_download }}
+          </a>
+          <span class="text-muted">{{ b.slack_note }}</span>
+        </div>
+      </header>
+      <ul class="brand__grid brand__grid--emoji" role="list">
+        {% for e in brand.emojis %}
+          <li class="brand__tile">
+            <div class="brand__preview brand__preview--light">
+              <img src="{{ base }}{{ e.path }}" alt=":{{ e.name }}:" width="128" height="128" loading="lazy">
+            </div>
+            <div class="brand__meta">
+              <p class="brand__name"><code>:{{ e.name }}:</code></p>
+              <p class="brand__links"><a href="{{ base }}{{ e.path }}" download>PNG</a></p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
     <section class="brand__group stack prose measure" aria-labelledby="brand-usage">
       <h2 class="text-h3" id="brand-usage">{{ b.usage_title }}</h2>
       <ul>

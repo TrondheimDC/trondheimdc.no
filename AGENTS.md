@@ -361,6 +361,10 @@ file.
   writes them to `/brand/logo/`, `/brand/social/` and one store-only
   `/brand/tdc-brand-assets.zip`. `_data/brand.js` is what the page iterates.
   Don't commit generated PNGs; add a size or cover to `brandFiles()` instead.
+- The **Slack emoji** are hand-made source art, so they are committed in
+  `assets/brand/slack-emoji/` (not passthrough-copied). `brandFiles()` publishes
+  them at `/brand/slack-emoji/` and `brand-assets.11ty.js` zips them alone into
+  `/brand/tdc-slack-emoji.zip`. Add an emoji by dropping a 128×128 PNG there.
 - The covers read the date and venue from `_data/site.js`, so they follow the
   year automatically.
 - Right-clicking any `[data-brand-target]` (nav logo, footer wordmark) opens
