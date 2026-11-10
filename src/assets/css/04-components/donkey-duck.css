@@ -1,0 +1,122 @@
+.duck-kong {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.75);
+  padding: 1rem;
+  font-family: monospace;
+  color: #fff;
+}
+
+.duck-kong [hidden] {
+  display: none !important;
+}
+
+.duck-kong__panel {
+  display: grid;
+  gap: 0.5rem;
+  width: min(100%, 560px);
+  padding: 0.75rem;
+  border: 3px solid #FFCC00;
+  border-radius: 8px;
+  background: #101820;
+  box-shadow: 0 0 0 3px #000;
+}
+
+.duck-kong__hud {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+.duck-kong__spacer {
+  flex: 1;
+}
+
+.duck-kong__hud button,
+.duck-kong__controls button {
+  font: inherit;
+  color: #fff;
+  background: #2a3a4a;
+  border: 2px solid #FFCC00;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.duck-kong__stage {
+  position: relative;
+  aspect-ratio: 224 / 256;
+  width: min(100%, calc((100dvh - 12rem) * 224 / 256));
+  margin-inline: auto;
+  background: #000;
+}
+
+.duck-kong canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.duck-kong__msg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  background: rgb(0 0 0 / 0.6);
+  padding: 1rem;
+}
+
+.duck-kong__msg h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #FFCC00;
+}
+
+.duck-kong__msg p {
+  margin: 0;
+}
+
+.duck-kong__msg button {
+  justify-self: center;
+  font: inherit;
+  font-weight: bold;
+  color: #101820;
+  background: #FFCC00;
+  border: 0;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.duck-kong__controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  touch-action: none;
+  user-select: none;
+}
+
+.duck-kong__controls button {
+  flex: 1;
+  min-height: 3rem;
+  font-size: 1.2rem;
+}
+
+.duck-kong__controls [data-key="jump"] {
+  flex: 1.5;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duck-kong * {
+    transition: none !important;
+  }
+}
