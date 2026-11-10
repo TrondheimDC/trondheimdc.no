@@ -151,7 +151,18 @@ export function openDuckKong({ duckSrc, bossSrc } = {}) {
 
   const canvas = root.querySelector('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
+  // Render at the displayed pixel size so each sprite is resampled once, not twice.
+  const fitCanvas = () => {
+    const cssW = canvas.getBoundingClientRect().width;
+    if (!cssW) return;
+    const k = (cssW * (window.devicePixelRatio || 1)) / LOGICAL_W;
+    canvas.width = Math.round(LOGICAL_W * k);
+    canvas.height = Math.round(LOGICAL_H * k);
+    ctx.setTransform(canvas.width / LOGICAL_W, 0, 0, canvas.height / LOGICAL_H, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+  };
+  fitCanvas();
+  new ResizeObserver(fitCanvas).observe(canvas);
   const el = {
     score: root.querySelector('[data-hud="score"]'),
     lives: root.querySelector('[data-hud="lives"]'),
