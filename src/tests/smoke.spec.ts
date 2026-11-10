@@ -1656,6 +1656,8 @@ test.describe('Brand assets', () => {
     }
     const zip = await request.get('/brand/tdc-brand-assets.zip');
     expect((await zip.body()).subarray(0, 2).toString()).toBe('PK');
+    const emojiZip = await request.get('/brand/tdc-slack-emoji.zip');
+    expect((await emojiZip.body()).subarray(0, 2).toString()).toBe('PK');
   });
 
   test('has an English page, linked from the footer', async ({ page }) => {

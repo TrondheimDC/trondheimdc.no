@@ -45,6 +45,15 @@
   max-block-size: 6rem;
 }
 
+.brand__grid--emoji {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+}
+
+.brand__grid--emoji .brand__preview img {
+  max-block-size: 4rem;
+  inline-size: auto;
+}
+
 .brand__preview--dark {
   background-color: var(--brand-backdrop-dark);
 }

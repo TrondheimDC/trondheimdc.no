@@ -51,7 +51,8 @@ jobs:
 
   e2e-new:
     name: e2e (new site)
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.58 cannot install browsers on.
+    runs-on: ubuntu-24.04
     # Prevent a stuck browser/server process from consuming GitHub's entire
     # six-hour runner limit without producing a useful result.
     timeout-minutes: 10
