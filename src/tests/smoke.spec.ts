@@ -1645,7 +1645,7 @@ test.describe('Brand assets', () => {
   // can't run side by side.
   test.describe.configure({ mode: 'serial' });
 
-  test('lists the logo, colours and covers, and serves every file', async ({ page, request }) => {
+  test('lists the logo and colours, and serves every file', async ({ page, request }) => {
     await page.goto('/brand/');
     await expect(page.locator('h1')).toHaveText('Logo og mediefiler');
     const hrefs = await page.locator('a[download]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));

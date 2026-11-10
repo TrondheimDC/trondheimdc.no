@@ -5,15 +5,10 @@
   align-items: center;
 }
 
-.brand__grid,
-.brand__covers {
+.brand__grid {
   display: grid;
   gap: var(--spacing-4);
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-}
-
-.brand__covers {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
 }
 
 .brand__tile {
@@ -60,23 +55,6 @@
 
 .brand__preview--light {
   background-color: var(--brand-backdrop-light);
-}
-
-.brand__cover-preview {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  padding: var(--spacing-4);
-  background-color: var(--brand-backdrop-dark);
-}
-
-.brand__cover-preview img {
-  max-inline-size: 100%;
-  max-block-size: 100%;
-  inline-size: auto;
-  block-size: auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
 }
 
 .brand__meta {
